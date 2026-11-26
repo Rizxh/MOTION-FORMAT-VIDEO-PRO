@@ -80,7 +80,7 @@
   Pen.prototype.klip = function (pts, fn) { var g = this.g; g.save(); this.path(pts, true); g.clip(); fn(); g.restore(); };
   /* isi rata + sabit bayangan lembut di sisi jauh dari cahaya */
   Pen.prototype.isiSabit = function (pts, dasar, bayang, cahaya, R, geser, r0, r1) {
-    geser = geser == null ? .45 : geser; r0 = r0 || 1.0; r1 = r1 || 1.28;
+    geser = geser == null ? .45 : geser; r0 = r0 || 1.0; r1 = r1 || 1.1;
     var c = pusat(pts), gx = c[0] + Math.cos(cahaya) * geser * R, gy = c[1] + Math.sin(cahaya) * geser * R, g = this.g;
     var gr = g.createRadialGradient(gx, gy, 0, gx, gy, r1 * R);
     gr.addColorStop(0, dasar); gr.addColorStop(r0 / r1, dasar); gr.addColorStop(1, bayang);
@@ -93,7 +93,7 @@
     pts.forEach(function (p) { var d = p[0] * dx + p[1] * dy; lo = Math.min(lo, d); hi = Math.max(hi, d); });
     var dc = c[0] * dx + c[1] * dy;
     var gr = g.createLinearGradient(c[0] + dx * (hi - dc), c[1] + dy * (hi - dc), c[0] + dx * (lo - dc), c[1] + dy * (lo - dc));
-    gr.addColorStop(0, dasar); gr.addColorStop(datar, dasar); gr.addColorStop(1, bayang);
+    gr.addColorStop(0, dasar); gr.addColorStop(datar, dasar); gr.addColorStop(Math.min(1, datar + .07), bayang); gr.addColorStop(1, mul(bayang, [.94, .94, .97]));
     this.path(pts, true); g.fillStyle = gr; g.fill();
   };
   /* cincin tinta tebal-tipis: paling tebal di arah `tebal` */
@@ -156,10 +156,10 @@
     bangun: 'dewasa'                          // dewasa · gemuk · anak · lansia
   };
   var BANGUN = {
-    dewasa: { a: 128, badan: 1.0, kaki: .82, lebar: .86 },
-    gemuk:  { a: 130, badan: 1.02, kaki: .74, lebar: 1.08 },
-    anak:   { a: 122, badan: .74, kaki: .6, lebar: .74 },
-    lansia: { a: 126, badan: .96, kaki: .76, lebar: .9 }
+    dewasa: { a: 112, badan: 1.08, kaki: 1.16, lebar: .9 },
+    gemuk:  { a: 114, badan: 1.08, kaki: 1.0, lebar: 1.12 },
+    anak:   { a: 108, badan: .8, kaki: .78, lebar: .78 },
+    lansia: { a: 110, badan: 1.02, kaki: 1.06, lebar: .94 }
   };
 
   /* ---------- EKSPRESI ---------- */
@@ -181,24 +181,67 @@
   };
 
   /* ---------- POSE ----------
-     Tangan relatif bahu, satuan u (1 % lebar kepala); x positif = keluar dari badan, y positif = turun.
-     tekuk: arah siku (+ keluar), depan: lengan digambar di depan badan, bentuk: bulat · tunjuk · buka · kepal */
+     Tiap lengan: a = sudut lengan dari bahu (derajat; 0 = lurus ke bawah, 90 = mendatar keluar, 180 = lurus ke atas,
+     negatif = menyilang ke depan badan), j = jangkauan 0..1 (1 = lengan lurus), s = arah siku (+1 keluar/bawah, -1 ke dalam),
+     b = bentuk tangan (bulat · tunjuk · buka · kepal), d = digambar di depan badan, g = melambai.
+     Panjang lengan atas & bawah TETAP (IK dua ruas), jadi siku selalu masuk akal. */
   var POSE = {
-    diri:       { L: { x: 8, y: 78, tekuk: 1 }, R: { x: 8, y: 78, tekuk: 1 } },
-    pinggang:   { L: { x: 6, y: 52, tekuk: 3, bentuk: 'kepal' }, R: { x: 6, y: 52, tekuk: 3, bentuk: 'kepal' } },
-    tunjuk:     { L: { x: 8, y: 78, tekuk: 1 }, R: { x: 78, y: -8, tekuk: .6, bentuk: 'tunjuk' } },
-    tunjukAtas: { L: { x: 8, y: 78, tekuk: 1 }, R: { x: 34, y: -80, tekuk: .7, bentuk: 'tunjuk' } },
-    lambai:     { L: { x: 8, y: 78, tekuk: 1 }, R: { x: 40, y: -70, tekuk: 1.4, bentuk: 'buka', goyang: 1 } },
-    jelaskan:   { L: { x: 8, y: 78, tekuk: 1 }, R: { x: 52, y: 28, tekuk: 1.2, bentuk: 'buka', depan: 1 } },
-    kaget:      { L: { x: 34, y: -42, tekuk: 1.6, bentuk: 'buka' }, R: { x: 34, y: -42, tekuk: 1.6, bentuk: 'buka' } },
-    pikir:      { L: { x: -18, y: 42, tekuk: 1.2, depan: 1, bentuk: 'kepal' }, R: { x: -22, y: -8, tekuk: 1.6, depan: 1, bentuk: 'kepal' } },
-    sorak:      { L: { x: 30, y: -96, tekuk: .8, bentuk: 'kepal' }, R: { x: 30, y: -96, tekuk: .8, bentuk: 'kepal' } },
-    sedih:      { L: { x: -6, y: 76, tekuk: -.5 }, R: { x: -6, y: 76, tekuk: -.5 } },
-    pegang:     { L: { x: -14, y: 46, tekuk: 1.4, depan: 1 }, R: { x: -10, y: 40, tekuk: 1.4, depan: 1 } },
-    salam:      { L: { x: -30, y: 30, tekuk: 1.3, depan: 1, bentuk: 'buka' }, R: { x: -30, y: 30, tekuk: 1.3, depan: 1, bentuk: 'buka' } },
-    duduk:      { L: { x: 6, y: 58, tekuk: 1 }, R: { x: 6, y: 58, tekuk: 1 }, duduk: 1 },
-    lari:       { L: { x: 10, y: 50, tekuk: 2.4, bentuk: 'kepal' }, R: { x: 10, y: 50, tekuk: 2.4, bentuk: 'kepal' }, lari: 1 }
+    diri:        { L: { a: 10, j: .97, s: 1 }, R: { a: 10, j: .97, s: 1 } },
+    santai:      { L: { a: 6, j: .98, s: 1 }, R: { a: -4, j: .78, s: 1, d: 1 } },
+    pinggang:    { L: { a: -2, j: .8, s: 1, b: 'kepal' }, R: { a: -2, j: .8, s: 1, b: 'kepal' } },
+    tunjuk:      { L: { a: 10, j: .97, s: 1 }, R: { a: 92, j: 1, s: 1, b: 'tunjuk' } },
+    tunjukAtas:  { L: { a: 10, j: .97, s: 1 }, R: { a: 148, j: .98, s: 1, b: 'tunjuk' } },
+    tunjukBawah: { L: { a: 10, j: .97, s: 1 }, R: { a: 42, j: 1, s: 1, b: 'tunjuk' } },
+    lambai:      { L: { a: 10, j: .97, s: 1 }, R: { a: 140, j: .7, s: 1, b: 'buka', g: 1 } },
+    jelaskan:    { L: { a: 10, j: .97, s: 1 }, R: { a: 55, j: .66, s: 1, b: 'buka', d: 1 } },
+    presentasi:  { L: { a: 58, j: .72, s: 1, b: 'buka' }, R: { a: 58, j: .72, s: 1, b: 'buka' } },
+    tolak:       { L: { a: 10, j: .97, s: 1 }, R: { a: 75, j: .78, s: 1, b: 'buka', d: 1 } },
+    kaget:       { L: { a: 150, j: .5, s: 1, b: 'buka' }, R: { a: 150, j: .5, s: 1, b: 'buka' } },
+    pikir:       { L: { a: -38, j: .58, s: 1, d: 1, b: 'kepal' }, R: { a: -158, j: .5, s: 1, d: 1, b: 'kepal' } },
+    garuk:       { L: { a: 10, j: .97, s: 1 }, R: { a: -172, j: .78, s: 1, b: 'kepal' } },
+    sorak:       { L: { a: 160, j: .96, s: 1, b: 'kepal' }, R: { a: 160, j: .96, s: 1, b: 'kepal' } },
+    sedih:       { L: { a: -8, j: .96, s: -1 }, R: { a: -8, j: .96, s: -1 } },
+    pegang:      { L: { a: -36, j: .62, s: 1, d: 1 }, R: { a: -30, j: .64, s: 1, d: 1 } },
+    sedekap:     { L: { a: -72, j: .52, s: 1, d: 1, b: 'kepal' }, R: { a: -66, j: .55, s: 1, d: 1, b: 'kepal' } },
+    hormat:      { L: { a: -62, j: .48, s: 1, d: 1, b: 'buka' }, R: { a: -58, j: .5, s: 1, d: 1, b: 'kepal' } },
+    salam:       { L: { a: -64, j: .5, s: 1, d: 1, b: 'buka' }, R: { a: -64, j: .5, s: 1, d: 1, b: 'buka' } },
+    duduk:       { L: { a: -14, j: .78, s: 1, d: 1 }, R: { a: -14, j: .78, s: 1, d: 1 }, duduk: 1 },
+    lari:        { L: { a: 18, j: .62, s: 1, b: 'kepal' }, R: { a: 18, j: .62, s: 1, b: 'kepal' }, lari: 1 }
   };
+  function poseDariNama(p) { return typeof p === 'object' && p ? p : (POSE[p] || POSE.diri); }
+  function campurLengan(A, B, k) {
+    return { a: lr(A.a, B.a, k), j: lr(A.j == null ? .95 : A.j, B.j == null ? .95 : B.j, k), s: lr(A.s == null ? 1 : A.s, B.s == null ? 1 : B.s, k),
+      b: k < .5 ? A.b : B.b, d: k < .5 ? A.d : B.d, g: lr(A.g || 0, B.g || 0, k) };
+  }
+  /* campur dua pose (0..1) */
+  function campurPose(a, b, k) {
+    a = poseDariNama(a); b = poseDariNama(b);
+    return { L: campurLengan(a.L, b.L, k), R: campurLengan(a.R, b.R, k), duduk: k < .5 ? a.duduk : b.duduk, lari: k < .5 ? a.lari : b.lari };
+  }
+  /* pose berganti mulus menurut waktu: daftar [[detik,'pose'], ...]; antisipasi kecil + lewat-sasaran (overshoot) */
+  function poseDari(t, daftar, dur) {
+    dur = dur || .42; var i = 0;
+    for (var k = 0; k < daftar.length; k++) if (t >= daftar[k][0]) i = k;
+    if (i === 0) return poseDariNama(daftar[0][1]);
+    var x = cl((t - daftar[i][0]) / dur, 0, 1);
+    var c1 = 1.5, c3 = c1 + 1, e = 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+    var antisipasi = x < .2 ? -Math.sin(x / .2 * PI) * .07 : 0;
+    return campurPose(daftar[i - 1][1], daftar[i][1], e + antisipasi);
+  }
+  /* ekspresi menurut waktu: daftar [[detik,'ekspresi'], ...] */
+  function ekspresiDari(t, daftar) { var e = daftar[0][1]; for (var i = 0; i < daftar.length; i++) if (t >= daftar[i][0]) e = daftar[i][1]; return e; }
+  /* langkah tanpa kaki meluncur: fase dari jarak tempuh (meter); satu siklus = dua langkah */
+  function faseDariJarak(jarak, panjangLangkah) { return jarak / (2 * (panjangLangkah || .55)); }
+  /* IK dua ruas: S pangkal, Tg sasaran, l1/l2 panjang ruas, (arahX, arahY) = sisi tempat siku/lutut menonjol */
+  function ik2(S, Tg, l1, l2, arahX, arahY) {
+    var dx = Tg[0] - S[0], dy = Tg[1] - S[1], d = Math.hypot(dx, dy) || 1e-3;
+    var dd = cl(d, Math.abs(l1 - l2) + 1, l1 + l2 - .01), ux = dx / d, uy = dy / d;
+    var T2 = [S[0] + ux * dd, S[1] + uy * dd];
+    var x = (l1 * l1 - l2 * l2 + dd * dd) / (2 * dd), h = Math.sqrt(Math.max(0, l1 * l1 - x * x));
+    var mx = S[0] + ux * x, my = S[1] + uy * x, n1 = [mx - uy * h, my + ux * h], n2 = [mx + uy * h, my - ux * h];
+    var sk1 = (n1[0] - mx) * arahX + (n1[1] - my) * (arahY || 0), sk2 = (n2[0] - mx) * arahX + (n2[1] - my) * (arahY || 0);
+    return { E: sk1 >= sk2 ? n1 : n2, H: T2 };
+  }
 
   /* ---------- wajah ---------- */
   function mata(p, jenis, x, y, u, sisi, lirik, kulit, kd) {
@@ -303,9 +346,9 @@
   function hexA(c, a) { var v = rgb(c); return 'rgba(' + v[0] + ',' + v[1] + ',' + v[2] + ',' + cl(a, 0, 1).toFixed(3) + ')'; }
 
   /* ---------- rambut ---------- */
-  function rambutBelakang(p, R, H, cx, hc, cahaya, tebal, ow, t, b0) {
+  function rambutBelakang(p, R, H, cx, hc, cahaya, tebal, ow, t, b0, ayun) {
     var gr = R.gayaRambut, col = R.rambut, sh = mul(col, SH_RAMBUT), u = H.a / 50;
-    var goy = Math.sin(t * 2.2 + b0) * 2 * u;
+    var goy = ayun != null ? ayun : Math.sin(t * 2.2 + b0) * 2 * u;
     if (gr === 'hijab') {
       var hj = R.hijab || '#C98E9A';
       var s = blob(cx, hc + 26 * u, { a: H.a * 1.1, b: H.b * 1.3, nTop: 2.2, nBot: 1.7, egg: .22, asym: 0, rot: 0, noise: .004, seed: 3 });
@@ -350,7 +393,10 @@
         p.busur(cx - H.a * .35, top + 22 * u, 16 * u, 9 * u, 200, 290, 4 * u, 'rgba(255,255,255,.55)');
       } else {
         var hj = R.hijab || '#C98E9A';
-        p.busur(cx, hc + 8 * u, H.a * .9, H.b * .92, 200, 340, 3 * u, hexA(terang(hj, .5), .8));
+        var muka = blob(cx, hc + 6 * u, Object.assign({}, H, { a: H.a * .86, b: H.b * .86 }));
+        var dahi = ellPts(cx, hc - H.b * .95, H.a * 1.25, H.b * .68, 0, 360, 0);
+        p.klip(muka, function () { p.isiSabit(dahi, hj, mul(hj, SH_KAIN), cahaya, H.a, .4); p.busur(cx, hc - H.b * .95, H.a * 1.25, H.b * .68, 20, 160, ow, INK); });
+        p.busur(cx, hc - H.b * .95, H.a * 1.05, H.b * .5, 40, 140, 1.6 * u, hexA(terang(hj, .5), .8));
         p.busur(cx - H.a * .2, top + 18 * u, H.a * .5, 10 * u, 200, 280, 4 * u, 'rgba(255,255,255,.45)');
       }
       return;
@@ -528,11 +574,12 @@
     o = o || {};
     var R = Object.assign({}, RUPA_DASAR, o.rupa || {});
     var p = new Pen(ctx), t = o.t || 0, benih = o.benih == null ? 1 : o.benih;
-    var Bd = BANGUN[R.bangun] || BANGUN.dewasa, hd = o.hadap || 0;
+    var Bd = BANGUN[R.bangun] || BANGUN.dewasa, hd = cl(o.hadap || 0, -1, 1);
     var cahaya = o.cahaya == null ? rad(-125) : o.cahaya, tebal = arahTebal(cahaya);
-    var pose = typeof o.pose === 'object' ? o.pose : (POSE[o.pose] || POSE.diri);
-    var duduk = !!pose.duduk, lari = !!pose.lari;
-    var jalan = o.jalan != null ? o.jalan : (lari ? 1 : 0), fase = (o.fase || 0) * TAU;
+    var pose = poseDariNama(o.pose);
+    var duduk = !!pose.duduk, lari = !!pose.lari || !!o.lari;
+    var jl = cl(o.jalan != null ? o.jalan : (lari ? 1 : 0), 0, 1);
+    var ph = (((o.fase || 0) % 1) + 1) % 1;
     var kd = o.kedip != null ? o.kedip : kedipDari(t, benih);
 
     ctx.save();
@@ -540,120 +587,150 @@
 
     var H = { a: Bd.a, b: Bd.a * (.93 + .05 * (rnd(benih, 1) - .5)), nTop: 1.9 + .25 * (rnd(benih, 2) - .5), nBot: 2.45 + .2 * (rnd(benih, 3) - .5),
       egg: -.06 + .04 * (rnd(benih, 4) - .5), asym: .05 * (hd || (rnd(benih, 6) < .5 ? -1 : 1)), rot: rad(5 * (rnd(benih, 7) - .5)), noise: .006, seed: benih };
-    var Wk = 2 * H.a, HH = 2 * H.b, u = Wk / 100, ow = 4.6 * u;
+    var Wk = 2 * H.a, HH = 2 * H.b, u = Wk / 100, ow = 4.4 * u;
     p.ol = ow;
-    var sol = 975;
-    var napas = Math.sin(t * 2.4 + benih) * 1.4 * u;
-    var bob = jalan ? (lari ? 8 : 4) * u * Math.abs(Math.cos(fase)) * jalan : 0;
-    var kakiH = Bd.kaki * HH * .9, badanH = Bd.badan * HH * .86;
-    var pinggul = duduk ? sol - 40 * u : sol - kakiH - bob;
-    var leher = pinggul - badanH + napas, hc = leher - H.b * .86, top = hc - H.b;
-    var tcx = 300 + hd * 3 * u;
-    var miring = rad(o.miring || 0), tengok = rad(o.tengok || 0) + miring;
-    var kp = putar([[300, leher]], miring, 300, pinggul)[0];
-    function keKepala() { ctx.save(); ctx.translate(kp[0], kp[1]); ctx.rotate(tengok + Math.sin(t * 1.7 + benih) * .012); ctx.translate(-300, -leher); }
-    if (R.gayaRambut !== 'hijab') { keKepala(); rambutBelakang(p, R, H, 300, hc, cahaya, tebal, ow, t, benih); ctx.restore(); }
+    var sol = 975 - (o.naik || 0);
+    /* ---- kerangka (panjang tulang tetap) ---- */
+    var Lkaki = Bd.kaki * HH, badanH = Bd.badan * HH;
+    var paha = Lkaki * .5, betis = Lkaki * .5;                   // pinggul→pergelangan kaki = Lkaki saat berdiri tegak
+    var la1 = badanH * .44, la2 = badanH * .42;                  // lengan atas / lengan bawah
+    var tekan = o.tekan || 0;                                     // 0..1 meredam (mendarat, ancang-ancang lompat)
+    /* jalan: pinggul paling rendah saat dua kaki menapak (fase 0 & .5), paling tinggi saat kaki melintas;
+       berat badan bergeser ke kaki tumpu; badan condong ke arah gerak saat lari */
+    var langkah = (lari ? 64 : 40) * u * jl;
+    var bob = jl ? (lari ? -7 : 4.5) * u * jl * Math.cos(4 * PI * (ph - (lari ? .12 : 0))) : 0;
+    var geser = jl ? (lari ? 2 : 4.5) * u * Math.sin(TAU * ph) * jl : 0;
+    var napas = Math.sin(t * 2.3 + benih) * 1.3 * u * (1 - jl * .7);
+    var goyangDiri = (1 - jl) * Math.sin(t * .8 + benih) * .8;
+    var pinggulX = 300 + geser + goyangDiri * u;
+    var pinggul = duduk ? sol - Lkaki * .56 : sol - 8 * u - Lkaki * (.992 - .25 * tekan) + bob + (lari && jl ? 6 * u : 0);
+    var leher = pinggul - badanH * (1 - .06 * tekan) + napas, hc = leher - H.b * .86, top = hc - H.b;
+    var miring = rad((o.miring || 0) + (lari ? 7 : 2.2) * hd * jl + Math.sin(TAU * ph) * 1.2 * jl);
+    var tcx = pinggulX + hd * 3 * u;
+    var tengok = rad((o.tengok || 0) + (o.bicara || 0) * 2.5 * Math.sin(t * 7)) + miring * .6;
+    var kp = putar([[tcx, leher]], miring, pinggulX, pinggul)[0];
+    kp[1] += jl ? (lari ? 3 : 1.6) * u * Math.cos(4 * PI * (ph - .08)) * jl * .4 : 0;   // kepala sedikit telat
+    var rambutAyun = (o.vx != null ? o.vx : hd * jl) * -6 * u + Math.sin(t * 2.2 + benih) * 1.5 * u;
+    function keKepala() { ctx.save(); ctx.translate(kp[0], kp[1]); ctx.rotate(tengok + Math.sin(t * 1.7 + benih) * .01); ctx.translate(-300, -leher); }
+    if (R.gayaRambut !== 'hijab') { keKepala(); rambutBelakang(p, R, H, 300, hc, cahaya, tebal, ow, t, benih, rambutAyun); ctx.restore(); }
 
-    // ---- kaki ----
-    var celana = R.bawahan, warnaKaki = R.jenisBawahan === 'rok' ? R.kulit : celana;
-    var kakiW = 11 * u, tapakW = 12 * u, rok = /rok|sarung/.test(R.jenisBawahan);
-    [[-1, 0], [1, PI]].forEach(function (sp) {
-      var s = sp[0], ph = fase + sp[1];
-      var angkat = jalan ? Math.max(0, Math.sin(ph)) * (lari ? 34 : 18) * u * jalan : 0;
-      var maju = jalan ? Math.cos(ph) * (lari ? 16 : 9) * u * jalan : 0;
-      var hx = 300 + s * 13 * u, fx = 300 + s * 16 * u + maju * s * .3, fy = sol - 6 * u - angkat;
-      if (duduk) { fx = 300 + s * 26 * u; fy = sol - 6 * u; }
-      var lutut = [lr(hx, fx, .5) + s * 2 * u, lr(pinggul, fy, .5) - angkat * .2];
-      if (R.jenisBawahan === 'rokPanjang' || R.jenisBawahan === 'sarung') { hx = 300 + s * 12 * u; }
-      p.dahan(kurva([hx, pinggul], lutut, [fx, fy - 4 * u]), kakiW, R.jenisBawahan === 'celana' ? celana : R.kulit, 2.4 * u);
-      // sepatu
-      var sp2 = [[fx - s * 8 * u, fy - 7 * u], [fx + s * 12 * u, fy - 5 * u], [fx + s * 15 * u, fy + 3 * u], [fx - s * 9 * u, fy + 4 * u]];
-      var spt = rr(Math.min(fx - s * 9 * u, fx + s * 15 * u), fy - 8 * u, Math.max(fx - s * 9 * u, fx + s * 15 * u), fy + 5 * u, 6 * u);
-      p.isiGradasi(spt, R.sepatu, mul(R.sepatu, [.6, .6, .7]), cahaya, .3); p.poly(spt, null, 2.4 * u);
-      p.garis([[fx - s * 7 * u, fy + 1 * u], [fx + s * 13 * u, fy + 1 * u]], 2 * u, hexA('#FFFFFF', .35));
+    /* ---- kaki: IK dua ruas, telapak diam di tanah selama fase tumpu ---- */
+    var rok = /rok|sarung/.test(R.jenisBawahan), kakiW = 12 * u;
+    var warnaKaki = R.jenisBawahan === 'celana' ? R.bawahan : R.kulit;
+    var kakiData = {};
+    [-1, 1].forEach(function (s) {
+      var pl = (ph + (s > 0 ? .5 : 0)) % 1, f = 0, angkat = 0, jinjit = 0;
+      if (jl && !duduk) {
+        var tumpu = lari ? .4 : .5;
+        if (pl < tumpu) f = lr(1, -1, pl / tumpu) * langkah / 2;
+        else { var w = (pl - tumpu) / (1 - tumpu), e = w * w * (3 - 2 * w); f = lr(-1, 1, e) * langkah / 2; angkat = Math.sin(PI * w) * (lari ? 46 : 22) * u * jl; jinjit = Math.sin(PI * Math.min(1, w * 1.6)) * jl; }
+      }
+      var hip = [pinggulX + s * 14 * u, pinggul];
+      var fx = 300 + s * (14 + 2 * (1 - jl)) * u + hd * f * .9, fy = sol - 8 * u - angkat + (1 - Math.abs(hd)) * f * .16;
+      var IKk = duduk ? { E: [300 + s * 26 * u, pinggul + 6 * u], H: [300 + s * 24 * u, sol - 8 * u] } : ik2(hip, [fx, fy], paha, betis, hd !== 0 ? hd : s * .25, -.3);
+      kakiData[s] = { hip: hip, E: IKk.E, A: IKk.H, jinjit: jinjit };
     });
+    function gambarKaki(s) {
+      var K = kakiData[s];
+      p.dahan(kurva(K.hip, K.E, K.A, 14), kakiW, warnaKaki, 2.4 * u);
+      if (R.jenisBawahan === 'celana') p.garis([[K.A[0] - 6 * u, K.A[1] - 4 * u], [K.A[0] + 6 * u, K.A[1] - 4 * u]], 1.6 * u, hexA(mix(R.bawahan, INK, .4), .8));
+      var arah = hd !== 0 ? hd : s * .35, panjang = (16 + 6 * Math.abs(hd)) * u, rot = -arah * K.jinjit * .45;
+      ctx.save(); ctx.translate(K.A[0], K.A[1] + 4 * u); ctx.rotate(rot);
+      var x0 = arah >= 0 ? -9 * u : -panjang, x1 = arah >= 0 ? panjang : 9 * u;
+      var spt = rr(x0, -8 * u, x1, 6 * u, 6.5 * u);
+      p.isiGradasi(spt, R.sepatu, mul(R.sepatu, [.6, .6, .72]), cahaya, .4); p.poly(spt, null, 2.4 * u);
+      p.garis([[x0 + 4 * u, 3 * u], [x1 - 4 * u, 3 * u]], 2.2 * u, hexA(mix(R.sepatu, '#FFFFFF', .5), .6));
+      p.garis([[x0 + 5 * u, -4 * u], [x0 + 12 * u, -6 * u]], 2 * u, 'rgba(255,255,255,.35)');
+      ctx.restore();
+    }
+    (hd >= 0 ? [-1, 1] : [1, -1]).forEach(gambarKaki);
 
-    // ---- bawahan rok ----
     if (rok) {
-      var panjang = R.jenisBawahan === 'rok' ? 50 * u : kakiH - 4 * u;
-      var rk = [[tcx - Bd.lebar * Wk * .4, pinggul - 10 * u], [tcx + Bd.lebar * Wk * .4, pinggul - 10 * u],
-        [tcx + Bd.lebar * Wk * .52 + (jalan ? 3 * u * Math.sin(fase) : 0), pinggul + panjang], [tcx - Bd.lebar * Wk * .52 + (jalan ? 3 * u * Math.sin(fase) : 0), pinggul + panjang]];
-      p.isiGradasi(rk, celana, mul(celana, SH_KAIN), cahaya, .3);
-      if (R.jenisBawahan === 'sarung') p.klip(rk, function () { for (var i = 0; i < 6; i++) { p.garis([[tcx - 60 * u, pinggul + i * 14 * u], [tcx + 60 * u, pinggul + i * 14 * u]], 2.6 * u, hexA(R.aksen, .6)); p.garis([[tcx - 40 * u + i * 16 * u, pinggul - 10 * u], [tcx - 40 * u + i * 16 * u, pinggul + panjang]], 2 * u, hexA(R.aksen, .4)); } });
+      var panjangRok = R.jenisBawahan === 'rok' ? Lkaki * .42 : Lkaki * .9;
+      var ay0 = jl ? Math.sin(TAU * ph) * 4 * u * jl : 0;
+      var rk = [[tcx - Bd.lebar * Wk * .38, pinggul - 12 * u], [tcx + Bd.lebar * Wk * .38, pinggul - 12 * u],
+        [tcx + Bd.lebar * Wk * .5 + ay0 - hd * 4 * u * jl, pinggul + panjangRok], [tcx + ay0 * .3, pinggul + panjangRok + 3 * u], [tcx - Bd.lebar * Wk * .5 + ay0 - hd * 4 * u * jl, pinggul + panjangRok]];
+      p.isiGradasi(rk, R.bawahan, mul(R.bawahan, SH_KAIN), cahaya, .42);
+      p.klip(rk, function () {
+        for (var i = -2; i <= 2; i++) p.garis([[tcx + i * 14 * u, pinggul], [tcx + i * 19 * u + ay0, pinggul + panjangRok]], 1.6 * u, hexA(mul(R.bawahan, [.6, .6, .7]), .55));
+        if (R.jenisBawahan === 'sarung') for (var k = 0; k < 7; k++) p.garis([[tcx - 80 * u, pinggul + k * 16 * u], [tcx + 80 * u, pinggul + k * 16 * u]], 2.6 * u, hexA(R.aksen, .55));
+      });
       p.poly(rk, null, ow * .9);
     }
 
-    // ---- badan ----
-    var T = { a: Bd.lebar * Wk * .4, b: (pinggul - leher) * .54, nTop: 2.1, nBot: 2.8, egg: R.bangun === 'gemuk' ? .2 : .1, asym: .03 * hd, rot: 0, noise: .005, seed: benih + 7 };
+    /* ---- badan ---- */
+    var T = { a: Bd.lebar * Wk * .4 * (1 + .08 * tekan), b: (pinggul - leher) * .54, nTop: 2.1, nBot: 2.8, egg: R.bangun === 'gemuk' ? .2 : .1, asym: .03 * hd, rot: 0, noise: .005, seed: benih + 7 };
     var tcy = pinggul - T.b * .92;
-    var tb = putar(blob(tcx, tcy, T), miring, 300, pinggul);
-    var bahu = function (s) { return putar([[tcx + s * T.a * .82, leher + 12 * u]], miring, 300, pinggul)[0]; };
+    var tb = putar(blob(tcx, tcy, T), miring, pinggulX, pinggul);
+    var bahu = function (s) { return putar([[tcx + s * T.a * .8, leher + 14 * u]], miring, pinggulX, pinggul)[0]; };
 
-    // ---- lengan ----
+    /* ---- lengan: IK dua ruas, ayunan berlawanan kaki & sedikit telat (follow-through) ---- */
     var lengan = [];
     ['L', 'R'].forEach(function (k, i) {
-      var s = i ? 1 : -1, P = pose[k], S = bahu(s);
-      var ay = jalan && !pose.duduk && o.pose !== 'tunjuk' && o.pose !== 'lambai' ? Math.sin(fase + (i ? 0 : PI)) * (lari ? 18 : 10) * u * jalan : 0;
-      var gy = P.goyang ? Math.sin(t * 9) * 10 * u : 0;
-      var hx2 = S[0] + s * P.x * u + (P.goyang ? Math.sin(t * 9) * 8 * u * s : 0) + ay * .5 * s, hy2 = S[1] + P.y * u + ay + gy * .2;
-      var el = [lr(S[0], hx2, .5) + s * (P.tekuk || 1) * 9 * u, lr(S[1], hy2, .5) + Math.abs(P.tekuk || 1) * 2 * u];
-      var ar = Math.atan2(hy2 - el[1], hx2 - el[0]);
-      lengan.push({ s: s, S: S, E: el, H: [hx2, hy2], ar: ar, P: P, kanan: !!i });
+      var s = i ? 1 : -1, P = pose[k], S = bahu(s), Rj = (la1 + la2) * (P.j == null ? .95 : P.j);
+      var a = rad(P.a + (P.g ? Math.sin(t * 9) * 16 : 0) + (k === 'R' && P.d && o.bicara ? o.bicara * 6 * Math.sin(t * 5) : 0));
+      var tx = S[0] + s * Math.sin(a) * Rj, ty = S[1] + Math.cos(a) * Rj;
+      var santai = P.a < 35 && P.a > -20 && (P.j == null || P.j > .6);
+      if (jl && (santai || lari)) {
+        var ay = Math.sin(TAU * (ph - .06) + (s > 0 ? PI : 0)) * jl;
+        var amp = (lari ? 36 : 30) * u;
+        tx += hd * ay * amp; ty -= Math.abs(ay) * amp * .25 + (1 - Math.abs(hd)) * ay * amp * .15;
+      }
+      var siku = P.s == null ? 1 : P.s;
+      var r = ik2(S, [tx, ty], la1, la2, s * siku, siku * .6);
+      lengan.push({ s: s, S: S, E: r.E, H: r.H, ar: Math.atan2(r.H[1] - r.E[1], r.H[0] - r.E[0]), P: P, kanan: !!i });
     });
-    var lenganBaju = R.jenisAtasan === 'kaos' || R.jenisAtasan === 'blus' ? .45 : 1;
+    var lenganPendek = R.jenisAtasan === 'kaos' || R.jenisAtasan === 'blus';
     var warnaLengan = R.luar || R.atasan;
     function gambarLengan(L) {
-      var pts = kurva(L.S, L.E, L.H, 14), n = pts.length, cut = Math.round((n - 1) * lenganBaju);
-      p.garis(pts, 13 * u + 2 * 2.4 * u, INK);
-      if (lenganBaju < 1) p.garis(pts.slice(cut - 1), 10.5 * u, R.kulit);
-      else p.garis(pts.slice(n - 3), 10.5 * u, R.kulit);
-      var lb = pts.slice(0, lenganBaju < 1 ? cut + 1 : n - 2);
-      p.garis(lb, 13 * u, warnaLengan);
-      p.garis(lb.map(function (q) { return [q[0] - Math.cos(cahaya) * -2.2 * u, q[1] - Math.sin(cahaya) * -2.2 * u]; }), 6 * u, terang(warnaLengan, .14));
-      var ujung = lb[lb.length - 1], seb = lb[lb.length - 2], aa = Math.atan2(ujung[1] - seb[1], ujung[0] - seb[0]);
-      p.garis([[ujung[0] + Math.cos(aa + PI / 2) * 7 * u, ujung[1] + Math.sin(aa + PI / 2) * 7 * u], [ujung[0] - Math.cos(aa + PI / 2) * 7 * u, ujung[1] - Math.sin(aa + PI / 2) * 7 * u]], 2.2 * u, INK);
-      tangan(p, L.H, L.ar, L.P.bentuk || 'bulat', R.kulit, u);
+      var atas = kurva(L.S, lr2(L.S, L.E, .5), L.E, 6), bawah = kurva(L.E, lr2(L.E, L.H, .5), L.H, 6);
+      var semua = atas.concat(bawah.slice(1)), potong = Math.floor(atas.length * .6);
+      p.garis(semua, 13 * u + 4.6 * u, INK);
+      p.garis(bawah, 10.5 * u, lenganPendek && !R.luar ? R.kulit : warnaLengan);
+      if (lenganPendek && !R.luar) { p.garis(atas.slice(potong - 1), 10.5 * u, R.kulit); p.garis(atas.slice(0, potong + 1), 13.5 * u, warnaLengan); }
+      else { p.garis(atas, 13 * u, warnaLengan); p.garis(bawah, 12 * u, warnaLengan); }
+      var off = [-Math.cos(cahaya) * 3.6 * u, -Math.sin(cahaya) * 3.6 * u];
+      var kain = lenganPendek && !R.luar ? atas.slice(0, potong + 1) : semua;
+      p.garis(kain.map(function (q) { return [q[0] + off[0], q[1] + off[1]]; }), 4 * u, hexA(mul(warnaLengan, SH_KAIN), .9));
+      var ujung = lenganPendek && !R.luar ? atas[potong] : bawah[bawah.length - 2], arah = lenganPendek && !R.luar ? Math.atan2(L.E[1] - L.S[1], L.E[0] - L.S[0]) : L.ar;
+      var nx = Math.cos(arah + PI / 2) * 7.4 * u, ny = Math.sin(arah + PI / 2) * 7.4 * u;
+      p.garis([[ujung[0] + nx, ujung[1] + ny], [ujung[0] - nx, ujung[1] - ny]], 2.4 * u, INK);
+      tangan(p, L.H, L.ar, L.P.b || 'bulat', R.kulit, u);
       if (L.kanan && o.pegang) barang(p, o.pegang, L.H, u, t);
     }
-    lengan.forEach(function (L) { if (!L.P.depan) gambarLengan(L); });
+    var jauh = hd >= 0 ? 0 : 1;
+    [lengan[jauh], lengan[1 - jauh]].forEach(function (L) { if (!L.P.d) gambarLengan(L); });
 
-    // ---- isi badan ----
-    var warnaBadan = R.atasan;
-    p.isiGradasi(tb, warnaBadan, mul(warnaBadan, SH_KAIN), cahaya, .22);
+    p.isiGradasi(tb, R.atasan, mul(R.atasan, SH_KAIN), cahaya, .5);
     p.klip(tb, function () {
       detailBaju(p, R, T, tcx, leher, pinggul, u, hd, cahaya, t);
-      if (R.luar) {   // outer terbuka: dua panel samping
+      if (R.luar) {
         [-1, 1].forEach(function (s) {
           var pn = [[tcx + s * 12 * u, leher - 10 * u], [tcx + s * T.a * 1.3, leher - 10 * u], [tcx + s * T.a * 1.3, pinggul + 20 * u], [tcx + s * 16 * u, pinggul + 20 * u]];
-          p.isiGradasi(pn, R.luar, mul(R.luar, SH_KAIN), cahaya, .25); p.poly(pn, null, 2.4 * u);
+          p.isiGradasi(pn, R.luar, mul(R.luar, SH_KAIN), cahaya, .5); p.poly(pn, null, 2.4 * u);
         });
       }
-      if (R.jenisBawahan === 'celana' && !rok) {   // ikat pinggang tipis
-        p.garis([[tcx - T.a * 1.2, pinggul - 5 * u], [tcx + T.a * 1.2, pinggul - 5 * u]], 5 * u, mix(R.bawahan, INK, .3));
-      }
-      // kilau tepi sisi cahaya
-      p.busur(tcx + Math.cos(cahaya) * T.a * .2, tcy, T.a * .95, T.b * .9, rad(cahaya) * 0 + 180 + (Math.cos(cahaya) < 0 ? 0 : 180) - 40, 180 + (Math.cos(cahaya) < 0 ? 0 : 180) + 10, 3 * u, hexA('#FFFFFF', .28));
+      if (R.jenisBawahan === 'celana' && !rok) p.garis([[tcx - T.a * 1.2, pinggul - 5 * u], [tcx + T.a * 1.2, pinggul - 5 * u]], 5 * u, mix(R.bawahan, INK, .3));
+      var kx = Math.cos(cahaya) < 0 ? -1 : 1;
+      p.busur(tcx - kx * T.a * .08, tcy - T.b * .05, T.a * .9, T.b * .86, kx < 0 ? 150 : -30, kx < 0 ? 215 : 35, 3.2 * u, hexA('#FFFFFF', .32));
     });
     p.cincin(tb, ow, tebal);
     kerah(p, R, tcx, leher, u, hd);
-    lengan.forEach(function (L) { if (L.P.depan) gambarLengan(L); });
+    [lengan[jauh], lengan[1 - jauh]].forEach(function (L) { if (L.P.d) gambarLengan(L); });
 
-    // ---- kepala ----
+    /* ---- kepala ---- */
     keKepala();
-    if (R.gayaRambut === 'hijab') rambutBelakang(p, R, H, 300, hc, cahaya, tebal, ow, t, benih);
-    // leher
-    if (R.gayaRambut !== 'hijab') p.poly(rr(300 - 11 * u, hc + H.b * .7, 300 + 11 * u, leher + 6 * u, 4 * u), mul(R.kulit, SH_KULIT), 2.2 * u);
-    // telinga
+    if (R.gayaRambut === 'hijab') rambutBelakang(p, R, H, 300, hc, cahaya, tebal, ow, t, benih, rambutAyun);
+    if (R.gayaRambut !== 'hijab') p.poly(rr(300 - 12 * u, hc + H.b * .7, 300 + 12 * u, leher + 8 * u, 4 * u), mul(R.kulit, SH_KULIT), 2.2 * u);
     if (R.gayaRambut !== 'hijab') [-1, 1].forEach(function (s) {
-      var ex = 300 + s * H.a * .97, ey = hc + 8 * u;
+      var ex = 300 + s * H.a * .97 - hd * 4 * u, ey = hc + 8 * u;
       p.ell(ex, ey, 9 * u, 12 * u, R.kulit, 2.6 * u);
       p.busur(ex + s * 1 * u, ey, 4 * u, 6 * u, s > 0 ? -60 : 120, s > 0 ? 60 : 240, 1.6 * u, mul(R.kulit, [.8, .6, .6]));
       if (R.anting) p.titik(ex, ey + 13 * u, 3 * u, R.anting);
     });
-    var hp = blob(300, hc, H);
-    var muka = hp;
+    var hp = blob(300, hc, H), muka = hp;
     if (R.gayaRambut === 'hijab') muka = blob(300, hc + 6 * u, Object.assign({}, H, { a: H.a * .86, b: H.b * .86 }));
-    p.isiSabit(muka, R.kulit, mul(R.kulit, SH_KULIT), cahaya, H.a, .5, 1.02, 1.3);
+    p.isiSabit(muka, R.kulit, mul(R.kulit, SH_KULIT), cahaya, H.a, .5, 1.04, 1.2);
     p.cincin(muka, ow, tebal);
     if (R.jenggot) {
       var jg = blob(300, hc + H.b * .62, { a: H.a * .5, b: H.b * .42, nTop: 3, nBot: 2, egg: .25, asym: 0, rot: 0, noise: .02, seed: 9 }).filter(function (q) { return q[1] > hc + H.b * .45; });
@@ -665,8 +742,9 @@
     if (EKS[o.ekspresi] && EKS[o.ekspresi].tanya) { ctx.font = '900 ' + Math.round(40 * u) + 'px system-ui'; ctx.lineWidth = 4 * u; ctx.strokeStyle = INK; ctx.fillStyle = '#FFD36A'; ctx.strokeText('?', 300 + H.a * 1.05, top + 10 * u); ctx.fillText('?', 300 + H.a * 1.05, top + 10 * u); }
     ctx.restore();
     ctx.restore();
-    return { kepala: [kp[0], hc], tinggi: sol - top };
+    return { kepala: [kp[0], hc], puncak: top, tanganL: lengan[0].H, tanganR: lengan[1].H };
   }
+  function lr2(a, b, k) { return [lr(a[0], b[0], k), lr(a[1], b[1], k)]; }
 
   /* ---------- helper waktu ---------- */
   function kedipDari(t, b) { var per = 3.2 + (b % 4) * .45, f = (t + b * 1.37) % per; return f < .16 ? Math.sin(f / .16 * PI) : 0; }
@@ -687,7 +765,7 @@
     koki:    { kulit: '#F3CFAE', rambut: '#2A1E1C', gayaRambut: 'cepak', atasan: '#FFFFFF', jenisAtasan: 'celemek', aksen: '#3F6FB5', bawahan: '#2A2D38', topi: 'koki', bangun: 'gemuk' }
   };
 
-  G.TOKOH_TOON = { gambar: gambar, POSE: POSE, EKSPRESI: EKS, RUPA_DASAR: RUPA_DASAR, RUPA_CONTOH: RUPA_CONTOH,
+  G.TOKOH_TOON = { gambar: gambar, POSE: POSE, campurPose: campurPose, poseDari: poseDari, ekspresiDari: ekspresiDari, faseDariJarak: faseDariJarak, EKSPRESI: EKS, RUPA_DASAR: RUPA_DASAR, RUPA_CONTOH: RUPA_CONTOH,
     kedipDari: kedipDari, bicaraDari: bicaraDari, INK: INK, warna: { mul: mul, mix: mix, terang: terang } };
 })(typeof window !== 'undefined' ? window : this);
 
@@ -806,13 +884,16 @@ function subFrame(t){if(!SUB.frasa.length)return;const c=SUB.cfg;SUB.frasa.forEa
 <script>
 const cv=kanvas(W,H,$('#dunia')),x=cv.getContext('2d');
 const T=TOKOH_TOON,R=T.RUPA_CONTOH;
-const daftar=[
- [R.koPopo,'tunjuk','senyum',{bicara:.6}],[R.cindy,'kaget','kaget',{}],[R.sherlyn,'lambai','senang',{}],[R.pakRT,'pegang','yakin',{pegang:'luopan'}],
- [R.ibu,'jelaskan','tawa',{}],[R.anak,'sorak','senang',{}],[R.koki,'pinggang','sombong',{}],[R.cindy,'pikir','bingung',{hadap:1}],
- [R.koPopo,'diri','cemas',{jalan:1,fase:.25}],[R.sherlyn,'sedih','sedih',{}],[R.pakRT,'pegang','marah',{pegang:'hp'}],[R.anak,'lari','kaget',{fase:.1,cermin:true}]];
+const pose1=[[R.koPopo,'hormat','senyum',{}],[R.cindy,'kaget','kaget',{}],[R.sherlyn,'lambai','senang',{}],[R.pakRT,'pegang','yakin',{pegang:'luopan'}],
+ [R.ibu,'jelaskan','tawa',{bicara:.6}],[R.anak,'sorak','senang',{}],[R.koki,'pinggang','sombong',{}],[R.cindy,'pikir','bingung',{hadap:.6}],[R.koPopo,'tunjuk','yakin',{}],[R.sherlyn,'sedekap','sombong',{}]];
 const SCENE={dur:2,frame(t){x.setTransform(1,0,0,1,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBE9D6');g.addColorStop(1,'#EBC9A9');x.fillStyle=g;x.fillRect(0,0,W,H);
- daftar.forEach((d,i)=>{const c=i%6,r=Math.floor(i/6),s=.5;x.setTransform(s,0,0,s,40+c*315-0,30+r*520);
-  T.gambar(x,{rupa:d[0],pose:d[1],ekspresi:d[2],t,benih:i+1,...d[3]});});}};
+ const s=.36;
+ pose1.forEach((d,i)=>{x.setTransform(s,0,0,s,i*190-20,-60);T.gambar(x,{rupa:d[0],pose:d[1],ekspresi:d[2],t,benih:i+1,...d[3]});});
+ for(let i=0;i<8;i++){x.setTransform(s,0,0,s,i*150+0,280);T.gambar(x,{rupa:R.koPopo,pose:'diri',ekspresi:'senyum',t,benih:3,jalan:1,fase:i/8,hadap:1});}
+ for(let i=0;i<4;i++){x.setTransform(s,0,0,s,1200+i*170,280);T.gambar(x,{rupa:R.cindy,pose:'diri',ekspresi:'netral',t,benih:2,jalan:1,fase:i/4});}
+ for(let i=0;i<8;i++){x.setTransform(s,0,0,s,i*150,640);T.gambar(x,{rupa:R.anak,pose:'lari',ekspresi:'senang',t,benih:4,fase:i/8,hadap:1});}
+ for(let i=0;i<4;i++){x.setTransform(s,0,0,s,1200+i*170,640);T.gambar(x,{rupa:R.ibu,pose:T.poseDari(i*.12,[[0,'diri'],[0,'tunjuk']],.42),ekspresi:'senyum',t,benih:6});}
+}};
 </script>
 <script>
 /* ---------- boot: timeline, audio pratinjau, autoplay + loop, penggeser debug, API render ---------- */
