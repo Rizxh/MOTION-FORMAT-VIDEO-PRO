@@ -63,4 +63,7 @@ terakhir.
 1. Jalankan `python tools/qc.py video <proyek>`. Catat detik kedipnya, lalu ambil 4 frame berurutan di detik itu dengan
    `ffmpeg -ss <dtk> -i video.mp4 -vf "scale=360:-1,tile=4x1" -frames:v 1 kedip.jpg` dan bandingkan.
 2. Cari penyebab di tabel "Yang dicek otomatis" di `QC.md`, perbaiki di `scene.html`, lalu lint dan potret lagi.
-3. Render ulang dengan `MF_CRF=14`, lalu jalankan gerbang 3 dan 4 sebelum mengirim.
+3. Pilih cara render ulang (tabel "tambal sebagian atau render ulang penuh" di `QC.md`):
+   - Masalah hanya di satu adegan dan bisa dibatasi di potongan kamera: `python tools/render_bagian.py <proyek> --dari <dtk> --sampai <dtk>`.
+   - Selain itu, render ulang penuh dengan `MF_CRF=14`.
+4. Jalankan gerbang 3 dan 4 lagi, termasuk melihat frame di titik sambungan, sebelum mengirim.

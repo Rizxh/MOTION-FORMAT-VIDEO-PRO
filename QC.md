@@ -31,6 +31,7 @@ Alatnya `tools/qc.py`. Skill Claude `mf-qc` (di `toon-addon/skills/mf-qc/`) menj
 | `D.guncang` | guncangan kamera | hapus |
 | Bayangan ikut kamera (toon-3d) | `D.pusatBayangan` tidak diset | `D.pusatBayangan = new THREE.Vector3(x, 0, z)` per set |
 | Kedip di MP4 | bayangan berenang, bloom di bidang putih, garis tipis berkilau | kunci bayangan, gelapkan bidang putih besar, kurangi benda sangat tipis di jauh |
+| Kedip di shot udara (warna tanah bergantian tiap frame) | z-fighting: dua bidang datar terlalu dekat (mis. 7 cm) dilihat dari ratusan meter | beri jarak ≥ 0,5 m antar lapisan tanah/lantai/air; `cam.near` ikut ketinggian (`Math.max(1, tinggi/25)`) |
 | Frame hitam di tengah | `gelap`/dip terlalu lama, kamera di dalam objek | perpendek dip (≤ 0,4 dtk), cek posisi kamera |
 | Durasi > 60 dtk | VO terlalu panjang | padatkan kalimat atau naikkan laju VO, jangan potong video |
 | Loudness | VO terlalu pelan atau keras | target -16 s/d -14 LUFS, puncak ≤ -1 dBFS |
@@ -52,6 +53,20 @@ Lihat tiap frame. Satu poin gagal berarti perbaiki dulu, lalu potret atau render
    berkedip atau melompat.
 7. **Kecocokan naskah.** Visual tiap kalimat menunjukkan isi kalimat itu.
 8. **CTA.** Kartu terbaca utuh, tombol tidak terpotong, dan tokoh di bawah kartu tidak tertutup subtitle.
+
+## QC gagal: tambal sebagian atau render ulang penuh?
+
+| Situasi | Pilihan | Perintah |
+|---|---|---|
+| Masalah hanya di satu adegan, dan perbaikannya tidak mengubah waktu, kamera, atau suara di adegan lain | **tambal sebagian** (menit, bukan puluhan menit) | `python tools/render_bagian.py <proyek> --dari <dtk> --sampai <dtk>` |
+| Batas `--dari`/`--sampai` bisa diletakkan tepat di potongan kamera keras atau dip gelap | tambal sebagian | sambungan tidak terlihat |
+| Perbaikan mengubah sesuatu yang terlihat di banyak adegan (cahaya, warna, tokoh, judul) | **render ulang penuh** | `mf.py render ...` |
+| Waktu VO, naskah, atau durasi berubah | render ulang penuh | |
+| Masalah di beberapa tempat berjauhan, atau tidak ada potongan di dekatnya | render ulang penuh | |
+
+Setelah menambal, wajib: `qc.py video` lagi dan lihat frame di kedua titik sambungan
+(`ffmpeg -ss <dtk-0,1> -i video.mp4 -vf "scale=270:-1,tile=6x1" -frames:v 1 sambung.jpg`).
+MP4 lama otomatis dicadangkan sebagai `<nama>.sebelum-tambal.mp4`.
 
 ## Pengaturan render HD
 

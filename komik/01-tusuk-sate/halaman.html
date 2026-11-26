@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Rumah Tusuk Sate — komik 01</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+  html,body { margin:0; background:#1B1417; }
+  body { display:flex; justify-content:center; padding:24px 0; }
+  #lembar { width:1080px; max-width:100%; box-shadow:0 40px 90px rgba(0,0,0,.6); }
+  canvas { display:block; width:100%; height:auto; }
+</style>
+</head>
+<body>
+<div id="lembar"><canvas id="cv"></canvas></div>
+<script src="file:///C:/Users/ryuhu/.claude/skills/motion-format/assets/mesin/tokoh.js"></script>
+<script>
+/* ============================================================================
+   Komik 01 — "Rumah Tusuk Sate"
+   1080 x 1920 (9:16) · 4 panel · digambar murni canvas, deterministik
+   ========================================================================== */
+
+const W = 1080, H = 1920;
+const cv = document.getElementById('cv');
+const c = cv.getContext('2d');
+cv.width = W; cv.height = H;
+
+const INK   = '#2A1B24';
+const KERTAS= '#F7EFE3';
+const EMAS  = '#C9A45C';
+const EMAS_T= '#F1DDA8';
+const SEGEL = '#A8161D';
+const GIOK  = '#2E7D63';
+const KREM  = '#FFE4CF';
+
+/* ---- util ---- */
+function rnd(seed) { let s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+function rr(c, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  c.beginPath();
+  c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r);
+  c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r);
+  c.arcTo(x, y, x + w, y, r);
+  c.closePath();
+}
+function garing(c, x0, y0, x1, y1) { const g = c.createLinearGradient(x0, y0, x1, y1); return g; }
+function teksBungkus(c, teks, maksW) {
+  const kata = teks.split(' ');
+  const baris = [];
+  let kini = '';
+  for (const k of kata) {
+    const uji = kini ? kini + ' ' + k : k;
+    if (c.measureText(uji).width > maksW && kini) { baris.push(kini); kini = k; }
+    else kini = uji;
+  }
+  if (kini) baris.push(kini);
+  return baris;
+}
+function tulis(c, teks, x, y, maksW, lh, font, warna, align) {
+  c.save();
+  c.font = font; c.fillStyle = warna; c.textAlign = align || 'center'; c.textBaseline = 'top';
+  const baris = teksBungkus(c, teks, maksW);
+  const y0 = y - (baris.length - 1) * lh / 2;
+  baris.forEach((b, i) => c.fillText(b, x, y0 + i * lh));
+  c.restore();
+  return baris.length * lh;
+}
+
+/* ---- panel ---- */
+function panel(x, y, w, h, isi) {
+  c.save();
+  c.beginPath(); c.rect(x, y, w, h); c.clip();
+  c.translate(x, y);
+  isi(w, h);
+  c.restore();
+  /* garis panel: kertas tipis lalu tinta */
+  c.save();
+  c.strokeStyle = KERTAS; c.lineWidth = 14;
+  c.beginPath(); c.rect(x, y, w, h); c.stroke();
+  c.strokeStyle = INK; c.lineWidth = 6;
+  c.beginPath(); c.rect(x, y, w, h); c.stroke();
+  c.restore();
+}
+
+/* ---- rumah ---- */
+function rumah(c, cx, kaki, w, hh, warnaBadan, warnaAtap, tanda) {
+  const x = cx - w / 2, y = kaki - hh;
+  /* bayangan */
+  c.fillStyle = 'rgba(60,36,28,.18)';
+  c.beginPath(); c.ellipse(cx, kaki + 6, w * 0.62, w * 0.13, 0, 0, Math.PI * 2); c.fill();
+  /* badan */
+  const gb = c.createLinearGradient(x, y, x + w, y + hh);
+  gb.addColorStop(0, warnaBadan[0]);
+  gb.addColorStop(0.5, warnaBadan[1]);
+  gb.addColorStop(0.5, warnaBadan[2]);
+  c.fillStyle = gb;
+  c.fillRect(x, y, w, hh);
+  c.strokeStyle = INK; c.lineWidth = 5; c.strokeRect(x, y, w, hh);
+  /* atap */
+  const ra = hh * 0.46;
+  const gr = c.createLinearGradient(x, y - ra, x + w, y);
+  gr.addColorStop(0, warnaAtap[0]);
+  gr.addColorStop(1, warnaAtap[1]);
+  c.fillStyle = gr;
+  c.beginPath();
+  c.moveTo(x - w * 0.08, y);
+  c.lineTo(cx, y - ra);
+  c.lineTo(x + w * 1.08, y);
+  c.closePath(); c.fill();
+  c.strokeStyle = INK; c.lineWidth = 5; c.stroke();
+  /* garis genteng */
+  c.save();
+  c.beginPath(); c.moveTo(x - w * 0.08, y); c.lineTo(cx, y - ra); c.lineTo(x + w * 1.08, y); c.closePath(); c.clip();
+  c.strokeStyle = 'rgba(42,27,36,.28)'; c.lineWidth = 2.5;
+  for (let i = 1; i < 5; i++) {
+    const t = i / 5;
+    c.beginPath();
+    c.moveTo(x - w * 0.08 + (cx - (x - w * 0.08)) * t, y + (y - ra - y) * t);
+    c.lineTo(x + w * 1.08 + (cx - (x + w * 1.08)) * t, y);
+    c.stroke();
+  }
+  c.restore();
+  /* pintu */
+  const dw = w * 0.24, dh = hh * 0.52;
+  c.fillStyle = tanda === 'merah' ? '#9C3038' : '#8A6A4E';
+  rr(c, cx - dw / 2, kaki - dh, dw, dh, 5); c.fill();
+  c.strokeStyle = INK; c.lineWidth = 4; c.stroke();
+  c.fillStyle = EMAS_T;
+  c.beginPath(); c.arc(cx + dw * 0.28, kaki - dh * 0.48, 6, 0, 7); c.fill();
+  /* jendela */
+  for (const sx of [-1, 1]) {
+    const wx = cx + sx * w * 0.31, wy = y + hh * 0.18, ww = w * 0.2, wh = hh * 0.26;
+    c.fillStyle = '#8FA9BF';
+    c.fillRect(wx - ww / 2, wy, ww, wh);
+    c.strokeStyle = INK; c.lineWidth = 4; c.strokeRect(wx - ww / 2, wy, ww, wh);
+    c.beginPath();
+    c.moveTo(wx, wy); c.lineTo(wx, wy + wh);
+    c.moveTo(wx - ww / 2, wy + wh / 2); c.lineTo(wx + ww / 2, wy + wh / 2);
+    c.stroke();
+  }
+}
+
+/* ---- balon kata ---- */
+function balon(c, x, y, w, h, teks, ekor) {
+  c.save();
+  /* badan balon */
+  c.fillStyle = '#FFFFFF';
+  c.strokeStyle = INK;
+  c.lineWidth = 6;
+  rr(c, x, y, w, h, Math.min(w, h) * 0.38);
+  c.fill();
+  /* ekor digambar sebagai bagian dari siluet, jadi isi dulu lalu garis nanti */
+  if (ekor) {
+    c.beginPath();
+    c.moveTo(ekor.x - 22, ekor.y0);
+    c.lineTo(ekor.x + 4, ekor.y1);
+    c.lineTo(ekor.x + 26, ekor.y0);
+    c.closePath();
+    c.fill();
+  }
+  c.restore();
+
+  /* teks */
+  tulis(c, teks, x + w / 2, y + h / 2, w - 56, 46,
+    "800 38px 'Baloo 2', 'Segoe UI', system-ui, sans-serif", INK);
+
+  /* garis balon (diulang supaya ekor tidak tertutup) */
+  c.save();
+  c.strokeStyle = INK; c.lineWidth = 6; c.lineJoin = 'round';
+  rr(c, x, y, w, h, Math.min(w, h) * 0.38);
+  c.stroke();
+  if (ekor) {
+    c.fillStyle = '#FFFFFF';
+    c.strokeStyle = INK;
+    c.beginPath();
+    c.moveTo(ekor.x - 22, ekor.y0);
+    c.lineTo(ekor.x + 4, ekor.y1);
+    c.lineTo(ekor.x + 26, ekor.y0);
+    c.closePath();
+    c.fill(); c.stroke();
+    /* tutup garis pangkal ekor */
+    c.strokeStyle = '#FFFFFF'; c.lineWidth = 9;
+    c.beginPath(); c.moveTo(ekor.x - 20, ekor.y0 + 3); c.lineTo(ekor.x + 24, ekor.y0 + 3); c.stroke();
+  }
+  c.restore();
+}
+
+/* ---- kotak narasi ---- */
+function narasi(c, x, y, w, teks) {
+  c.save();
+  c.font = "700 31px 'Baloo 2', 'Segoe UI', system-ui, sans-serif";
+  const baris = teksBungkus(c, teks, w - 44);
+  const h = baris.length * 40 + 30;
+  c.fillStyle = '#FFF9EC';
+  c.strokeStyle = INK; c.lineWidth = 5;
+  c.fillRect(x, y, w, h);
+  c.strokeRect(x, y, w, h);
+  c.fillStyle = EMAS;
+  c.fillRect(x, y, 10, h);
+  c.restore();
+  tulis(c, teks, x + 28 + (w - 44) / 2, y + h / 2, w - 48, 40,
+    "700 31px 'Baloo 2', 'Segoe UI', system-ui, sans-serif", INK, 'center');
+  return h;
+}
+
+/* ---- karakter: potret dada ---- */
+function dada(o, px, py, sk) {
+  const kaki = py + 935 * sk;
+  TOKOH2.gambar(c, Object.assign({}, o, { x: px, y: kaki, s: sk }));
+}
+
+/* ============================================================================
+   HALAMAN
+   ========================================================================== */
+
+/* kertas + butir */
+c.fillStyle = KERTAS; c.fillRect(0, 0, W, H);
+const R = rnd(7);
+c.save();
+for (let i = 0; i < 2600; i++) {
+  const x = R() * W, y = R() * H, a = 0.03 * R();
+  c.fillStyle = 'rgba(90,60,40,' + a.toFixed(3) + ')';
+  c.fillRect(x, y, 2, 2);
+}
+c.restore();
+
+/* vignet hangat */
+const vg = c.createRadialGradient(W / 2, H * 0.42, H * 0.2, W / 2, H * 0.5, H * 0.78);
+vg.addColorStop(0, 'rgba(255,255,255,0)');
+vg.addColorStop(1, 'rgba(140,95,60,.14)');
+c.fillStyle = vg; c.fillRect(0, 0, W, H);
+
+/* ---- kepala halaman ---- */
+c.save();
+c.fillStyle = INK;
+c.font = "400 26px 'Archivo Black', Impact, sans-serif";
+c.textBaseline = 'middle';
+c.textAlign = 'left';
+c.fillText('RUMAH TUSUK SATE', 42, 62);
+c.textAlign = 'right';
+c.font = "800 24px 'Baloo 2', 'Segoe UI', system-ui, sans-serif";
+c.fillStyle = 'rgba(42,27,36,.62)';
+c.fillText('SHIFU PO · KOMIK 01', 1038, 62);
+c.restore();
+c.save();
+c.strokeStyle = 'rgba(42,27,36,.28)'; c.lineWidth = 3;
+c.beginPath(); c.moveTo(42, 88); c.lineTo(1038, 88); c.stroke();
+c.restore();
+
+/* ============================ PANEL 1 — lebar ============================ */
+panel(42, 112, 996, 452, function (w, h) {
+  /* langit sore */
+  const sky = c.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, '#FF9F6B');
+  sky.addColorStop(0.45, '#FFC48A');
+  sky.addColorStop(1, '#FFE2BE');
+  c.fillStyle = sky; c.fillRect(0, 0, w, h);
+
+  /* matahari */
+  const sg = c.createRadialGradient(760, 96, 0, 760, 96, 150);
+  sg.addColorStop(0, 'rgba(255,250,226,1)');
+  sg.addColorStop(0.22, 'rgba(255,236,186,.75)');
+  sg.addColorStop(1, 'rgba(255,210,150,0)');
+  c.fillStyle = sg; c.fillRect(560, -60, 420, 320);
+  c.fillStyle = '#FFF6DC';
+  c.beginPath(); c.arc(760, 96, 46, 0, 7); c.fill();
+
+  /* titik halftone */
+  c.save();
+  c.fillStyle = 'rgba(255,255,255,.20)';
+  for (let yy = 0; yy < 300; yy += 22) {
+    for (let xx = 0; xx < w; xx += 22) {
+      const a = 1 - yy / 320;
+      c.globalAlpha = 0.35 * a;
+      c.beginPath(); c.arc(xx + (yy % 44 ? 11 : 0), yy, 2.4, 0, 7); c.fill();
+    }
+  }
+  c.restore();
+
+  /* bukit jauh */
+  c.fillStyle = 'rgba(196,132,96,.42)';
+  c.beginPath();
+  c.moveTo(-20, 300);
+  c.quadraticCurveTo(140, 246, 320, 296);
+  c.quadraticCurveTo(520, 344, 700, 288);
+  c.quadraticCurveTo(880, 240, 1020, 300);
+  c.lineTo(1020, 340); c.lineTo(-20, 340);
+  c.closePath(); c.fill();
+
+  /* tanah */
+  const gr = c.createLinearGradient(0, 300, 0, h);
+  gr.addColorStop(0, '#E7C9A6');
+  gr.addColorStop(1, '#C79A72');
+  c.fillStyle = gr; c.fillRect(0, 300, w, h - 300);
+
+  /* rumah kanan (Sherlyn) */
+  rumah(c, 792, 420, 300, 190, ['#FFF1E0', '#F3DCC4', '#D9BB9E'], ['#7E4B3A', '#4E2C22'], 'giok');
+  /* rumah kiri (Cindy) */
+  rumah(c, 380, 430, 320, 205, ['#FFEFDF', '#F1D9C0', '#D6B699'], ['#8B5A3C', '#573224'], 'merah');
+
+  /* jalan menuju pintu rumah kiri — inilah "tusuk sate".
+     Digambar SETELAH rumah supaya ujungnya berhenti tepat di ambang pintu. */
+  c.fillStyle = '#6E5A55';
+  c.beginPath();
+  c.moveTo(286, h);
+  c.lineTo(574, h);
+  c.lineTo(426, 436);
+  c.lineTo(394, 436);
+  c.closePath(); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,.30)'; c.lineWidth = 4; c.setLineDash([26, 22]);
+  c.beginPath(); c.moveTo(430, h); c.lineTo(411, 442); c.stroke();
+  c.setLineDash([]);
+  c.strokeStyle = '#B99570'; c.lineWidth = 3;
+  c.beginPath(); c.moveTo(286, h); c.lineTo(394, 436); c.moveTo(574, h); c.lineTo(426, 436); c.stroke();
+
+  /* pagar */
+  c.strokeStyle = '#8A6A4E'; c.lineWidth = 5;
+  for (let i = 0; i < 14; i++) {
+    const x = 120 + i * 58;
+    c.beginPath(); c.moveTo(x, 428); c.lineTo(x, 462); c.stroke();
+  }
+  c.beginPath(); c.moveTo(120, 436); c.lineTo(120 + 13 * 58, 436); c.stroke();
+
+  /* papan DIJUAL */
+  c.save();
+  c.translate(196, 336);
+  c.rotate(-0.06);
+  c.fillStyle = '#8A6A4E'; c.fillRect(-6, 0, 12, 100);
+  c.strokeStyle = INK; c.lineWidth = 4; c.strokeRect(-6, 0, 12, 100);
+  c.fillStyle = '#FFFDF7'; c.fillRect(-92, -62, 184, 78);
+  c.strokeStyle = INK; c.lineWidth = 5; c.strokeRect(-92, -62, 184, 78);
+  c.fillStyle = SEGEL; c.fillRect(-92, -62, 184, 30);
+  c.fillStyle = '#FFFFFF';
+  c.font = "400 22px 'Archivo Black', Impact, sans-serif";
+  c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillText('DIJUAL', 0, -46);
+  c.fillStyle = INK;
+  c.font = "800 22px 'Baloo 2', 'Segoe UI', sans-serif";
+  c.fillText('MURAH 20%', 0, -12);
+  c.restore();
+});
+
+narasi(c, 74, 138, 430, 'Komplek Melati, sore. Dua rumah, satu jalan buntu.');
+
+/* ============================ PANEL 2 — Cindy ============================ */
+panel(42, 592, 490, 452, function (w, h) {
+  const bg = c.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, '#FFD9B4');
+  bg.addColorStop(0.62, '#F6C79E');
+  bg.addColorStop(1, '#E3AA83');
+  c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  /* garis gerak */
+  c.strokeStyle = 'rgba(255,255,255,.35)'; c.lineWidth = 7;
+  for (let i = 0; i < 7; i++) {
+    const yy = 230 + i * 26;
+    c.beginPath(); c.moveTo(-30, yy); c.lineTo(120 + i * 14, yy - 12); c.stroke();
+  }
+  /* lantai */
+  c.fillStyle = 'rgba(199,154,114,.6)';
+  c.fillRect(0, 392, w, h - 392);
+
+  dada({
+    warna: {
+      kulit: ['#FBE2CE', '#F2CBB0', '#D6A78A'],
+      rambut: ['#4A3B3B', '#2A2020', '#150F0F'],
+      atasan: ['#FFFFFF', '#F3ECE4', '#D5C9BD'],
+      luar: ['#C8353C', '#A8161D', '#7A0E14'],
+      bawah: ['#4C4A57', '#38363F', '#24222B'],
+      sepatu: ['#FFFDF7', '#EDE5D8', '#C6BCAE'],
+      iris: '#8A5A33', jepit: EMAS
+    },
+    potongan: 'bob', busana: 'celemek', pose: 'tunjuk', ekspresi: 'senang'
+  }, 258, 245, 1.0);
+});
+
+balon(c, 24, 618, 430, 124, 'Rumah tusuk sate! Murah dua puluh persen!',
+  { x: 300, y0: 742, y1: 800 });
+
+/* ============================ PANEL 3 — Sherlyn ============================ */
+panel(548, 592, 490, 452, function (w, h) {
+  const bg = c.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, '#CFE7DC');
+  bg.addColorStop(0.6, '#AFD8C7');
+  bg.addColorStop(1, '#86B9A4');
+  c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  c.strokeStyle = 'rgba(255,255,255,.42)'; c.lineWidth = 6;
+  for (let i = 0; i < 5; i++) {
+    const x = 40 + i * 96;
+    c.beginPath(); c.moveTo(x, 60); c.lineTo(x + 26, 200); c.stroke();
+  }
+  c.fillStyle = 'rgba(120,160,142,.55)';
+  c.fillRect(0, 392, w, h - 392);
+
+  dada({
+    warna: {
+      kulit: ['#F7DCC4', '#EBC5A6', '#CE9E80'],
+      rambut: ['#6B4A34', '#45301F', '#2A1B10'],
+      atasan: ['#FBF3E4', '#EFE2CB', '#D3C3A6'],
+      luar: ['#3E9A78', '#2E7D63', '#1F5744'],
+      bawah: ['#3C4A46', '#2C3733', '#1E2724'],
+      sepatu: ['#FFFFFF', '#E9E9E9', '#C2C2C2'],
+      iris: '#4E7A46', jepit: SEGEL
+    },
+    potongan: 'panjang', busana: 'outer', pose: 'pikir', ekspresi: 'yakin'
+  }, 236, 245, 1.0);
+});
+
+balon(c, 596, 618, 418, 124, 'Murah karena jalannya nusuk ke pintu.',
+  { x: 736, y0: 742, y1: 798 });
+
+/* ============================ PANEL 4 — berdua ============================ */
+panel(42, 1072, 996, 598, function (w, h) {
+  const bg = c.createLinearGradient(0, 0, 0, h);
+  bg.addColorStop(0, '#FFCB9C');
+  bg.addColorStop(0.5, '#F2A97E');
+  bg.addColorStop(1, '#C9805F');
+  c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  /* sinar */
+  c.save();
+  c.translate(500, 120);
+  c.fillStyle = 'rgba(255,246,214,.30)';
+  for (let i = 0; i < 12; i++) {
+    c.rotate(Math.PI * 2 / 12);
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(760, -46); c.lineTo(760, 46); c.closePath(); c.fill();
+  }
+  c.restore();
+  c.fillStyle = 'rgba(190,132,96,.55)';
+  c.fillRect(0, 470, w, h - 470);
+
+  /* bayangan */
+  c.fillStyle = 'rgba(80,44,34,.20)';
+  c.beginPath(); c.ellipse(258, 546, 150, 26, 0, 0, 7); c.fill();
+  c.beginPath(); c.ellipse(744, 546, 150, 26, 0, 0, 7); c.fill();
+
+  TOKOH2.gambar(c, {
+    x: 258, y: 540, s: 0.46, arah: 1, t: 0.4, b: 2.2,
+    warna: {
+      kulit: ['#FBE2CE', '#F2CBB0', '#D6A78A'],
+      rambut: ['#4A3B3B', '#2A2020', '#150F0F'],
+      atasan: ['#FFFFFF', '#F3ECE4', '#D5C9BD'],
+      luar: ['#C8353C', '#A8161D', '#7A0E14'],
+      bawah: ['#4C4A57', '#38363F', '#24222B'],
+      sepatu: ['#FFFDF7', '#EDE5D8', '#C6BCAE'],
+      iris: '#8A5A33', jepit: EMAS
+    },
+    potongan: 'bob', busana: 'celemek', pose: 'kaget', ekspresi: 'kaget'
+  });
+
+  TOKOH2.gambar(c, {
+    x: 744, y: 540, s: 0.46, arah: -1, t: 0.9, b: 5.1,
+    warna: {
+      kulit: ['#F7DCC4', '#EBC5A6', '#CE9E80'],
+      rambut: ['#6B4A34', '#45301F', '#2A1B10'],
+      atasan: ['#FBF3E4', '#EFE2CB', '#D3C3A6'],
+      luar: ['#3E9A78', '#2E7D63', '#1F5744'],
+      bawah: ['#3C4A46', '#2C3733', '#1E2724'],
+      sepatu: ['#FFFFFF', '#E9E9E9', '#C2C2C2'],
+      iris: '#4E7A46', jepit: SEGEL
+    },
+    potongan: 'panjang', busana: 'outer', pose: 'tunjuk', ekspresi: 'senang'
+  });
+});
+
+balon(c, 62, 1100, 430, 126, 'Tata dulu... baru naikkan harga?',
+  { x: 236, y0: 1226, y1: 1276 });
+balon(c, 574, 1100, 420, 126, 'Nah. Itu baru jualan.',
+  { x: 760, y0: 1226, y1: 1272 });
+
+/* ---- kaki halaman ---- */
+c.save();
+c.fillStyle = INK;
+c.fillRect(42, 1700, 996, 3);
+c.font = "800 27px 'Baloo 2', 'Segoe UI', system-ui, sans-serif";
+c.textAlign = 'left'; c.textBaseline = 'middle';
+c.fillStyle = 'rgba(42,27,36,.82)';
+c.fillText('SHIFU PO · Feng Shui Harian', 42, 1748);
+c.textAlign = 'right';
+c.fillStyle = 'rgba(42,27,36,.5)';
+c.fillText('komik 01 · rumah tusuk sate', 1038, 1748);
+c.restore();
+
+/* tiga titik emas */
+c.save();
+c.fillStyle = EMAS;
+for (let i = 0; i < 3; i++) { c.beginPath(); c.arc(42 + i * 22, 1792, 6, 0, 7); c.fill(); }
+c.restore();
+
+/* segel kecil */
+c.save();
+c.translate(978, 1800);
+c.rotate(-0.18);
+c.strokeStyle = SEGEL; c.lineWidth = 4;
+c.strokeRect(-46, -26, 92, 52);
+c.fillStyle = SEGEL;
+c.font = "400 22px 'Archivo Black', Impact, sans-serif";
+c.textAlign = 'center'; c.textBaseline = 'middle';
+c.fillText('SHIFU', 0, 0);
+c.restore();
+
+/* penanda selesai untuk render */
+window.SELESAI = true;
+</script>
+</body>
+</html>
