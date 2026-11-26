@@ -25,7 +25,7 @@ diagram kompas rinci (pakai `luopan` close-up atau gaya 2D), berita duka.
 2. **Brand Shifu Po:** tinta `#12100E`, kertas `#F8F4EC`, emas `#C9A45C`/`#F1DDA8`, merah segel `#A8161D`, giok `#2E7D63`.
    Judul **Cinzel 900**, teks/tombol **Plus Jakarta Sans 800**. Merah segel hanya untuk bahaya/stempel/CTA; giok untuk
    "berhasil"; emas untuk qi baik dan tombol.
-3. **Tokoh ±3 kepala**, garis tinta tebal-tipis (tebal di sisi jauh dari cahaya), cel tajam, mata bulat berkilau,
+3. **Tokoh ±3 kepala**, tangan **bulat polos tanpa jari** (jelas di ukuran kecil), garis tinta tebal-tipis (tebal di sisi jauh dari cahaya), cel tajam, mata bulat berkilau,
    pipi merona. Arah cahaya tokoh mengikuti matahari dunia (`D.cahaya2D()` otomatis lewat `K.atur`).
 4. **Gerak tubuh masuk akal:** panjang tulang tetap (IK). Jalan: `fase = TOKOH_TOON.faseDariJarak(jarakMeter)` supaya
    kaki tidak meluncur; pinggul turun saat dua kaki menapak, naik saat kaki melintas; lengan berayun berlawanan kaki dan
@@ -37,10 +37,20 @@ diagram kompas rinci (pakai `luopan` close-up atau gaya 2D), berita duka.
 6. **Simbol Feng Shui sebagai aset 3D, bukan teks:** `D.energi({jenis:'sha'})` (qi tajam merah, lurus, cepat) vs
    `{jenis:'sheng'}` (qi emas, berkelok, lembut); `D.luopan()`, `D.cerminBagua()`, `D.bambu()`, `D.kolamKoi()`,
    `D.singa()`, `D.pohonUang()`, `D.lampion()`, `D.ruang({isi:'kantor'})`.
-7. **Kamera selalu bergerak** lewat `D.jalurKamera(keys)` (spline halus, tiap ruas berhenti lembut) + goyang tangan
-   halus (`kamera(t, 1)`). 9:16 sempit: dua tokoh berjarak 3 m butuh jarak kamera ±9–10 m atau fov 42–46.
-8. **Teks di zona aman** (atas 250, bawah 420, kanan 160 px), label penunjuk `MFlabel` menempel ke titik 3D lewat
-   `D.layar(x,y,z)`. Subtitle per kata menyala merah segel untuk kata kunci (bila ada VO).
+7. **Kamera selalu bergerak MULUS** lewat `D.jalurKamera(keys)` (spline halus, tiap ruas berhenti lembut).
+   **DILARANG getar/goyang:** tanpa goyang tangan kamera, tanpa guncangan (`D.guncang` sudah dimatikan), tanpa napas/goyang
+   tokoh saat diam, tanpa tangan bergetar (mengetik/bicara/melambai = pose diam), tanpa denyut berulang (tombol, cincin),
+   tanpa butiran film berkedip. Gerak hanya yang disengaja: langkah, pergantian pose, benda berpindah. 9:16 sempit: dua tokoh berjarak 3 m butuh jarak kamera ±9–10 m atau fov 42–46.
+8. **Teks punya tempat tetap, bukan stiker ala story.** Semua judul lewat `D.judulBab([{a,b,kicker,judul,besar}])`:
+   satu slot kiri-atas (x 80, y 250, rata kiri), kicker emas kapital + judul Cinzel, kata kunci `<em>` emas, tirai gelap
+   lembut di atas layar (tanpa kotak). Satu judul per bab cerita: hook → Masalahnya → Dalam Feng Shui → Dampak nyata →
+   Solusinya, masuk ±0,15 dtk setelah VO menyebut kata kuncinya, keluar sebelum bab berikutnya. Subtitle tetap di bawah
+   (`y: .755`, maks 5 kata, kata kunci emas); saat CTA subtitle pindah ke bawah kartu supaya tidak menutupi wajah.
+   **Dilarang:** stempel besar di tengah layar, label/teks melayang menempel objek, teks berganti posisi tiap adegan.
+9. **Akting semi-realistis (tidak sepi):** tokoh yang bicara memakai `TOKOH_TOON.lipsync(t, KATA, a, b)` → `bicara`,
+   `vokal` (bibir a / i-e / o-u / rapat m-b-p), `alisNaik`. Pendengar melirik ke pembicara (`lirik`), mengangguk pelan di
+   akhir kalimat (`angguk` 0..1 dari satu lengkung sin, bukan getar), ekspresi berganti di kata kunci. Selalu ada
+   interaksi antartokoh: menyapa & membalas, menyerahkan barang, menunjuk lalu yang ditunjuk bereaksi, jempol bersama.
 
 ## Aset siap pakai (satuan meter, muka menghadap +z)
 | Panggilan | Isi |
@@ -57,7 +67,10 @@ diagram kompas rinci (pakai `luopan` close-up atau gaya 2D), berita duka.
 | `D.tokoh({tinggi,res})` → `K.atur(x,z,opsi)` | tokoh kartu + bayangan kontak |
 | `D.warga({n,jalur,benih,anak})` → `W.atur(t)` | NPC acak berjalan bolak-balik di jalur |
 
-Tokoh contoh di `TOKOH_TOON.RUPA_CONTOH`: `koPopo` (Shifu Po versi toon: tangzhuang merah gelap, kancing emas),
+**Ko Popo (Shifu Po versi toon) — baku:** `TOKOH_TOON.koPopo('merah')` atau `TOKOH_TOON.koPopo('emas')`: badan gemuk,
+wajah bulat, rambut hitam pendek berdiri (`gayaRambut:'spike'`, seperti Nico vs Simon), tangzhuang brokat motif awan,
+celana hitam, kipas bulu (`pegang:'kipas'`). **Selang-seling per video** (merah ↔ emas, catat di `gaya.md`).
+Tokoh contoh lain di `TOKOH_TOON.RUPA_CONTOH`:
 `cindy`, `sherlyn`, `pakRT`, `ibu` (hijab), `anak`, `koki`. Rupa baru = objek `rupa` (lihat `RUPA_DASAR` di toon-tokoh.js).
 Pose: diri · santai · pinggang · tunjuk · tunjukAtas · tunjukBawah · lambai · jelaskan · presentasi · tolak · kaget ·
 pikir · garuk · sorak · sedih · pegang · sedekap · hormat (salam kepal-telapak) · salam · duduk · lari.
@@ -94,7 +107,7 @@ Durasi: 30–45 dtk (promo 15–20)
 ## Kerangka adegan (pola A, 30–45 dtk) — tiap adegan menyambung ke berikutnya
 | Detik | Adegan | Kamera (`jalurKamera`) | Yang wajib terjadi |
 |---|---|---|---|
-| 0–3 | **HOOK visual** | udara tinggi → menukik mengikuti qi sha | qi melesat sejak frame 1, judul 2 baris (kicker kecil + kata kunci Cinzel), benturan di 2,5–3 dtk: guncangan + stempel |
+| 0–3 | **HOOK visual** | udara tinggi → menukik mengikuti qi sha | qi melesat sejak frame 1, judul 2 baris (kicker kecil + kata kunci Cinzel), benturan di 2,5–3 dtk: stempel dibanting (tanpa guncang kamera) |
 | 3–7 | Masalah dirasakan tokoh | dorong ke tokoh, setinggi dada | tokoh kaget → cemas (`poseDari`), label menunjuk penyebab, NPC tetap jalan |
 | 7–12 | Ko Popo masuk | orbit pelan, dua tokoh dalam frame | berjalan masuk (fase dari jarak), berhenti, **hormat**, lalu menjelaskan sambil menunjuk |
 | 12–22 | Penjelasan + bukti | naik sedikit / sisipan close-up aset (luopan, cermin) | simbol 3D bergerak (sha lurus vs sheng berkelok); kalimat VO dipisah dampak nyata vs Feng Shui |
@@ -115,13 +128,13 @@ Jangan: logo di detik 0, layar diam, teks panjang, menakut-nakuti.
 - Pertanyaan CTA mengulang masalah hook ("Rumah Anda tusuk sate?"), janji mengulang solusi ("Tata dulu arahnya").
 - Tombol **satu** ajakan: "Konsultasi via WhatsApp". Tanpa daftar layanan.
 - Tokoh di dunia tetap hidup saat CTA (melambai, qi sheng mengalir), bukan layar statis.
-- Muncul ≥ 3,5 dtk sebelum akhir; kartu masuk 0,7 dtk (`E.out`), tombol berdenyut halus.
+- Muncul ≥ 3,5 dtk sebelum akhir; kartu masuk 0,7 dtk (`E.out`), tombol muncul sekali dengan `E.back` (tidak berdenyut).
 
 ## Gerak & transisi
 - Antar adegan: kamera menyambung (satu jalur), atau benda penghubung (qi yang melesat membawa kamera ke pintu).
   Tanpa fade hitam kecuali ganti waktu hari.
 - Semua muncul dengan `E.back`/`E.out`, hilang dengan `E.in`; tidak ada gerak linear kecuali mobil/awan.
-- Benturan: `D.guncang(t, detik, .22, .55)` + stempel `scale 1.7→1` + rotasi lewat-sasaran.
+- Benturan: stempel `scale 1.7→1` + rotasi lewat-sasaran + SFX. Tanpa guncang kamera.
 - Ganti pose ±0,4 dtk; ekspresi berganti tepat di kata kunci VO; kedip otomatis.
 - Mulut bicara: `bicara` dari `TOKOH_TOON.bicaraDari(t, KATA, a, b)` bila ada VO.
 

@@ -71,6 +71,8 @@ copy .env.example .env
 Isi `ELEVENLABS_API_KEY` dengan kunci akun sendiri. `.env` tidak pernah ikut ke GitHub.
 Kredit baru terpakai bila perintah `tools/tts.py` diberi `--ya`.
 
+Tanpa kunci ElevenLabs, pakai VO gratis: `python -m pip install edge-tts`, lalu `tools/tts_gratis.py` (lihat README).
+
 ## 6. Cek hasil
 
 ```powershell

@@ -261,10 +261,29 @@
       }
     }
   }
-  function mulut(p, jenis, mx, my, u, bicara) {
+  function mulut(p, jenis, mx, my, u, bicara, vokal) {
     var w = 3.4 * u;
-    if (bicara > .05 && jenis !== 'O' && jenis !== 'tawa') {   // mulut bicara: huruf D terbuka
-      var ry = (3 + 8 * bicara) * u, rx = (8 + 2 * bicara) * u;
+    if (bicara > .03 && jenis !== 'O' && jenis !== 'tawa') {   // bibir bicara: bentuk mengikuti vokal (visem)
+      var b = Math.min(1, bicara), v = vokal || 'a';
+      if (v === 'm') {   // m/b/p: bibir rapat sedikit ditekan
+        p.garis([[mx - 6.5 * u, my - 1.5 * u], [mx + 6.5 * u, my - 1.5 * u]], 3.4 * u);
+        p.busur(mx, my + 1.2 * u, 4 * u, 1.6 * u, 20, 160, 1.6 * u, 'rgba(120,40,50,.45)');
+        return;
+      }
+      if (v === 'o' || v === 'u') {   // bulat
+        var rr = (v === 'u' ? 3.6 : 4.8) * u, ry0 = (v === 'u' ? 4.4 : 5.5 + 4 * b) * u;
+        p.ell(mx, my, rr, ry0, MULUT, 2.8 * u);
+        p.klip(ellPts(mx, my, rr, ry0, 0, 360, 0), function () { p.ell(mx, my + ry0 * .7, rr * .7, ry0 * .45, LIDAH, 0); });
+        return;
+      }
+      if (v === 'i' || v === 'e') {   // melebar, gigi tampak
+        var rx1 = (9.5 + 1.5 * b) * u, ry1 = (2.4 + (v === 'e' ? 4 : 2.6) * b) * u, y1 = my - 1.5 * u;
+        p.ell(mx, y1, rx1, ry1, MULUT, 0);
+        p.klip(ellPts(mx, y1, rx1, ry1, 0, 360, 0), function () { p.poly([[mx - rx1, y1 - ry1], [mx + rx1, y1 - ry1], [mx + rx1, y1 - ry1 * .15], [mx - rx1, y1 - ry1 * .15]], PUTIH, 0); });
+        p.ell(mx, y1, rx1, ry1, null, 2.6 * u);
+        return;
+      }
+      var ry = (3 + 8 * b) * u, rx = (8 + 2 * b) * u;   // 'a': huruf D terbuka
       p.ell(mx, my - 1.5 * u, rx, ry, MULUT, 0, 0, 180);
       p.klip(ellPts(mx, my - 1.5 * u, rx, ry, 0, 180, 0), function () { p.ell(mx + 1.5 * u, my - 1.5 * u + ry * .95, rx * .55, ry * .5, LIDAH, 0); p.poly([[mx - rx, my - 2 * u], [mx + rx, my - 2 * u], [mx + rx, my + .6 * u], [mx - rx, my + .6 * u]], PUTIH, 0); });
       p.ell(mx, my - 1.5 * u, rx, ry, null, 2.8 * u, 0, 180);
@@ -310,7 +329,7 @@
     [-1, 1].forEach(function (s) {
       var x = fx + s * ex, jenis = F.mata[s > 0 ? 1 : 0];
       mata(p, jenis, x, ey, u, s, lirik, R.kulit, kd);
-      var by = ey - 17 * u, dI = F.alis[0], dO = F.alis[1];
+      var naik = (o.alisNaik || 0) * 4.5 * u, by = ey - 17 * u - naik, dI = F.alis[0], dO = F.alis[1];
       var warnaAlis = R.gayaRambut === 'uban' || R.gayaRambut === 'botak' ? mix(R.rambut, INK, .35) : INK;
       if (jenis === 'kaget') p.busur(x, by - 5 * u, 8 * u, 3 * u, 200, 340, 3.6 * u, warnaAlis);
       else taper(p, [x - s * 7.5 * u, by + dI * u], [x + s * 7.5 * u, by + dO * u], 4.6 * u, 2.4 * u, warnaAlis);
@@ -319,7 +338,7 @@
     p.busur(fx + hd * 2 * u, ey + 10 * u, 2.4 * u, 1.6 * u, 20, 160, 2.2 * u, mul(R.kulit, [.7, .5, .5]));
     var mx = fx + hd * 2 * u, my = ey + 22 * u;
     if (R.kumis) { taper(p, [mx - 1.5 * u, my - 6.5 * u], [mx - 14 * u, my - 3 * u], 5 * u, 1.8 * u, R.kumis); taper(p, [mx + 1.5 * u, my - 6.5 * u], [mx + 14 * u, my - 3 * u], 5 * u, 1.8 * u, R.kumis); }
-    mulut(p, F.mulut, mx, my, u, o.bicara || 0);
+    mulut(p, F.mulut, mx, my, u, o.bicara || 0, o.vokal);
     if (R.kacamata) {
       g.save(); g.strokeStyle = R.kacamata; g.lineWidth = 3 * u; g.fillStyle = 'rgba(225,240,255,.22)';
       [-1, 1].forEach(function (s) { var x = fx + s * ex; g.beginPath(); g.roundRect ? g.roundRect(x - 11 * u, ey - 9 * u, 22 * u, 17 * u, 6 * u) : g.rect(x - 11 * u, ey - 9 * u, 22 * u, 17 * u); g.fill(); g.stroke();
@@ -336,7 +355,7 @@
   /* ---------- rambut ---------- */
   function rambutBelakang(p, R, H, cx, hc, cahaya, tebal, ow, t, b0, ayun) {
     var gr = R.gayaRambut, col = R.rambut, sh = mul(col, SH_RAMBUT), u = H.a / 50;
-    var goy = ayun != null ? ayun : Math.sin(t * 2.2 + b0) * 2 * u;
+    var goy = ayun != null ? ayun : 0;   // tanpa goyang: rambut hanya condong searah gerak
     if (gr === 'hijab') {
       var hj = R.hijab || '#C98E9A';
       var s = blob(cx, hc + 26 * u, { a: H.a * 1.1, b: H.b * 1.3, nTop: 2.2, nBot: 1.7, egg: .22, asym: 0, rot: 0, noise: .004, seed: 3 });
@@ -389,28 +408,50 @@
       }
       return;
     }
-    var potong = { rapi: .3, cepak: .22, jabrik: .26, bob: .34, panjang: .33, kuncir: .3, sanggul: .28, uban: .26, ikal: .32 }[gr] || .3;
+    var potong = { spike: .2, rapi: .3, cepak: .22, jabrik: .26, bob: .34, panjang: .33, kuncir: .3, sanggul: .28, uban: .26, ikal: .32 }[gr] || .3;
     if (R.topi === 'peci' || R.topi === 'topi') potong = Math.min(potong, .22);
     var cut = top + potong * 2 * H.b;
     var hp2 = hp.map(function (q) { return [cx + (q[0] - cx) * 1.05, hc + (q[1] - hc) * 1.05]; }), n = hp2.length;
-    var batas = function (q) { return q[1] < cut + (Math.abs(q[0] - cx) > H.a * .8 ? H.b * .34 : 0); };
+    var batas = function (q) { return q[1] < cut + (Math.abs(q[0] - cx) > H.a * .8 ? H.b * (gr === 'spike' ? .22 : .34) : 0); };
     var cap = [], i0 = n >> 1;
     for (var kk = i0; kk > 0 && batas(hp2[kk]); kk--) cap.unshift(hp2[kk]);       // kiri bawah → kiri
     for (var kk2 = i0 + 1; kk2 < n; kk2++) cap.push(hp2[kk2]);                    // kiri → atas → kanan
     for (var kk3 = 0; kk3 < i0 && batas(hp2[kk3]); kk3++) cap.push(hp2[kk3]);       // kanan → kanan bawah
     var kiri = cap[0], kanan = cap[cap.length - 1];
     // poni: deretan helai berujung lancip, melengkung searah sisiran
-    var nP = { jabrik: 7, cepak: 6, rapi: 5, uban: 5 }[gr] || 6, sisir = hd ? hd : (gr === 'rapi' || gr === 'uban' ? 1 : 0);
+    var nP = { jabrik: 7, cepak: 6, rapi: 5, uban: 5, spike: 6 }[gr] || 6, sisir = hd ? hd : (gr === 'rapi' || gr === 'uban' ? 1 : gr === 'spike' ? .4 : 0);
     var poni = [];
     for (var i = 0; i < nP; i++) {
       var A = [lr(kanan[0], kiri[0], i / nP), i ? cut : kanan[1]], B = [lr(kanan[0], kiri[0], (i + 1) / nP), i === nP - 1 ? kiri[1] : cut];
       var tengah = 1 - Math.abs((i + .5) / nP - .5) * 2;
-      var dalam = (gr === 'cepak' ? 6 : gr === 'jabrik' ? 16 : 13) * u * (.55 + .45 * tengah) * (i % 2 ? .75 : 1);
+      var dalam = (gr === 'cepak' ? 6 : gr === 'spike' ? 6 : gr === 'jabrik' ? 16 : 13) * u * (.55 + .45 * tengah) * (i % 2 ? .75 : 1);
       var tip = [lr(A[0], B[0], .5) - sisir * 6 * u, cut + dalam - (sisir > 0 ? i / nP * 10 * u : sisir < 0 ? (1 - i / nP) * 10 * u : 0)];
       poni = poni.concat(kurva(A, [lr(A[0], tip[0], .5) + 2 * u, lr(A[1], tip[1], .6)], tip, 5).slice(i ? 1 : 0));
       poni = poni.concat(kurva(tip, [lr(tip[0], B[0], .5), lr(tip[1], B[1], .3)], B, 5).slice(1));
     }
     var bentuk = cap.concat(poni.slice(1, -1));
+    if (gr === 'spike') {   // rambut pendek berdiri (Ko Popo): SATU bentuk padat — lengkung kepala + 6 jambul berjarak sama + garis dahi mulus
+      var ra = H.a * 1.06, rb = H.b * 1.06, pt = function (deg, k) { var r0 = deg * PI / 180; return [cx + Math.cos(r0) * ra * (k || 1), hc + Math.sin(r0) * rb * (k || 1)]; };
+      var jambul = [222, 240, 257, 274, 291, 308], lebarJ = 7.5, hasil = [];
+      hasil.push(pt(200, .97));                                   // cambang kiri, terselip di garis kepala
+      for (var dg = 198; dg <= 342; dg += 2) {
+        var dekat = jambul.filter(function (c) { return Math.abs(dg - c) < lebarJ; })[0];
+        if (dekat != null) {
+          if (Math.abs(dg - (dekat - lebarJ + 1)) < 1.01) {          // masuk jambul: alas kiri → ujung → alas kanan
+            var ujung = (dekat + (270 - dekat) * .28) * PI / 180, pj = (dekat === 257 || dekat === 274) ? 1.22 : 1.17;
+            hasil.push(pt(dekat - lebarJ)); hasil.push([cx + Math.cos(ujung) * ra * pj, hc + Math.sin(ujung) * rb * pj]); hasil.push(pt(dekat + lebarJ));
+          }
+          continue;
+        }
+        hasil.push(pt(dg));
+      }
+      hasil.push(pt(340, .97));                                    // cambang kanan
+      var yDahi = hc - H.b * .5, xDahi = H.a * .8;
+      hasil = hasil.concat(kurva([cx + H.a * .93, hc - H.b * .3], [cx + xDahi * 1.02, yDahi - 2 * u], [cx + xDahi * .9, yDahi], 6).slice(1));
+      hasil = hasil.concat(kurva([cx + xDahi * .9, yDahi], [cx + H.a * .15, yDahi + 5 * u], [cx - xDahi * .9, yDahi - 1 * u], 14).slice(1));   // belahan halus
+      hasil = hasil.concat(kurva([cx - xDahi * .9, yDahi - 1 * u], [cx - xDahi * 1.02, yDahi - 2 * u], [cx - H.a * .93, hc - H.b * .3], 6).slice(1));
+      bentuk = hasil;
+    }
     if (gr === 'jabrik') {   // duri di mahkota
       var duri = [];
       for (var j = 0; j < cap.length; j++) { var q = cap[j], a = Math.atan2(q[1] - hc, q[0] - cx), k = (j % 5 === 2 && q[1] < hc - H.b * .55) ? 11 * u : 0; duri.push([q[0] + Math.cos(a) * k, q[1] + Math.sin(a) * k]); }
@@ -419,7 +460,7 @@
     p.isiSabit(bentuk, col, sh, cahaya, H.a, .38);
     // kilap rambut: busur terang di sisi cahaya
     p.klip(bentuk, function () {
-      var kx = cx + Math.cos(cahaya) * H.a * .35, ky = top + 22 * u;
+      var kx = cx + Math.cos(cahaya) * H.a * .35, ky = top + (gr === 'spike' ? 6 : 22) * u;
       p.busur(kx, ky + 8 * u, H.a * .55, 14 * u, 195, 300, 5 * u, gr === 'uban' ? 'rgba(255,255,255,.7)' : hexA(terang(col, .55), .75));
       p.busur(kx + 4 * u, ky + 2 * u, H.a * .32, 8 * u, 200, 290, 2.4 * u, hexA(terang(col, .7), .55));
     });
@@ -454,18 +495,12 @@
   }
 
   /* ---------- tangan & barang ---------- */
+  /* tangan = bulatan polos tanpa jari (jelas di ukuran kecil): sedikit lonjong searah lengan, tinta tegas, bayangan cel */
   function tangan(p, h, ar, bentuk, kulit, u) {
-    var r = 7.2 * u;
-    if (bentuk === 'tunjuk') {
-      var f = [h[0] + Math.cos(ar) * 15 * u, h[1] + Math.sin(ar) * 15 * u];
-      p.dahan([h, f], 4.2 * u, kulit, 2.2 * u);
-    }
-    if (bentuk === 'buka') {
-      for (var i = -2; i <= 1; i++) { var a = ar + i * .32, f2 = [h[0] + Math.cos(a) * 11 * u, h[1] + Math.sin(a) * 11 * u]; p.dahan([h, f2], 3.6 * u, kulit, 2 * u); }
-      var jp = [h[0] + Math.cos(ar - PI / 2 * 1.1) * 9 * u, h[1] + Math.sin(ar - PI / 2 * 1.1) * 9 * u]; p.dahan([h, jp], 3.6 * u, kulit, 2 * u);
-    }
-    p.ell(h[0], h[1], r, r * .92, kulit, 2.6 * u);
-    p.titik(h[0] - 2 * u, h[1] - 2.2 * u, 2 * u, 'rgba(255,255,255,.35)');
+    var r = 8.2 * u, pts = ellPts(h[0], h[1], r * 1.08, r * .94, 0, 360, ar * 180 / PI);
+    p.isiSabit(pts, kulit, mul(kulit, SH_KULIT), rad(-125), r, .45, 1.0, 1.12);
+    p.poly(pts, null, 2.8 * u);
+    p.titik(h[0] - 2.4 * u, h[1] - 2.6 * u, 2.2 * u, 'rgba(255,255,255,.4)');
   }
   function barang(p, jenis, h, u, t) {
     var x = h[0], y = h[1];
@@ -484,7 +519,7 @@
       case 'cangkir':
         p.poly([[x - 10 * u, y - 16 * u], [x + 10 * u, y - 16 * u], [x + 8 * u, y + 4 * u], [x - 8 * u, y + 4 * u]], '#FFFFFF', 2.2 * u);
         p.busur(x + 11 * u, y - 7 * u, 5 * u, 5 * u, -90, 90, 2.2 * u);
-        for (var j = 0; j < 2; j++) { var s = []; for (var k = 0; k < 8; k++) s.push([x - 3 * u + j * 6 * u + Math.sin(k * .9 + t * 3 + j) * 2 * u, y - 20 * u - k * 2.6 * u]); p.garis(s, 1.6 * u, 'rgba(255,255,255,.75)'); }
+        for (var j = 0; j < 2; j++) { var s = []; for (var k = 0; k < 8; k++) s.push([x - 3 * u + j * 6 * u + Math.sin(k * .9 + j) * 2 * u, y - 20 * u - k * 2.6 * u]); p.garis(s, 1.6 * u, 'rgba(255,255,255,.75)'); }
         break;
       case 'luopan':
         p.ell(x, y - 14 * u, 22 * u, 22 * u, '#C9A45C', 2.6 * u); p.ell(x, y - 14 * u, 16 * u, 16 * u, '#8E1A20', 1.6 * u);
@@ -495,6 +530,15 @@
       case 'kantong':
         p.poly([[x - 16 * u, y - 4 * u], [x + 16 * u, y - 4 * u], [x + 18 * u, y + 28 * u], [x - 18 * u, y + 28 * u]], '#F3E2B8', 2.4 * u);
         p.busur(x, y - 4 * u, 9 * u, 9 * u, 180, 360, 2.2 * u); break;
+      case 'kipas': {   // kipas bulu Shifu Po: bulu abu-hitam berlapis, gagang gelap, rumbai merah
+        var ka = -PI / 2 - .35;
+        for (var fb = 0; fb < 7; fb++) { var af = ka + (fb - 3) * .16, ux = Math.cos(af), uy = Math.sin(af);
+          var bl = [[x, y], [x + ux * 30 * u - uy * 6 * u, y + uy * 30 * u + ux * 6 * u], [x + ux * 46 * u, y + uy * 46 * u], [x + ux * 30 * u + uy * 6 * u, y + uy * 30 * u - ux * 6 * u]];
+          p.poly(bl, fb % 2 ? '#5E5A66' : '#2E2A34', 1.6 * u); p.garis([[x, y], [x + ux * 44 * u, y + uy * 44 * u]], 1 * u, 'rgba(255,255,255,.45)'); }
+        p.dahan([[x, y], [x + 4 * u, y + 16 * u]], 3.4 * u, '#2A1E1C', 1.4 * u);
+        p.garis([[x + 4 * u, y + 16 * u], [x + 5 * u, y + 30 * u]], 2.4 * u, '#C4262E'); p.titik(x + 5 * u, y + 31 * u, 3 * u, '#C4262E');
+        break;
+      }
       case 'bunga':
         p.dahan([[x, y], [x + 2 * u, y - 34 * u]], 2.4 * u, '#4F9A4A', 1.4 * u);
         for (var b = 0; b < 5; b++) { var a = b / 5 * TAU; p.ell(x + 2 * u + Math.cos(a) * 6 * u, y - 38 * u + Math.sin(a) * 6 * u, 5 * u, 5 * u, '#FF8FB1', 1.4 * u); }
@@ -518,6 +562,13 @@
       p.garis([[tcx + hd * 2 * u, leher + 6 * u], [tcx + hd * 2 * u, bawah]], 1.8 * u, garisLipat);
       for (var i = 0; i < 4; i++) { var y = leher + 22 * u + i * 20 * u; if (y < bawah - 8 * u) { p.titik(tcx + hd * 2 * u + 4 * u, y, 2.6 * u, INK); p.titik(tcx + hd * 2 * u + 4 * u, y, 1.8 * u, ac); } }
       p.poly(rr(tcx + T.a * .2, leher + 26 * u, tcx + T.a * .62, leher + 48 * u, 2 * u), null, 1.6 * u);
+    }
+    if (j === 'tangzhuang' && R.motif) {   // motif brokat awan (emas di atas emas / emas di atas merah) atau bunga merah
+      var mw = R.warnaMotif || mul(col, [.78, .74, .7]);
+      for (var my = leher - 4 * u, baris = 0; my < bawah + 10 * u; my += 26 * u, baris++) for (var mx = tcx - T.a * 1.3 + (baris % 2) * 15 * u; mx < tcx + T.a * 1.3; mx += 30 * u) {
+        if (R.motif === 'bunga') { for (var pb = 0; pb < 5; pb++) { var ab = pb / 5 * TAU + baris; p.ell(mx + Math.cos(ab) * 4.6 * u, my + Math.sin(ab) * 4.6 * u, 4.4 * u, 2.6 * u, hexA(mw, .85), 0, 0, 360, ab * 180 / PI); } }
+        else { p.busur(mx, my, 5 * u, 4 * u, 180, 360, 1.8 * u, hexA(mw, .9)); p.busur(mx + 7 * u, my + 1 * u, 4 * u, 3.4 * u, 180, 360, 1.8 * u, hexA(mw, .9)); p.busur(mx + 3.5 * u, my + 1.5 * u, 8.5 * u, 3.5 * u, 0, 180, 1.6 * u, hexA(mw, .8)); }
+      }
     }
     if (j === 'tangzhuang') {   // baju cina: kancing katak + list emas
       p.garis([[tcx + hd * 2 * u, leher + 4 * u], [tcx + hd * 2 * u, bawah]], 2.4 * u, ac);
@@ -573,8 +624,9 @@
     ctx.save();
     if (o.cermin) { ctx.translate(600, 0); ctx.scale(-1, 1); cahaya = PI - cahaya; tebal = arahTebal(cahaya); }
 
-    var H = { a: Bd.a, b: Bd.a * (.93 + .05 * (rnd(benih, 1) - .5)), nTop: 1.9 + .25 * (rnd(benih, 2) - .5), nBot: 2.45 + .2 * (rnd(benih, 3) - .5),
-      egg: -.06 + .04 * (rnd(benih, 4) - .5), asym: .05 * (hd || (rnd(benih, 6) < .5 ? -1 : 1)), rot: rad(5 * (rnd(benih, 7) - .5)), noise: .006, seed: benih };
+    var gemuk = R.bangun === 'gemuk';
+    var H = { a: Bd.a * (gemuk ? 1.04 : 1), b: Bd.a * (.93 + .05 * (rnd(benih, 1) - .5)), nTop: 1.9 + .25 * (rnd(benih, 2) - .5), nBot: gemuk ? 2.15 : 2.45 + .2 * (rnd(benih, 3) - .5),
+      egg: gemuk ? .05 : -.06 + .04 * (rnd(benih, 4) - .5), asym: .05 * (hd || (rnd(benih, 6) < .5 ? -1 : 1)), rot: rad(5 * (rnd(benih, 7) - .5)), noise: .006, seed: benih };
     var Wk = 2 * H.a, HH = 2 * H.b, u = Wk / 100, ow = 4.4 * u;
     p.ol = ow;
     var sol = 975 - (o.naik || 0);
@@ -588,18 +640,18 @@
     var langkah = (lari ? 64 : 40) * u * jl;
     var bob = jl ? (lari ? -7 : 4.5) * u * jl * Math.cos(4 * PI * (ph - (lari ? .12 : 0))) : 0;
     var geser = jl ? (lari ? 2 : 4.5) * u * Math.sin(TAU * ph) * jl : 0;
-    var napas = Math.sin(t * 2.3 + benih) * 1.3 * u * (1 - jl * .7);
-    var goyangDiri = (1 - jl) * Math.sin(t * .8 + benih) * .8;
-    var pinggulX = 300 + geser + goyangDiri * u;
+    var napas = 0;                      // diam = benar-benar diam (tanpa napas/goyang)
+    var pinggulX = 300 + geser;
     var pinggul = duduk ? sol - Lkaki * .56 : sol - 8 * u - Lkaki * (.992 - .25 * tekan) + bob + (lari && jl ? 6 * u : 0);
     var leher = pinggul - badanH * (1 - .06 * tekan) + napas, hc = leher - H.b * .86, top = hc - H.b;
     var miring = rad((o.miring || 0) + (lari ? 7 : 2.2) * hd * jl + Math.sin(TAU * ph) * 1.2 * jl);
     var tcx = pinggulX + hd * 3 * u;
-    var tengok = rad((o.tengok || 0) + (o.bicara || 0) * 2.5 * Math.sin(t * 7)) + miring * .6;
+    var tengok = rad(o.tengok || 0) + miring * .6;
     var kp = putar([[tcx, leher]], miring, pinggulX, pinggul)[0];
     kp[1] += jl ? (lari ? 3 : 1.6) * u * Math.cos(4 * PI * (ph - .08)) * jl * .4 : 0;   // kepala sedikit telat
-    var rambutAyun = (o.vx != null ? o.vx : hd * jl) * -6 * u + Math.sin(t * 2.2 + benih) * 1.5 * u;
-    function keKepala() { ctx.save(); ctx.translate(kp[0], kp[1]); ctx.rotate(tengok + Math.sin(t * 1.7 + benih) * .01); ctx.translate(-300, -leher); }
+    kp[1] += (o.angguk || 0) * 7 * u;   // angguk: kepala turun pelan (dikendalikan pemanggil, mulus)
+    var rambutAyun = (o.vx != null ? o.vx : hd * jl) * -6 * u;
+    function keKepala() { ctx.save(); ctx.translate(kp[0], kp[1]); ctx.rotate(tengok); ctx.translate(-300, -leher); }
     if (R.gayaRambut !== 'hijab') { keKepala(); rambutBelakang(p, R, H, 300, hc, cahaya, tebal, ow, t, benih, rambutAyun); ctx.restore(); }
 
     /* ---- kaki: IK dua ruas, telapak diam di tanah selama fase tumpu ---- */
@@ -647,16 +699,16 @@
     }
 
     /* ---- badan ---- */
-    var T = { a: Bd.lebar * Wk * .4 * (1 + .08 * tekan), b: (pinggul - leher) * .54, nTop: 2.1, nBot: 2.8, egg: R.bangun === 'gemuk' ? .2 : .1, asym: .03 * hd, rot: 0, noise: .005, seed: benih + 7 };
+    var T = { a: Bd.lebar * Wk * .4 * (1 + .08 * tekan), b: (pinggul - leher) * .54, nTop: 2.9, nBot: 2.6, egg: R.bangun === 'gemuk' ? .2 : .1, asym: .03 * hd, rot: 0, noise: .005, seed: benih + 7 };
     var tcy = pinggul - T.b * .92;
     var tb = putar(blob(tcx, tcy, T), miring, pinggulX, pinggul);
-    var bahu = function (s) { return putar([[tcx + s * T.a * .8, leher + 14 * u]], miring, pinggulX, pinggul)[0]; };
+    var bahu = function (s) { return putar([[tcx + s * T.a * .74, leher + 22 * u]], miring, pinggulX, pinggul)[0]; };   // pangkal lengan di dalam badan: bahu padat tanpa celah
 
     /* ---- lengan: IK dua ruas, ayunan berlawanan kaki & sedikit telat (follow-through) ---- */
     var lengan = [];
     ['L', 'R'].forEach(function (k, i) {
       var s = i ? 1 : -1, P = pose[k], S = bahu(s), Rj = (la1 + la2) * (P.j == null ? .95 : P.j);
-      var a = rad(P.a + (P.g ? Math.sin(t * 9) * 16 : 0) + (k === 'R' && P.d && o.bicara ? o.bicara * 6 * Math.sin(t * 5) : 0));
+      var a = rad(P.a);   // tanpa getar: lambai/bicara = pose diam, gerak hanya lewat poseDari
       var tx = S[0] + s * Math.sin(a) * Rj, ty = S[1] + Math.cos(a) * Rj;
       var santai = P.a < 35 && P.a > -20 && (P.j == null || P.j > .6);
       if (jl && (santai || lari)) {
@@ -767,8 +819,32 @@
     return 0;
   }
 
+  /* lip-sync: dari kata VO → {bicara 0..1, vokal 'a'|'i'|'e'|'o'|'u'|'m', alisNaik 0..1}
+     Suku kata = kelompok vokal dalam kata; bibir membuka di tengah suku kata, rapat di konsonan m/b/p.
+     Alis naik pelan di kata panjang/kunci & akhir pertanyaan. a,b = rentang detik milik tokoh ini. */
+  function lipsync(t, kata, a, b) {
+    var out = { bicara: 0, vokal: 'a', alisNaik: 0 };
+    if (!kata) return out; a = a == null ? -1e9 : a; b = b == null ? 1e9 : b;
+    for (var i = 0; i < kata.length; i++) {
+      var k = kata[i]; if (k.t0 < a || k.t0 > b) continue;
+      var tanya = /[?!]$/.test(k.w), panjang = k.w.replace(/[^\p{L}]/gu, '').length >= 8;
+      if ((tanya || panjang) && t > k.t0 - .15 && t < k.t1 + .35) out.alisNaik = Math.max(out.alisNaik, Math.sin(cl((t - k.t0 + .15) / (k.t1 - k.t0 + .5), 0, 1) * PI));
+      if (t < k.t0 || t > k.t1) continue;
+      var w = k.w.toLowerCase().replace(/[^a-z]/g, '') || 'a', suku = w.match(/[aiueo]+|[^aiueo]+/g) || ['a'];
+      var vok = suku.filter(function (x) { return /[aiueo]/.test(x); }); if (!vok.length) vok = ['a'];
+      var x = (t - k.t0) / Math.max(.06, k.t1 - k.t0), n = vok.length, j = Math.min(n - 1, Math.floor(x * n)), f = x * n - j;
+      var v = vok[j].slice(-1), sebelum = (w.split(vok[j])[0] || '').slice(-1);
+      out.vokal = (f < .28 && /[mbp]/.test(sebelum)) ? 'm' : v;
+      out.bicara = .3 + .6 * Math.sin(Math.min(1, f * 1.15) * PI);
+      return out;
+    }
+    return out;
+  }
+
   var RUPA_CONTOH = {
-    koPopo:  { kulit: '#F3CFAE', rambut: '#1E1614', gayaRambut: 'rapi', atasan: '#8E1A20', jenisAtasan: 'tangzhuang', aksen: '#E2C06E', bawahan: '#1D1A1F', sepatu: '#241C1A' },
+    koPopo:      { kulit: '#F1C9A5', pipi: '#FF8F8F', rambut: '#16110F', gayaRambut: 'spike', atasan: '#B3202A', jenisAtasan: 'tangzhuang', motif: 'awan', warnaMotif: '#E2B85A', aksen: '#F1D38A', bawahan: '#141216', sepatu: '#1E1A1C', bangun: 'gemuk' },
+    koPopoMerah: { kulit: '#F1C9A5', pipi: '#FF8F8F', rambut: '#16110F', gayaRambut: 'spike', atasan: '#B3202A', jenisAtasan: 'tangzhuang', motif: 'awan', warnaMotif: '#E2B85A', aksen: '#F1D38A', bawahan: '#141216', sepatu: '#1E1A1C', bangun: 'gemuk' },
+    koPopoEmas:  { kulit: '#F1C9A5', pipi: '#FF8F8F', rambut: '#16110F', gayaRambut: 'spike', atasan: '#EBB43A', jenisAtasan: 'tangzhuang', motif: 'awan', warnaMotif: '#C98A1E', aksen: '#9C6A12', bawahan: '#141216', sepatu: '#1E1A1C', bangun: 'gemuk' },
     cindy:   { kulit: '#FFDDC6', rambut: '#1E1614', gayaRambut: 'bob', atasan: '#FBF6EE', jenisAtasan: 'blus', luar: '#C4262E', aksen: '#E2C06E', bawahan: '#34384A', jenisBawahan: 'rok', sepatu: '#7A2A2A', anting: '#E2C06E' },
     sherlyn: { kulit: '#F7D3B6', rambut: '#5A3426', gayaRambut: 'panjang', atasan: '#F4E8D2', jenisAtasan: 'blus', luar: '#2E7D63', aksen: '#A8161D', bawahan: '#EDE3CF', jenisBawahan: 'rokPanjang', sepatu: '#5A3A2A' },
     pakRT:   { kulit: '#E5B38C', rambut: '#D9D4CC', gayaRambut: 'uban', atasan: '#7A4A2A', jenisAtasan: 'batik', aksen: '#F0C66A', bawahan: '#2A2D38', topi: 'peci', warnaTopi: '#1A1A1E', kumis: '#D9D4CC', bangun: 'lansia', kacamata: '#5A4632' },
@@ -777,6 +853,9 @@
     koki:    { kulit: '#F3CFAE', rambut: '#2A1E1C', gayaRambut: 'cepak', atasan: '#FFFFFF', jenisAtasan: 'celemek', aksen: '#3F6FB5', bawahan: '#2A2D38', topi: 'koki', bangun: 'gemuk' }
   };
 
-  G.TOKOH_TOON = { gambar: gambar, rupaAcak: rupaAcak, pilihBarang: pilihBarang, POSE: POSE, campurPose: campurPose, poseDari: poseDari, ekspresiDari: ekspresiDari, faseDariJarak: faseDariJarak, EKSPRESI: EKS, RUPA_DASAR: RUPA_DASAR, RUPA_CONTOH: RUPA_CONTOH,
-    kedipDari: kedipDari, bicaraDari: bicaraDari, INK: INK, warna: { mul: mul, mix: mix, terang: terang } };
+  /* Ko Popo (Shifu Po versi toon): badan gemuk, rambut pendek berdiri, tangzhuang brokat, kipas bulu.
+     Selang-seling per video: 'merah' / 'emas' (catat di gaya.md). */
+  function koPopo(varian) { return Object.assign({}, varian === 'emas' ? RUPA_CONTOH.koPopoEmas : RUPA_CONTOH.koPopoMerah); }
+  G.TOKOH_TOON = { koPopo: koPopo, gambar: gambar, rupaAcak: rupaAcak, pilihBarang: pilihBarang, POSE: POSE, campurPose: campurPose, poseDari: poseDari, ekspresiDari: ekspresiDari, faseDariJarak: faseDariJarak, EKSPRESI: EKS, RUPA_DASAR: RUPA_DASAR, RUPA_CONTOH: RUPA_CONTOH,
+    kedipDari: kedipDari, bicaraDari: bicaraDari, lipsync: lipsync, INK: INK, warna: { mul: mul, mix: mix, terang: terang } };
 })(typeof window !== 'undefined' ? window : this);

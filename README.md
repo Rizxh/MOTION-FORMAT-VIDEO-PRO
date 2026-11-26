@@ -26,6 +26,14 @@ python %USERPROFILE%\.claude\skills\motion-format\scripts\mf.py render proyek\<n
 
 Kredit ElevenLabs hanya terpakai kalau ada `--ya`. Default VO: stability 0.5, similarity 0.9, tempo 1.1.
 
+**VO gratis (tanpa kredit, saat kuota ElevenLabs habis):** edge-tts, suara `id-ID-ArdiNeural`.
+```
+python -m pip install edge-tts
+python tools	ts_gratis.py vo <nama> --no 1 --teks "Kalimat..." --laju +4%
+python tools	ts.py kata <nama>
+```
+Keluarannya sama (`vo-01.mp3` + `vo-01.kata.json`), jadi bisa ditukar ke suara clone Ko Popo kapan saja.
+
 ## Gaya Toon 3D (Shifu Po)
 
 Gaya utama untuk konten Shifu Po: dunia three.js bertinta (rumah komplek, jalan, pohon, warga, lampion,
@@ -38,5 +46,6 @@ python %USERPROFILE%\.claude\skills\motion-format\scripts\mf.py baru proyek\<nam
 copy brand\shifupo\logo-shifupo-red.png proyek\<nama>\assets\gambar\logo-shifupo.png
 ```
 
-Contoh jadi: `proyek/sp-tusuk-sate-toon` (Rumah Tusuk Sate, 15 dtk, hook → CTA, belum ber-VO).
+Contoh jadi: `proyek/sp-tusuk-sate-toon` (Rumah Tusuk Sate, 15 dtk, tanpa VO) dan `proyek/sp-meja-kantor`
+(Meja Membelakangi Pintu, 39 dtk, VO gratis + musik + SFX, interior kantor).
 `proyek/_uji-tokoh` = lembar uji semua pose/ekspresi/siklus jalan, `proyek/_uji-dunia` = uji aset dunia.

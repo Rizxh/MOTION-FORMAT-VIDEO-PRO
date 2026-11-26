@@ -1,0 +1,299 @@
+<!--@TITLE Meja Membelakangi Pintu · Toon 3D-->
+<!--@RASIO 9:16-->
+<!-- Shifu Po · Toon 3D · ±39 dtk. Pola A: HOOK (kaget di kantor) → masalah (membelakangi pintu) → Feng Shui (tanpa sandaran)
+     → dampak nyata → SOLUSI (posisi komando, meja berputar) → CTA. Semua waktu dari kata VO (kata.js), lihat WAKTU.
+     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA · 4 KANTOR · 5 TOKOH · 6 KAMERA · 7 TEKS · 8 SCENE -->
+<!--@HEAD-->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--@MESIN toon-tokoh.js toon-dunia.js-->
+<style>
+  #cta{position:absolute;left:90px;right:150px;top:290px;opacity:0;text-align:center;padding:44px 40px 48px;border-radius:40px;
+    background:linear-gradient(#FBF6EC,#F1E6D2);border:3px solid #C9A45C;box-shadow:0 30px 80px rgba(40,15,20,.35)}
+  #cta img{height:88px;display:block;margin:0 auto 16px}
+  #cta .tanya{font:800 32px 'Plus Jakarta Sans';color:#7E0F15;letter-spacing:.07em;text-transform:uppercase}
+  #cta .besar{font:900 62px/1.08 'Cinzel';color:#12100E;margin:14px 0 24px}
+  #cta .tombol{display:inline-block;font:800 40px 'Plus Jakarta Sans';color:#12100E;padding:22px 50px;border-radius:999px;background:linear-gradient(#F1DDA8,#C9A45C);box-shadow:0 8px 0 #9C7A35,0 18px 40px rgba(120,80,20,.35)}
+  #cta .kecil{font:700 28px 'Plus Jakarta Sans';color:#5A4E44;margin-top:24px}
+</style>
+<!--@BODY-->
+<div id="dunia"></div>
+<div id="cta">
+  <img id="logo" alt="">
+  <div class="tanya">Meja Anda membelakangi pintu?</div>
+  <div class="besar">Pindah ke<br>posisi komando</div>
+  <div class="tombol" id="tombol">Konsultasi via WhatsApp</div>
+  <div class="kecil">Shifu Po · Feng Shui &amp; BaZi</div>
+</div>
+<!--@SCRIPT-->
+/* == 1. BRAND ================================================================ */
+const BRAND = { tinta: '#12100E', emas: '#C9A45C', emasTerang: '#F1DDA8', merah: '#A8161D', giok: '#2E7D63' };
+const TK = TOKOH_TOON, R = TK.RUPA_CONTOH;
+const KO_POPO = TK.koPopo('emas');   // selang-seling per video: Tusuk Sate = merah, Meja Kantor = emas
+
+/* == 2. WAKTU: diturunkan dari kata VO (kata.js); angka cadangan = perkiraan bila kata.js belum ada == */
+const VO = [0.4, 6.38, 12.63, 19.22, 23.73, 31.54];
+const KATA = window.KATA || [];
+const K = (w, n = 1, cad = 0) => { let c = 0; for (const k of KATA) if (k.w.toLowerCase().replace(/[^\p{L}]/gu, '').startsWith(w)) { if (++c === n) return k.t0; } return cad; };
+const WAKTU = {
+  kurirMasuk: 1.55, brak: 1.95,
+  selam: K('meja', 1, 5.37), membelakangi: K('membelakangi', 1, 7.23), masuk: K('masuk', 1, 9.68), belakang: K('belakang', 1, 11.82),
+  kopoMasuk: VO[2] - .6, sandaran: K('sandaran', 1, 15.26), arus: K('arus', 1, 16.98), kena: K('punggung', 2, 18.41),
+  waspada: K('waspada', 1, 20.9), buyar: K('buyar', 1, 22.98),
+  komando: K('komando', 1, 25.34), putar: K('putar', 1, 27.2), melihat: K('melihat', 1, 28.46), dinding: K('dinding', 1, 29.76),
+  cta: VO[5] + .05, konsul: K('konsultasikan', 1, 33.97), wa: K('whatsapp', 1, 36.37), dur: 39.6
+};
+
+/* == 3. DUNIA (luar kantor: hanya tampak saat shot udara) ===================== */
+const D = TOON3D.mulai({ el: $('#dunia'), langit: 'siang', ss: 1.5, area: 22 });
+D.atur({ matahari: { az: -32, el: 56 }, dof: .45, dofRentang: .8, tintaJauh: 60 });
+const S = D.scene;
+S.add(D.tanah({ lebar: 220, dalam: 220, jenis: 'rumput' }));
+const halaman = D.tanah({ lebar: 16, dalam: 18, jenis: 'paving' }); halaman.position.set(0, .01, -2); S.add(halaman);
+const jl = D.jalan({ panjang: 80, lebar: 6 }); jl.rotation.y = Math.PI / 2; jl.position.z = 11; S.add(jl);
+[[-12, -4, Math.PI / 2, 0], [12, -4, -Math.PI / 2, 1], [-12, 7, Math.PI / 2, 2], [12, 7, -Math.PI / 2, 3]].forEach(q => {
+  const r = D.rumah({ benih: 60 + q[3], dinding: ['#E6EEDF', '#F6DCD2', '#FBEBC8', '#DDEBF0'][q[3]], atap: ['#3F6E8C', '#C8483A', '#5F7F4A', '#9E3B4A'][q[3]], pagar: false });
+  r.position.set(q[0], 0, q[1]); r.rotation.y = q[2]; S.add(r);
+});
+for (let i = 0; i < 8; i++) { const p = D.pohon({ benih: i + 70, tinggi: 4.2 + (i % 3) * .6, warna: ['#5FA453', '#4E9A5E', '#78AE4A'][i % 3] }); p.position.set(i % 2 ? 7 : -7, 0, -9 + i * 2.6); S.add(p); }
+S.add(D.bukit({ warna: '#9DB98E' })); S.add(D.awan({ n: 7, benih: 9 }));
+const wargaLuar = D.warga({ n: 4, jalur: [[-30, 7.4], [30, 7.4]], benih: 17 });
+
+/* == 4. KANTOR ================================================================ */
+const ruang = D.ruang({ lebar: 8, dalam: 7, tinggi: 3, dinding: '#F2E6D6', lantai: 'keramik', warnaLantai: '#E8DCCB', isi: 'kosong', pintuDi: 'belakang', pintuX: -0.6, jendelaX: 2.0, lukisanX: -2.6, plafon: true, warnaPintu: '#8A4A30' });
+S.add(ruang);
+const daun = ruang.userData.daunPintu, plafon = ruang.userData.plafon;
+
+function buatMeja(kayu, papan) {
+  const g = new THREE.Group(), mk = D.bahan('#FFFFFF', { map: D.ulang(D.TEX.kayu(kayu), 1, .5) });
+  g.add(D.kotak(1.5, .07, .78, mk, 0, .76, 0)); [-1, 1].forEach(s => g.add(D.kotak(.06, .74, .74, mk, s * .7, .37, 0)));
+  g.add(D.kotak(1.36, .5, .04, mk, 0, .5, .34));
+  const lap = new THREE.Group(); lap.position.x = .38; lap.rotation.y = -.35; lap.scale.setScalar(.85); lap.add(D.kotak(.46, .02, .32, D.bahan('#C9CCD6'), 0, .8, -.05));
+  const lid = D.kotak(.46, .3, .02, D.bahan('#C9CCD6'), 0, .95, .1); lid.rotation.x = .25; lap.add(lid);
+  const lyr = new THREE.Mesh(new THREE.PlaneGeometry(.42, .26), D.bahanDasar('#9FDCFF')); lyr.position.set(0, .95, .088); lyr.rotation.x = .25; lyr.rotation.y = Math.PI; lap.add(lyr); g.add(lap);
+  for (let i = 0; i < 4; i++) g.add(D.kotak(.24, .012, .32, D.bahan(['#FBF7EC', '#F4EAD2', '#FFFFFF', '#EFE4CF'][i]), -.48 + i * .01, .8 + i * .013, .05 + i * .01, false));
+  g.add(D.tabung(.045, .04, .1, D.bahan('#FFFFFF'), .52, .79, .12, 12));
+  const lampu = new THREE.Group(); lampu.add(D.tabung(.07, .07, .03, D.bahan('#2E2A36'), 0, 0, 0, 12));
+  const tiang = D.tabung(.012, .012, .36, D.bahan('#2E2A36'), 0, 0, 0, 6); tiang.rotation.z = .3; lampu.add(tiang);
+  const kap = D.tabung(.09, .05, .1, D.bahan(BRAND.merah), 0, 0, 0, 12); kap.position.set(-.1, .3, 0); kap.rotation.z = -.9; lampu.add(kap);
+  lampu.position.set(.55, .795, -.22); g.add(lampu);
+  if (papan) { const pn = D.papan({ lebar: .36, tinggi: .1, tiang: 0, gambar: (c, w, h) => { c.fillStyle = '#2E2A36'; c.fillRect(0, 0, w, h); c.fillStyle = '#F1DDA8'; c.font = "800 72px 'Plus Jakarta Sans'"; c.textAlign = 'center'; c.fillText(papan, w / 2, h * .78); } }); pn.children[1].visible = false; pn.position.set(-.2, .79, .3); g.add(pn); }
+  const kursi = new THREE.Group(); const dd = D.kotakBulat(.5, .09, .5, .04, D.bahan('#2E3445')); dd.position.y = .47; kursi.add(dd);
+  const sd = D.kotakBulat(.5, .62, .09, .05, D.bahan('#2E3445')); sd.position.set(0, .84, -.24); kursi.add(sd); kursi.add(D.tabung(.03, .03, .44, D.bahan('#5A5662'), 0, 0, 0, 8));
+  kursi.position.z = -.75; g.add(kursi);
+  return g;
+}
+const mejaHendra = buatMeja('#8A5A3C', 'HENDRA'); S.add(mejaHendra);
+const paket = D.kotakBulat(.34, .22, .26, .04, D.bahan('#C99A62')); paket.add(D.kotak(.36, .23, .05, D.bahan('#E9D7A8'), 0, 0, 0, false));
+paket.position.set(-.45, .9, .1); paket.rotation.y = .3; mejaHendra.add(paket);
+const meja2 = buatMeja('#9B6B48'); meja2.position.set(-2.7, 0, .7); meja2.rotation.y = Math.PI / 2; S.add(meja2);
+const meja3 = buatMeja('#9B6B48'); meja3.position.set(-2.75, 0, 2.55); meja3.rotation.y = Math.PI / 2; S.add(meja3);
+const MEJA0 = { x: -0.6, z: -1.55, r: 0 }, MEJA1 = { x: 2.35, z: -1.95, r: -1.37 };
+const kursiDi = (x, z, r) => [x - .75 * Math.sin(r), z - .75 * Math.cos(r)];
+// isi kantor: dispenser, papan tulis, jam, pohon uang, rak, kipas
+const disp = new THREE.Group(); disp.add(D.kotakBulat(.36, .95, .36, .05, D.bahan('#ECEAE6'))); disp.children[0].position.y = .48;
+const galon = D.tabung(.15, .15, .42, new THREE.MeshToonMaterial({ color: D.lin('#8FC8EE'), transparent: true, opacity: .75, gradientMap: D.RAMP }), 0, .95, 0, 16); disp.add(galon);
+disp.position.set(-3.45, 0, -2.85); S.add(disp);
+const papanTulis = D.papan({ lebar: 1.6, tinggi: 1.0, tiang: 0, gambar: (c, w, h) => { c.fillStyle = '#FAFAF6'; c.fillRect(0, 0, w, h); c.strokeStyle = '#3F6FB5'; c.lineWidth = 10; c.beginPath(); c.moveTo(40, h - 60); c.lineTo(160, h - 120); c.lineTo(270, h - 100); c.lineTo(400, h - 230); c.stroke();
+  c.fillStyle = '#A8161D'; c.font = "800 44px 'Plus Jakarta Sans'"; c.fillText('Target Q4', 40, 70); c.strokeStyle = '#9A9AA6'; c.lineWidth = 14; c.strokeRect(0, 0, w, h); } });
+papanTulis.children[1].visible = false; papanTulis.position.set(-3.9, 1.25, -.6); papanTulis.rotation.y = Math.PI / 2; S.add(papanTulis);
+const jamCv = document.createElement('canvas'); jamCv.width = jamCv.height = 256; { const c = jamCv.getContext('2d'); c.fillStyle = '#FFFFFF'; c.beginPath(); c.arc(128, 128, 120, 0, 7); c.fill(); c.lineWidth = 14; c.strokeStyle = '#2E2A36'; c.stroke(); c.fillStyle = '#2E2A36'; for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; c.fillRect(128 + Math.cos(a) * 95 - 5, 128 + Math.sin(a) * 95 - 5, 10, 10); } }
+const jamTx = new THREE.CanvasTexture(jamCv); jamTx.encoding = THREE.sRGBEncoding;
+const jam = new THREE.Group(); jam.add(new THREE.Mesh(new THREE.CircleGeometry(.28, 32), D.bahan('#FFFFFF', { map: jamTx })));
+const jarumP = D.kotak(.02, .18, .01, D.bahanDasar('#2E2A36'), 0, .09, .01, false), jarumJ = D.kotak(.025, .12, .01, D.bahanDasar(BRAND.merah), 0, .06, .015, false);
+const pP = new THREE.Group(); pP.add(jarumP); const pJ = new THREE.Group(); pJ.add(jarumJ); jam.add(pP); jam.add(pJ); D.lapisan(pP, 1); D.lapisan(pJ, 1);
+jam.position.set(.75, 2.45, -3.41); S.add(jam);
+const pu = D.pohonUang({ besar: 1.1 }); pu.position.set(3.5, 0, -3.05); S.add(pu);
+const pot2 = D.pot({ warna: '#E9E2D6', besar: 1.6, benih: 4 }); pot2.position.set(3.4, 0, 2.7); S.add(pot2);
+const rak = new THREE.Group(); { const mr = D.bahan('#FFFFFF', { map: D.ulang(D.TEX.kayu('#7A4A2E'), 1, 1) }); rak.add(D.kotak(1.3, 1.9, .36, mr, 0, .95, 0));
+  for (let r2 = 0; r2 < 3; r2++) for (let b = 0; b < 5; b++) rak.add(D.kotak(.14, .34, .26, D.bahan(['#C4262E', '#2E7D63', '#E2C06E', '#3F6FB5', '#F4F0E4'][(r2 * 5 + b) % 5]), -.42 + b * .2, .4 + r2 * .55, .08)); }
+rak.position.set(3.78, 0, .1); rak.rotation.y = -Math.PI / 2; S.add(rak);
+// target posisi komando (cincin emas di lantai) & kertas beterbangan
+const cincin = new THREE.Mesh(new THREE.RingGeometry(.7, .82, 48), new THREE.MeshBasicMaterial({ color: D.lin(BRAND.emasTerang).multiplyScalar(1.6), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false }));
+cincin.rotation.x = -Math.PI / 2; cincin.position.set(MEJA1.x + .3, .02, MEJA1.z - .1); D.lapisan(cincin, 1); S.add(cincin);
+const rngK = TOON3D.rng(5), kertas = [];
+for (let i = 0; i < 9; i++) { const m = new THREE.Mesh(new THREE.PlaneGeometry(.21, .28), D.bahan('#FBF7EC', { dua: true })); D.lapisan(m, 1); S.add(m);
+  kertas.push({ m, vx: (rngK() - .5) * 2.4, vy: 1.6 + rngK() * 1.4, vz: .4 + rngK() * 1.4, sp: (rngK() - .5) * 10, f: rngK() * 6 }); }
+// energi
+const sha = D.energi({ jenis: 'sha', titik: [[-0.6, 1.05, -7.2], [-0.6, 1.0, -2.5]], tebal: .13 }); S.add(sha);
+const sheng = D.energi({ jenis: 'sheng', titik: [[-0.6, 1.0, -6.4], [-0.6, 1.0, -3.3], [0.3, .95, -2.3], [1.2, .9, -2.5], [1.78, .9, -1.95]], tebal: .09 }); S.add(sheng);
+
+/* == 5. TOKOH ================================================================= */
+const RUPA_HENDRA = { kulit: '#E8B48E', rambut: '#1E1614', gayaRambut: 'rapi', atasan: '#7FA7D9', jenisAtasan: 'kemeja', aksen: '#FFFFFF', bawahan: '#2A2D38', sepatu: '#3A2A26', kumis: '#2A1E14', bangun: 'gemuk' };
+const RUPA_KURIR = Object.assign(TK.rupaAcak(12345), { topi: 'topi', warnaTopi: '#E2A23A', gayaRambut: 'cepak', jenisAtasan: 'kaos', atasan: '#E2A23A', jenisBawahan: 'celana', bangun: 'dewasa' });
+const RUPA_TAMU = Object.assign(TK.rupaAcak(777), { bangun: 'dewasa' });
+TK.POSE.ketik = { L: { a: -24, j: .74, s: 1, d: 1 }, R: { a: -20, j: .76, s: 1, d: 1 }, duduk: 1 };
+TK.POSE.dudukKaget = { L: { a: 150, j: .5, s: 1, b: 'buka' }, R: { a: 150, j: .5, s: 1, b: 'buka' }, duduk: 1 };
+TK.POSE.dudukSorak = { L: { a: 160, j: .95, s: 1, b: 'kepal' }, R: { a: 160, j: .95, s: 1, b: 'kepal' }, duduk: 1 };
+TK.POSE.dudukGaruk = { L: { a: -24, j: .74, s: 1, d: 1 }, R: { a: -172, j: .78, s: 1, b: 'kepal' }, duduk: 1 };
+TK.POSE.dudukPikir = { L: { a: -38, j: .58, s: 1, d: 1, b: 'kepal' }, R: { a: -158, j: .5, s: 1, d: 1, b: 'kepal' }, duduk: 1 };
+TK.POSE.dudukJempol = { L: { a: -24, j: .74, s: 1, d: 1 }, R: { a: 70, j: .7, s: 1, b: 'kepal' }, duduk: 1 };
+TK.POSE.dudukLambai = { L: { a: -24, j: .74, s: 1, d: 1 }, R: { a: 140, j: .7, s: 1, b: 'buka' }, duduk: 1 };
+TK.POSE.dudukDengar = { L: { a: -30, j: .62, s: 1, d: 1 }, R: { a: -34, j: .6, s: 1, d: 1 }, duduk: 1 };
+TK.POSE.jempol = { L: { a: 10, j: .97, s: 1 }, R: { a: 72, j: .68, s: 1, b: 'kepal' } };
+TK.POSE.serah = { L: { a: 10, j: .97, s: 1 }, R: { a: 48, j: .86, s: 1, b: 'buka', d: 1 } };
+const hendra = D.tokoh({ tinggi: 1.62, res: 2 }), kopo = D.tokoh({ tinggi: 1.64, res: 2 });
+const rekan1 = D.tokoh({ tinggi: 1.52, res: 1.4 }), rekan2 = D.tokoh({ tinggi: 1.55, res: 1.4 }), kurir = D.tokoh({ tinggi: 1.58, res: 1.5 }), tamu = D.tokoh({ tinggi: 1.55, res: 1.5 });
+const RUPA_R1 = TK.rupaAcak(2024), RUPA_R2 = Object.assign(TK.rupaAcak(31), { gayaRambut: 'hijab', hijab: '#7E9BCB' });
+/* jalan di sepanjang titik [[t,x,z],...]: posisi, fase dari jarak tempuh, arah layar */
+function jalur(titik, t) {
+  if (t <= titik[0][0]) return { x: titik[0][1], z: titik[0][2], jarak: 0, jalan: 0, dx: 0 };
+  let jarak = 0;
+  for (let i = 0; i < titik.length - 1; i++) {
+    const [t0, x0, z0] = titik[i], [t1, x1, z1] = titik[i + 1], L = Math.hypot(x1 - x0, z1 - z0);
+    if (t < t1) { const k = (t - t0) / (t1 - t0); return { x: lerp(x0, x1, k), z: lerp(z0, z1, k), jarak: jarak + L * k, jalan: L > .01 ? 1 : 0, dx: x1 - x0, dz: z1 - z0 }; }
+    jarak += L;
+  }
+  const a = titik[titik.length - 1]; return { x: a[1], z: a[2], jarak, jalan: 0, dx: 0 };
+}
+const hadapDari = (j, base = 0) => j.jalan ? clamp((j.dx || 0) * 1.2 / Math.max(.3, Math.hypot(j.dx || 0, j.dz || 0)), -1, 1) * .9 : base;
+
+/* == 6. KAMERA ================================================================ */
+const kamera = D.jalurKamera([
+  { t: 0, pos: [6.2, 12.5, 10.5], lihat: [-0.2, 0.3, -1.8], fov: 40 },
+  { t: 4.6, pos: [4.6, 10.2, 8.4], lihat: [-0.3, 0.6, -1.8], fov: 40, ease: 'lin' },
+  { t: 6.35, pos: [0.3, 1.85, 3.3], lihat: [-0.6, 1.12, -2.6], fov: 42 },
+  { t: 9.4, pos: [-0.15, 1.82, 2.9], lihat: [-0.7, 1.12, -2.7], fov: 42 },
+  { t: 12.4, pos: [1.0, 2.05, 4.3], lihat: [-1.15, 1.15, -2.3], fov: 46 },
+  { t: 18.9, pos: [0.7, 1.95, 3.7], lihat: [-1.1, 1.15, -2.3], fov: 46 },
+  { t: 20.1, pos: [-0.35, 1.62, 1.05], lihat: [-0.6, 1.3, -2.3], fov: 38 },
+  { t: 23.6, pos: [-0.4, 1.6, 0.7], lihat: [-0.6, 1.3, -2.3], fov: 38 },
+  { t: 26.2, pos: [1.0, 4.9, 5.8], lihat: [0.7, 0.5, -1.6], fov: 46 },
+  { t: 30.4, pos: [1.8, 1.95, 4.4], lihat: [2.5, 1.15, -1.9], fov: 44 },
+  { t: 32.6, pos: [1.9, 1.75, 3.2], lihat: [2.35, 1.95, -1.9], fov: 46 },
+  { t: 39.6, pos: [1.95, 1.76, 2.9], lihat: [2.35, 1.95, -1.9], fov: 46, ease: 'lin' }
+]);
+
+/* == 7. TEKS ================================================================== */
+const IMG = {};
+const muatGambar = (k, src) => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.onerror = r; i.src = src; });
+const BAB = D.judulBab([
+  { a: .25, b: 4.35, kicker: 'Susah fokus di kantor?', judul: 'Lihat dulu <em>meja</em> Anda', besar: 1 },
+  { a: WAKTU.membelakangi - .15, b: WAKTU.kopoMasuk - .5, kicker: 'Masalahnya', judul: 'Duduk <em>membelakangi</em> pintu' },
+  { a: WAKTU.sandaran - .25, b: WAKTU.waspada - .55, kicker: 'Dalam Feng Shui', judul: 'Tanpa <em>sandaran</em>' },
+  { a: WAKTU.waspada - .25, b: WAKTU.komando - .7, kicker: 'Dampak nyata', judul: 'Waspada terus, fokus <em>buyar</em>' },
+  { a: WAKTU.komando - .15, b: WAKTU.cta - .45, kicker: 'Solusinya', judul: 'Posisi <em>komando</em>' }
+]);
+
+/* == 8. SCENE ================================================================= */
+const SCENE = {
+  dur: WAKTU.dur,
+  muat: () => Promise.all([muatGambar('logo', 'assets/gambar/logo-shifupo.png'), document.fonts.load("800 40px 'Plus Jakarta Sans'"), document.fonts.load("900 40px 'Cinzel'")])
+    .then(() => { if (IMG.logo) $('#logo').src = IMG.logo.src; else $('#logo').style.display = 'none'; }),
+  sub: { gaya: 'polos', font: "800 56px 'Plus Jakarta Sans'", warna: '#FFFFFF', aksen: '#FFD27A', y: (t) => t > WAKTU.cta + .3 ? { x: W / 2, y: 1085 } : { x: W / 2, y: H * .755 }, maks: 5,
+    kunci: ['kaget', 'fokus?', 'membelakangi', 'pintu.', 'pintu', 'sandaran.', 'punggung.', 'waspada', 'buyar.', 'komando.', 'dinding', 'kokoh', 'WhatsApp.'] },
+  audio: {
+    vo: [{ src: 'assets/audio/vo-01.mp3', at: 0.4, teks: 'Sudah kerja keras, tapi di kantor sering kaget dan susah fokus? Coba lihat posisi meja Anda.' },
+         { src: 'assets/audio/vo-02.mp3', at: 6.38, teks: 'Pak Hendra duduk membelakangi pintu. Setiap ada yang masuk, ia tidak tahu siapa yang datang dari belakang.' },
+         { src: 'assets/audio/vo-03.mp3', at: 12.63, teks: 'Dalam Feng Shui, punggung yang menghadap pintu disebut tanpa sandaran. Arus dari pintu langsung mengenai punggung.' },
+         { src: 'assets/audio/vo-04.mp3', at: 19.22, teks: 'Secara nyata pun, tubuh jadi waspada terus, dan konsentrasi mudah buyar.' },
+         { src: 'assets/audio/vo-05.mp3', at: 23.73, teks: 'Solusinya sederhana: posisi komando. Putar meja sampai Anda bisa melihat pintu, dengan dinding kokoh di belakang punggung.' },
+         { src: 'assets/audio/vo-06.mp3', at: 31.54, teks: 'Meja Anda membelakangi pintu? Konsultasikan dulu dengan Shifu Po, lewat WhatsApp.' }],
+    sfx: [{ src: 'assets/audio/sfx-ketik.mp3', at: .05, vol: .18 }, { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.brak - .03, vol: .45 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 4.7, vol: .35 }, { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.membelakangi - .1, vol: .3 },
+          { src: 'assets/audio/sfx-ketik.mp3', at: 6.9, vol: .14 }, { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.masuk - .1, vol: .3 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: WAKTU.arus - .15, vol: .4 }, { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.kena - .05, vol: .35 },
+          { src: 'assets/audio/sfx-detik.mp3', at: WAKTU.waspada - .3, vol: .22 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.komando - .05, vol: .35 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: WAKTU.putar - .1, vol: .38 }, { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.putar + 1.35, vol: .4 },
+          { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.melihat, vol: .3 }, { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.cta + .1, vol: .35 },
+          { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.wa - .05, vol: .35 }],
+    loops: [{ src: 'assets/audio/amb-siang.mp3', a: 0, b: WAKTU.dur, vol: .12 }],
+    music: { src: 'assets/audio/musik.mp3', vol: .08 }
+  },
+  frame(t) {
+    const W8 = WAKTU;
+    kamera(t);   // kamera mulus, tanpa guncangan
+    plafon.visible = D.cam.position.y < 3.1;
+
+    // pintu: dibanting kurir, dibuka tamu & Ko Popo
+    const buka = Math.max(E.back(seg(t, W8.kurirMasuk - .1, W8.brak)) * (1 - E.io(seg(t, 4.8, 5.6))),
+      E.out(seg(t, W8.masuk - .55, W8.masuk - .1)) * (1 - E.io(seg(t, W8.masuk + 1.6, W8.masuk + 2.3))),
+      E.out(seg(t, W8.kopoMasuk - .4, W8.kopoMasuk + .1)) * (1 - E.io(seg(t, W8.kopoMasuk + 2.2, W8.kopoMasuk + 2.9))),
+      E.back(seg(t, W8.arus - .35, W8.arus + .05)) * (1 - E.io(seg(t, W8.komando - .2, W8.komando + .6))));
+    daun.rotation.y = -1.55 * buka;
+
+    // meja Hendra berputar ke posisi komando (lewat-sasaran halus)
+    const km = E.back(seg(t, W8.putar, W8.putar + 1.35)), kmL = E.io(seg(t, W8.putar, W8.putar + 1.35));
+    const mx = lerp(MEJA0.x, MEJA1.x, kmL), mz = lerp(MEJA0.z, MEJA1.z, kmL), mr = lerp(MEJA0.r, MEJA1.r, km);
+    mejaHendra.position.set(mx, 0, mz); mejaHendra.rotation.y = mr;
+    const [hx, hz] = kursiDi(mx, mz, mr);
+    cincin.material.opacity = E.out(seg(t, W8.komando, W8.komando + .5)) * (1 - seg(t, W8.putar + 1.2, W8.putar + 1.6)) * .9;
+    cincin.scale.setScalar(lerp(.85, 1, E.out(seg(t, W8.komando, W8.komando + .6))));
+
+    // kertas beterbangan saat pintu dibanting / tamu masuk
+    kertas.forEach((k, i) => {
+      const tb = i < 5 ? W8.brak : W8.masuk, dt = t - tb;
+      if (dt < 0) { k.m.visible = false; return; } k.m.visible = t < W8.putar;
+      const y = Math.max(.02, .84 + k.vy * dt - 1.9 * dt * dt), mendarat = y <= .02;
+      const tt = mendarat ? Math.min(dt, (k.vy + Math.sqrt(k.vy * k.vy + 4 * 1.9 * .82)) / 3.8) : dt;
+      k.m.position.set(MEJA0.x + k.vx * tt * .6 + 0, y, MEJA0.z + .1 + k.vz * tt * .6);
+      k.m.rotation.set(mendarat ? -Math.PI / 2 : k.sp * tt, mendarat ? k.f : k.sp * tt * .7, 0);
+    });
+
+    // jam: berputar cepat saat "waspada terus"
+    const cepat = seg(t, W8.waspada - .2, W8.buyar + .4) * (1 - seg(t, W8.buyar + .4, W8.buyar + .8));
+    pP.rotation.z = -(t * .05 + cepat * (t - W8.waspada) * 6); pJ.rotation.z = -(t * .004 + cepat * (t - W8.waspada) * .5);
+
+    // energi
+    sha.userData.atur(t, E.in(seg(t, W8.arus, W8.kena)));
+    sha.visible = t > W8.arus && t < W8.putar;
+    sha.children.forEach(m => m.material.opacity = 1 - seg(t, W8.komando - .3, W8.komando + .3));
+    sheng.userData.atur(t, E.io(seg(t, W8.melihat - .2, W8.melihat + 1.6)));
+
+    // ---- akting: lip-sync dari kata VO, lirikan ke lawan bicara, angguk pelan di akhir kalimat ----
+    const W = W8, DUDUK = .2;
+    const bump = (x, a, d = .55) => Math.sin(Math.PI * seg(x, a, a + d));
+    const angguk = Math.max(bump(t, W.sandaran + .55), bump(t, W.kena + 1.3), bump(t, W.buyar + .35), bump(t, W.komando + .4), bump(t, W.dinding + .9));
+    const kopoTampak = t > W.kopoMasuk - .05;
+    const ls = kopoTampak ? TK.lipsync(t, KATA, VO[2] - .1, W.dur) : { bicara: 0, vokal: 'a', alisNaik: 0 };
+    const ke = (ax, bx) => clamp((bx - ax) * .7, -1, 1);
+    // HENDRA (duduk): mengetik → kaget pintu dibanting → membalas sapaan kurir → menerima paket → kaget tamu → mendengar Ko Popo
+    const lawanH = t < 5.6 ? -0.15 : (t < W.kopoMasuk ? -3.0 : (t < 29.7 ? -1.75 : 1.6));
+    hendra.atur(hx, hz, {
+      rupa: RUPA_HENDRA, t, benih: 8, hadap: t > W.putar + 1.1 ? -.8 : (t > W.kopoMasuk + 1.6 && t < W.putar ? -.35 : 0),
+      lirik: ke(hx, lawanH) * .9, angguk,
+      pose: TK.poseDari(t, [[0, 'ketik'], [W.brak + .05, 'dudukKaget'], [2.95, 'dudukLambai'], [3.7, 'dudukDengar'], [5.0, 'ketik'], [W.masuk + .1, 'dudukKaget'], [W.masuk + 1.0, 'dudukPikir'],
+        [W.kopoMasuk + 1.6, 'dudukDengar'], [W.kena, 'dudukKaget'], [W.kena + .9, 'dudukGaruk'], [W.buyar + .2, 'dudukPikir'], [W.komando + .3, 'dudukDengar'], [W.putar + 1.4, 'dudukJempol'], [W.cta + .2, 'dudukSorak']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'netral'], [W.brak, 'kaget'], [2.95, 'senyum'], [5.0, 'netral'], [W.masuk + .05, 'kaget'], [W.masuk + 1.0, 'bingung'],
+        [W.kopoMasuk + 1.6, 'netral'], [W.sandaran + .3, 'bingung'], [W.kena, 'kaget'], [W.kena + .9, 'cemas'], [W.buyar, 'bingung'], [W.komando + .3, 'yakin'], [W.putar, 'kaget'], [W.putar + 1.3, 'senang'], [W.cta, 'tawa']]),
+      naik: Math.max(bump(t, W.brak, .55), bump(t, W.masuk + .05, .55), bump(t, W.kena, .55)) * 14,
+      tengok: lerp(0, 10, E.io(seg(t, W.masuk + 1, W.masuk + 1.6))) * (1 - E.io(seg(t, W.kopoMasuk - .6, W.kopoMasuk)))
+    }, DUDUK);
+    paket.visible = t > 3.55; paket.scale.setScalar(t > 3.55 ? lerp(.6, 1, E.back(seg(t, 3.55, 3.85))) : 1);
+    // KURIR: masuk, menyapa, menyerahkan paket ke meja, pamit
+    const jk = jalur([[W.kurirMasuk, -0.6, -5.8], [W.brak + .3, -0.6, -3.05], [2.9, -0.15, -2.6], [4.4, -0.15, -2.6], [5.2, -0.6, -3.4], [5.8, -0.6, -5.8]], t);
+    kurir.atur(jk.x, jk.z, { tampak: t > W.kurirMasuk && t < 5.75, rupa: RUPA_KURIR, t, benih: 12, jalan: jk.jalan, fase: TK.faseDariJarak(jk.jarak, .5), hadap: jk.jalan ? hadapDari(jk, .3) : -.5,
+      lirik: -.8, pose: TK.poseDari(t, [[0, 'diri'], [2.95, 'lambai'], [3.35, 'serah'], [3.9, 'lambai'], [4.4, 'diri']]),
+      ekspresi: 'senang', pegang: t < 3.55 ? 'kantong' : null });
+    // TAMU: masuk, menyapa, ke dispenser, ikut menonton perubahan meja
+    const jt = jalur([[W.masuk - .5, -0.6, -5.6], [W.masuk + .5, -0.6, -3.0], [W.masuk + 2.6, -3.0, -2.35], [W.dur, -3.0, -2.35]], t);
+    tamu.atur(jt.x, jt.z, { tampak: t > W.masuk - .45, rupa: RUPA_TAMU, t, benih: 14, jalan: jt.jalan, fase: TK.faseDariJarak(jt.jarak, .5), hadap: jt.jalan ? hadapDari(jt, .4) : .5,
+      lirik: .7, pose: TK.poseDari(t, [[0, 'diri'], [W.masuk + .55, 'lambai'], [W.masuk + 1.1, 'diri'], [W.masuk + 2.7, { L: { a: 10, j: .97 }, R: { a: -22, j: .66, d: 1 } }], [W.putar + 1.5, 'jempol']]),
+      pegang: t > W.masuk + 2.7 && t < W.putar + 1.5 ? 'cangkir' : null,
+      ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [W.putar, 'kaget'], [W.putar + 1.4, 'senang']]) });
+    // KO POPO: masuk, hormat ke Hendra, menjelaskan sambil menatapnya (bibir mengikuti VO), jempol, melambai di CTA
+    const jp = jalur([[W.kopoMasuk, -0.6, -5.8], [W.kopoMasuk + 1.1, -0.6, -3.0], [W.kopoMasuk + 2.3, -1.75, -1.7], [29.7, -1.75, -1.7], [31.3, 1.6, -1.05]], t);
+    kopo.atur(jp.x, jp.z, { tampak: kopoTampak, rupa: KO_POPO, pegang: t < W.kopoMasuk + 2.3 || (t > W.arus - .1 && t < W.cta) ? 'kipas' : null, t, benih: 3, jalan: jp.jalan, fase: TK.faseDariJarak(jp.jarak, .5),
+      hadap: jp.jalan ? hadapDari(jp, .35) : (t < W.cta ? .45 : .2), lirik: t < W.cta ? .8 : 0,
+      pose: TK.poseDari(t, [[0, 'diri'], [W.kopoMasuk + 2.35, 'hormat'], [W.kopoMasuk + 3.0, 'jelaskan'], [W.arus - .1, 'tunjuk'], [W.kena + .5, 'jelaskan'], [W.waspada, 'pinggang'],
+        [W.komando - .1, 'tunjukAtas'], [W.komando + 1.0, 'presentasi'], [W.putar, 'tunjuk'], [W.putar + 1.4, 'jempol'], [29.7, 'diri'], [W.cta + .2, 'lambai']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [W.sandaran, 'yakin'], [W.waspada, 'netral'], [W.komando, 'senang']]),
+      bicara: ls.bicara, vokal: ls.vokal, alisNaik: ls.alisNaik });
+    // rekan kerja: menoleh ke sumber suara, ikut senang di akhir
+    rekan1.atur(...kursiDi(-2.7, .7, Math.PI / 2), { rupa: RUPA_R1, t, benih: 21, hadap: .8, lirik: .8, pose: TK.poseDari(t, [[0, 'ketik'], [W.brak + .1, 'dudukKaget'], [3.6, 'ketik'], [W.putar + .2, 'dudukKaget'], [W.putar + 1.5, 'dudukJempol']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'netral'], [W.brak, 'kaget'], [3.6, 'netral'], [W.putar + 1.4, 'senang']]) }, DUDUK);
+    rekan2.atur(...kursiDi(-2.75, 2.55, Math.PI / 2), { rupa: RUPA_R2, t, benih: 22, hadap: .8, lirik: .8, pose: TK.poseDari(t, [[0, 'ketik'], [W.brak + .15, 'dudukKaget'], [3.8, 'ketik'], [W.cta + .4, 'dudukSorak']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [W.brak, 'kaget'], [3.8, 'senyum'], [W.cta, 'senang']]) }, DUDUK);
+    wargaLuar.atur(t);
+
+    BAB.atur(t);
+
+    // CTA
+    const kc = E.out(seg(t, W8.cta, W8.cta + .7)), c = $('#cta');
+    c.style.opacity = kc; c.style.transform = `translateY(${lerp(80, 0, kc)}px) scale(${lerp(.94, 1, kc)})`;
+    $('#tombol').style.transform = `scale(${lerp(.9, 1, E.back(seg(t, W8.cta + .5, W8.cta + 1.1)))})`;
+    D.atur({ dof: t > W8.cta ? lerp(.45, .9, seg(t, W8.cta, W8.cta + .8)) : (t > 19.9 && t < 23.7 ? .8 : .45) });
+
+    D.render(t);
+  }
+};

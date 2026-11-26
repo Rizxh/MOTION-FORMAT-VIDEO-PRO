@@ -1,0 +1,10 @@
+<!--@TITLE Uji Ko Popo-->
+<!--@RASIO 16:9-->
+<!--@HEAD-->
+<!--@MESIN toon-tokoh.js-->
+<!--@BODY-->
+<div id="dunia"></div>
+<!--@SCRIPT-->
+const cv=kanvas(W,H,$('#dunia')),x=cv.getContext('2d'),T=TOKOH_TOON;
+const d=[['merah','hormat','senyum',{}],['merah','jelaskan','yakin',{bicara:.7,vokal:'a'}],['merah','diri','senang',{pegang:'kipas',pose:{L:{a:10,j:.97},R:{a:-30,j:.62,d:1}}}],['emas','tunjuk','senyum',{}],['emas','lambai','tawa',{}],['emas','diri','yakin',{pegang:'kipas',pose:{L:{a:10,j:.97},R:{a:-30,j:.62,d:1}}}]];
+const SCENE={dur:2,frame(t){x.setTransform(1,0,0,1,0,0);x.fillStyle='#EFE3D2';x.fillRect(0,0,W,H);d.forEach((q,i)=>{x.setTransform(.92,0,0,.92,-10+i*318,-160);T.gambar(x,{rupa:T.koPopo(q[0]),pose:q[1],ekspresi:q[2],t,benih:3,kedip:0,...q[3]});});}};

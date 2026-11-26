@@ -1,7 +1,9 @@
 <!--@TITLE Rumah Tusuk Sate · Toon 3D-->
 <!--@RASIO 9:16-->
 <!-- Gaya "Toon 3D" (racikan Shifu Po): dunia three.js bertinta + tokoh chibi 2D sebagai kartu.
-     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA · 4 TOKOH & NPC · 5 KAMERA · 6 TEKS (hook, label, CTA) · 7 SCENE
+     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA · 4 TOKOH & NPC · 5 KAMERA · 6 TEKS (slot judul bab + CTA) · 7 SCENE
+     ATURAN TEKS: semua judul lewat D.judulBab (satu slot kiri-atas, rata kiri), subtitle di bawah tetap; tanpa stiker/label melayang.
+     ATURAN GERAK: tanpa getar/goyang/guncang; bibir tokoh pakai TOKOH_TOON.lipsync bila ada VO.
      Struktur cerita (pola A): HOOK visual 0–3 dtk → masalah → penjelasan Shifu Po → solusi → CTA.
      Ganti isi, pertahankan kerangka: semua detik di WAKTU, semua warna di BRAND. -->
 <!--@HEAD-->
@@ -9,13 +11,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <!--@MESIN toon-tokoh.js toon-dunia.js-->
 <style>
-  .kicker{visibility:hidden;font:800 46px 'Plus Jakarta Sans';letter-spacing:.18em;color:#FFF6E2;text-transform:uppercase;text-shadow:0 3px 0 rgba(40,15,20,.35),0 0 30px rgba(60,20,30,.45)}
-  .judul{visibility:hidden;font:900 104px/1.02 'Cinzel';color:#FFF8EA;text-align:center;-webkit-text-stroke:3px #2B1A2C;paint-order:stroke fill;text-shadow:0 8px 0 #7E0F15,0 14px 30px rgba(40,10,20,.5)}
-  .judul em{font-style:normal;color:#F1DDA8}
-  #hook{position:absolute;left:60px;right:150px;top:260px;text-align:center}
-  #stempel{position:absolute;left:50%;top:620px;transform:translate(-50%,-50%);opacity:0;font:900 120px 'Cinzel';color:#FFF3E6;
-    background:#A8161D;padding:10px 46px 18px;border:8px solid #FFF3E6;outline:6px solid #A8161D;border-radius:18px;letter-spacing:.04em;white-space:nowrap;
-    box-shadow:0 20px 50px rgba(60,0,10,.45)}
   #cta{position:absolute;left:90px;right:150px;top:300px;opacity:0;text-align:center;padding:46px 40px 50px;border-radius:40px;
     background:linear-gradient(#FBF6EC,#F1E6D2);border:3px solid #C9A45C;box-shadow:0 30px 80px rgba(40,15,20,.35)}
   #cta img{height:92px;display:block;margin:0 auto 18px}
@@ -27,8 +22,6 @@
 </style>
 <!--@BODY-->
 <div id="dunia"></div>
-<div id="hook"><div class="kicker" id="hKick">Rumah termurah di komplek</div><div class="judul" id="hJudul">ternyata ada <em>sebabnya</em></div></div>
-<div id="stempel">TUSUK SATE</div>
 <div id="cta">
   <img id="logo" alt="">
   <div class="tanya">Rumah Anda tusuk sate?</div>
@@ -118,24 +111,22 @@ const kamera = D.jalurKamera([
 /* == 6. TEKS ================================================================== */
 const IMG = {};
 const muatGambar = (k, src) => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.onerror = r; i.src = src; });
-const Ljalan = MFlabel({ teks: 'jalan lurus → tepat ke pintu', warna: BRAND.emasTerang, dx: 120, dy: -330, ukuran: 46 });
-const Lsolusi = MFlabel({ teks: 'pagar hidup memecah arus', warna: '#BDF2C9', dx: 170, dy: -220, ukuran: 46 });
+const BAB = D.judulBab([
+  { a: .25, b: 2.5, kicker: 'Rumah termurah di komplek', judul: 'Ternyata ada <em>sebabnya</em>', besar: 1 },
+  { a: WAKTU.benturan + .05, b: WAKTU.kopoJelas - .3, kicker: 'Masalahnya', judul: 'Rumah <em>tusuk sate</em>' },
+  { a: WAKTU.kopoJelas, b: WAKTU.tanamTumbuh - .2, kicker: 'Dalam Feng Shui', judul: 'Arus lurus <em>menghantam</em> pintu' },
+  { a: WAKTU.tanamTumbuh + .3, b: WAKTU.cta - .4, kicker: 'Solusinya', judul: 'Pagar hidup <em>memecah</em> arus' }
+]);
 
 /* == 7. SCENE ================================================================= */
 const SCENE = {
   dur: WAKTU.dur,
   muat: () => Promise.all([muatGambar('logo', 'assets/gambar/logo-shifupo.png')]).then(() => { if (IMG.logo) $('#logo').src = IMG.logo.src; else $('#logo').style.display = 'none'; }),
   sub: { gaya: 'mati' },
-  build(tl) {
-    wIn(tl, $('#hKick'), .25, { y: 60, st: .05 });
-    wIn(tl, $('#hJudul'), .7, { y: 90, st: .08, d: .7 });
-    wOut(tl, $('#hook'), 2.35);
-  },
   frame(t) {
     const T = TOKOH_TOON;
-    // kamera + guncangan saat benturan
-    kamera(t, 1);
-    D.guncang(t, WAKTU.benturan, .22, .55);
+    // kamera mulus (tanpa goyang/guncang)
+    kamera(t);
 
     // energi sha melesat lalu memudar; sheng mengalir setelah solusi
     sha.userData.atur(t, Math.pow(seg(t, WAKTU.energiMulai, WAKTU.benturan), 1.25));
@@ -163,7 +154,7 @@ const SCENE = {
     const berjalan = t > WAKTU.kopoMasuk && t < WAKTU.kopoBerhenti;
     const bicara = t > WAKTU.kopoJelas && t < WAKTU.cta ? clamp(.35 + .35 * Math.sin(t * 11) + .2 * Math.sin(t * 17)) : 0;
     kopo.atur(kx, kz, {
-      tampak: t > WAKTU.kopoMasuk - .1, rupa: R.koPopo, t, benih: 3,
+      tampak: t > WAKTU.kopoMasuk - .1, rupa: TOKOH_TOON.koPopo('merah'), pegang: 'kipas', t, benih: 3,
       jalan: berjalan ? 1 - seg(t, WAKTU.kopoBerhenti - .35, WAKTU.kopoBerhenti) * .9 : 0, fase: T.faseDariJarak(jarak, .5), hadap: berjalan ? .85 : .25,
       pose: T.poseDari(t, [[0, 'diri'], [WAKTU.kopoBerhenti + .1, 'hormat'], [WAKTU.kopoJelas + .5, 'tunjukBawah'], [WAKTU.tanamTumbuh, 'presentasi'], [WAKTU.cta + .2, 'jelaskan']]),
       ekspresi: T.ekspresiDari(t, [[0, 'senyum'], [WAKTU.kopoJelas, 'yakin'], [WAKTU.tanamTumbuh, 'senang']]), bicara
@@ -173,18 +164,12 @@ const SCENE = {
     warga.forEach(w => w.atur(t));
 
     // label menempel ke dunia
-    const pj = D.layar(0, .1, -24.2); Ljalan.atur(t, WAKTU.label, WAKTU.labelHabis, pj[0], pj[1]);
-    const ps = D.layar(-1.4, 2.2, -30.9); Lsolusi.atur(t, WAKTU.tanamTumbuh + .7, WAKTU.cta - .3, ps[0], ps[1]);
-
-    // stempel TUSUK SATE dibanting saat benturan
-    const ks = seg(t, WAKTU.benturan, WAKTU.benturan + .35), ko = 1 - seg(t, WAKTU.benturan + 2.2, WAKTU.benturan + 2.6);
-    const st = $('#stempel'); st.style.opacity = t >= WAKTU.benturan ? ko : 0;
-    st.style.transform = `translate(-50%,-50%) rotate(${lerp(-14, -6, E.back(ks))}deg) scale(${lerp(1.7, 1, E.out(ks))})`;
+    BAB.atur(t);
 
     // CTA: kartu naik pelan, tombol berdenyut
     const kc = E.out(seg(t, WAKTU.cta, WAKTU.cta + .7)), c = $('#cta');
     c.style.opacity = kc; c.style.transform = `translateY(${lerp(80, 0, kc)}px) scale(${lerp(.94, 1, kc)})`;
-    $('#tombol').style.transform = `scale(${1 + .04 * Math.max(0, Math.sin((t - WAKTU.cta) * 5)) * seg(t, WAKTU.cta + .8, WAKTU.cta + 1)})`;
+    $('#tombol').style.transform = `scale(${lerp(.9, 1, E.back(seg(t, WAKTU.cta + .5, WAKTU.cta + 1.1)))})`;
     D.atur({ dof: t > WAKTU.cta ? lerp(.55, 1, seg(t, WAKTU.cta, WAKTU.cta + .8)) : .55 });
 
     D.render(t);
