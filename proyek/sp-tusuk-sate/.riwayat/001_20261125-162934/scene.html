@@ -1,0 +1,424 @@
+<!--@TITLE Rumah Tusuk Sate: Cindy vs Sherlyn-->
+<!--@RASIO 9:16-->
+<!--@HEAD-->
+<!-- Gaya KARTUN CEL CERAH set B "Sore keemasan" + brand Shifu Po · font: Reggae One (judul, label nama) + M PLUS 1p 800 (balon kata, chip) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Reggae+One&family=M+PLUS+1p:wght@800&display=swap">
+<script src="amplop.js" onerror="window.AMPLOP=null"></script>
+<style>
+#stage{background:#FFC48A}
+#judul{position:absolute;left:0;width:100%;top:190px;text-align:center;font:400 72px/1.1 'Reggae One',sans-serif;color:#fff;
+  -webkit-text-stroke:13px #3A1F2B;paint-order:stroke fill;text-shadow:0 11px 0 #3A1F2B;visibility:hidden;z-index:76;letter-spacing:.01em}
+#judul .b{color:#F1DDA8}
+#judul .u{font-size:150px;line-height:1.02;color:#FF4A55}
+#balon{position:absolute;inset:0;pointer-events:none;z-index:75;visibility:hidden}
+#balonSvg{position:absolute;left:0;top:0;overflow:visible}
+#balonTeks{position:absolute;left:70px;width:860px;padding:52px 44px 38px;font:800 54px/1.24 'M PLUS 1p',sans-serif;color:#3A1F2B;transform-origin:50% 100%}
+#balonTeks .k{display:inline-block;margin-right:.24em;transform-origin:50% 80%}
+#balonNama{position:absolute;left:30px;top:-34px;font:400 38px/1 'Reggae One',sans-serif;color:#3A1F2B;padding:13px 24px 11px;border-radius:16px;
+  border:6px solid #3A1F2B;transform:rotate(-3deg);box-shadow:0 6px 0 #3A1F2B;letter-spacing:.04em}
+.muatFont{position:absolute;left:-9999px;top:0}
+</style>
+<!--@BODY-->
+<div id="balon"><svg id="balonSvg"><g id="balonG"><path id="balonBayang" fill="#3A1F2B"/><path id="balonBadan" fill="#FFFFFF" stroke="#3A1F2B" stroke-width="7" stroke-linejoin="round"/></g></svg>
+  <div id="balonTeks"><div id="balonNama">KO POPO</div><div id="balonIsi"></div></div></div>
+<div id="judul">KENAPA RUMAH<br><span class="u">CINDY</span><br>LEBIH <span class="b">MURAH?</span></div>
+<div class="muatFont" style="font:800 20px 'M PLUS 1p'">a</div><div class="muatFont" style="font:400 20px 'Reggae One'">a</div>
+<!--@SCRIPT-->
+/* =====================================================================================
+   GAYA: KARTUN CEL CERAH set B "Sore keemasan" · Shifu Po · "Rumah Tusuk Sate: Cindy vs Sherlyn" (9:16)
+   Adegan 1 (hook): close-up papan DIJUAL + stempel MURAH -> crane mundur ke dua rumah -> zoom kejut wajah Cindy
+   -> lensa peta dari atas: jalan lurus menusuk pintu rumah Cindy.
+   PETA BAGIAN: 1 PALET & TOKOH · 2 ALAT CEL · 3 TOKOH · 4 MULUT · 5 KAMERA · 6 LATAR KOMPLEK · 7 PERAGA TOPIK
+   · 8 EFEK ANIME · 9 BALON KATA · 10 SCENE
+   ===================================================================================== */
+
+/* == 1. PALET & TOKOH ================================================================ */
+const P={tinta:'#3A1F2B',
+  langit:['#FF9F6B','#FFC48A','#FFE2BE'], awan:['#FFF6EA','#FFD9B8','#F2AE8E'], bukit:['#F7C7A6','#E9A88E','#C98579'],
+  pohon:['#B8D86B','#6FAF55','#3F7E4A'], dindingR:['#FFF1E2','#FFE4CF','#E9BFA2'], atapC:['#E0505A','#A8161D','#6E0D13'], atapS:['#5FB596','#2E7D63','#1D5442'],
+  aspal:['#9C8AA0','#7D6A85','#5C4C66'], trotoar:['#FFE9D2','#F2CDAE','#D3A585'], rumput:['#C9E07A','#94C35C','#5E9445'],
+  kayu:['#FFD9A6','#E9A563','#B7713A'], emas:['#F1DDA8','#C9A45C','#9C7A35'], segel:'#A8161D', giok:'#2E7D63',
+  aksen:'#D9232E', aksen2:'#C9A45C'};
+const TOKOH={
+  A:{nama:'CINDY',warnaNama:'#FF6B73', kulit:['#FFE0C7','#F0B48E','#C27B5A'], rambut:['#4A3A4E','#2A1F30','#140D18'],
+     baju:['#FFFFFF','#EDE3E8','#C4B2BE'], celemek:['#E0505A','#A8161D','#6E0D13'], celana:['#5E5A7E','#3E3A5E','#26233D'],
+     sepatu:['#FFFFFF','#EFE3DA','#BFA99A'], iris:'#6B3B2A', jepit:'#E7C66E', potongan:'bob'},
+  B:{nama:'SHERLYN',warnaNama:'#4FC29B', kulit:['#FFE4CC','#F2BC96','#C8835E'], rambut:['#8A5A44','#5C3828','#331D14'],
+     baju:['#FFF6E4','#F2DFBF','#CDB38A'], celemek:['#5FB596','#2E7D63','#1D5442'], celana:['#7A6650','#5A4836','#3A2D21'],
+     sepatu:['#FFFFFF','#EFE3DA','#BFA99A'], iris:'#7A4A2A', jepit:'#E0505A', potongan:'bob'},
+  N:{nama:'KO POPO',warnaNama:'#E7C66E'}
+};
+
+/* == 2. ALAT CEL ===================================================================== */
+const cv=kanvas(W,H);cv.style.cssText=`position:absolute;left:0;top:0;width:${W}px;height:${H}px`;$('#stage').prepend(cv);
+const X=cv.getContext('2d'),PI=Math.PI;let ARAH=1;
+// gradien 3 nada bertepi KERAS: terang (kiri-atas, arah matahari) | tengah | gelap
+function cel(c,k,x,y,w,h,s1=.34,s2=.7){const g=ARAH>0?c.createLinearGradient(x,y,x+w*.75,y+h):c.createLinearGradient(x+w,y,x+w*.25,y+h);
+  g.addColorStop(0,k[0]);g.addColorStop(s1,k[0]);g.addColorStop(s1,k[1]);g.addColorStop(s2,k[1]);g.addColorStop(s2,k[2]);g.addColorStop(1,k[2]);return g;}
+function jalur(c,pts){c.beginPath();pts.forEach((p,i)=>i?c.lineTo(p[0],p[1]):c.moveTo(p[0],p[1]));c.closePath();}
+function batas(pts){let a=1e9,b=1e9,d=-1e9,e=-1e9;for(const[x,y]of pts){a=Math.min(a,x);b=Math.min(b,y);d=Math.max(d,x);e=Math.max(e,y);}return[a,b,d-a,e-b];}
+function warnai(c,k,bx,lw=5,s1,s2){c.fillStyle=Array.isArray(k)?cel(c,k,bx[0],bx[1],bx[2],bx[3],s1,s2):k;c.fill();
+  if(lw){c.lineWidth=lw;c.strokeStyle=P.tinta;c.lineJoin='round';c.lineCap='round';c.stroke();}}
+function isi(c,pts,k,lw=5,s1,s2){jalur(c,pts);warnai(c,k,batas(pts),lw,s1,s2);}
+function kapsul(c,a,b,w1,w2,k,lw=5){const an=Math.atan2(b[1]-a[1],b[0]-a[0]);c.beginPath();c.arc(a[0],a[1],w1,an+PI/2,an-PI/2);c.arc(b[0],b[1],w2,an-PI/2,an+PI/2);c.closePath();
+  const m=Math.max(w1,w2);warnai(c,k,[Math.min(a[0],b[0])-m,Math.min(a[1],b[1])-m,Math.abs(a[0]-b[0])+2*m,Math.abs(a[1]-b[1])+2*m],lw);}
+function elips(c,x,y,rx,ry,r=0){c.beginPath();c.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),r,0,7);}
+function putar(pts,o,ang,s=1){const C=Math.cos(ang),S=Math.sin(ang);return pts.map(([u,v])=>[o[0]+(u*C-v*S)*s,o[1]+(u*S+v*C)*s]);}
+// IK dua tulang: bahu S -> tujuan T, panjang l1,l2; tekuk +1/-1 = sisi siku
+function ik(S,T,l1,l2,tekuk){const dx=T[0]-S[0],dy=T[1]-S[1],d=clamp(Math.hypot(dx,dy),Math.abs(l1-l2)+1,l1+l2-.5),a=Math.atan2(dy,dx),
+  b=Math.acos(clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1))*tekuk,e=[S[0]+Math.cos(a+b)*l1,S[1]+Math.sin(a+b)*l1],a2=Math.atan2(T[1]-e[1],T[0]-e[0]);
+  return{e,h:[e[0]+Math.cos(a2)*l2,e[1]+Math.sin(a2)*l2]};}
+function bintang(c,x,y,r,rot=0,w='#FFFFFF'){c.save();c.translate(x,y);c.rotate(rot);c.beginPath();
+  for(let i=0;i<8;i++){const rr=i%2?r*.22:r,a=i*PI/4;c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);}c.closePath();c.fillStyle=w;c.fill();c.restore();}
+
+/* == 3. TOKOH ========================================================================
+   tokoh(ctx,{x,y,s,arah,pose,ekspresi,warna,bicara,t,lapis,raih,pegang,biji})
+   - x,y = titik KAKI di dunia · s = skala (1 = tinggi ±1020 px, 6 kepala) · arah 1 = menghadap kanan, -1 = kiri
+   - pose = nama di POSE atau objek hasil kunci() · ekspresi = nama di EKSPRESI atau objek
+   - bicara 0..1 = buka mulut (dari bukaMulut) · lapis 'semua' | 'badan' | 'lengan' (tokoh di belakang meja:
+     gambar 'badan' -> meja -> 'lengan') · raih={dekat:[x,y],jauh:[x,y]} titik DUNIA untuk tangan (menimpa pose)
+   - pegang={dekat:'pisau',sudut:0.4} benda di tangan dekat · mengembalikan {kepala:[x,y],mulut:[x,y]} koordinat LAYAR
+   - warna = salah satu TOKOH (kulit/rambut/baju/celemek/celana/sepatu 3 nada, iris, jepit, potongan:'bob'|'cepak')
+   - tokoh kedua: TOKOH.B + arah:-1 + kata dengan s:'B' + ANK.B=tokoh(...) agar ekor balon menunjuk ke dia */
+const POSE={
+  diri:  {jauh:[150,-520],dekat:[-70,-500],kJ:1,kD:-1,tJ:'buka',tD:'buka',miring:0,tengok:0},
+  iris:  {jauh:[200,-700],dekat:[60,-700],kJ:-1,kD:1,tJ:'buka',tD:'kepal',miring:.05,tengok:.14},
+  kaget: {jauh:[200,-700],dekat:[-30,-870],kJ:-1,kD:1,tJ:'buka',tD:'buka',miring:-.07,tengok:-.1},
+  usap:  {jauh:[200,-700],dekat:[22,-900],kJ:-1,kD:1,tJ:'buka',tD:'kepal',miring:-.03,tengok:.05},
+  tunjuk:{jauh:[430,-1080],dekat:[-140,-610],kJ:1,kD:1,tJ:'tunjuk',tD:'kepal',miring:-.03,tengok:-.1},
+  angkat:{jauh:[270,-1160],dekat:[-210,-1120],kJ:1,kD:-1,tJ:'buka',tD:'buka',miring:0,tengok:-.05},
+  pikir: {jauh:[150,-520],dekat:[40,-850],kJ:1,kD:1,tJ:'buka',tD:'kepal',miring:.02,tengok:.12},
+  nangis:{jauh:[135,-812],dekat:[-10,-822],kJ:1,kD:1,tJ:'kepal',tD:'kepal',miring:-.02,tengok:-.06}};
+const EKSPRESI={
+  netral:{buka:1,pejam:0,mataSenyum:0,alis:0,cemas:0,senyum:.15,mulutO:0,pipi:.25,airmata:0,lx:.2,ly:.1},
+  senang:{buka:.95,pejam:0,mataSenyum:.9,alis:.35,cemas:0,senyum:1,mulutO:0,pipi:.75,airmata:0,lx:.2,ly:.3},
+  kaget: {buka:1.3,pejam:0,mataSenyum:0,alis:1,cemas:.4,senyum:-.4,mulutO:.55,pipi:.2,airmata:0,lx:0,ly:0},
+  perih: {buka:.5,pejam:1,mataSenyum:0,alis:-.1,cemas:1,senyum:-.9,mulutO:.15,pipi:.7,airmata:1,lx:0,ly:0},
+  sedih: {buka:.75,pejam:0,mataSenyum:0,alis:.2,cemas:1,senyum:-.6,mulutO:0,pipi:.3,airmata:.4,lx:-.2,ly:.5},
+  yakin: {buka:1,pejam:0,mataSenyum:0,alis:.45,cemas:-.35,senyum:.55,mulutO:0,pipi:.3,airmata:0,lx:.7,ly:-.5},
+  marah: {buka:.85,pejam:0,mataSenyum:0,alis:-.5,cemas:-1,senyum:-.6,mulutO:.1,pipi:.1,airmata:0,lx:.3,ly:0}};
+// campur dua objek angka (string ikut yang lebih dekat)
+function campur(a,b,k){const o={};for(const n in b){const u=a[n],v=b[n];o[n]=Array.isArray(v)?v.map((x,i)=>lerp(u[i],x,k)):typeof v==='number'?lerp(u??v,v,k):(k<.5&&u!=null?u:v);}return o;}
+// kunci(t,[[detik,'nama'|objek,lamaTransisi],...],kamus) -> objek pose/ekspresi yang bergeser halus
+function kunci(t,daftar,kamus){const ambil=v=>typeof v==='string'?kamus[v]:v;let cur=ambil(daftar[0][1]);
+  for(let i=1;i<daftar.length;i++){const[t0,v,d=.3]=daftar[i];if(t<t0)break;cur=campur(cur,ambil(v),E.io(seg(t,t0,t0+d)));}return cur;}
+function kedip(t,b){const p=3.1+(b%3)*.5,f=(t+b*1.37)%p;return f<.14?Math.sin(f/.14*PI):0;}
+
+const BENTUK_TANGAN={
+  kepal:[[-.15,-.36],[.45,-.42],[.8,-.22],[.84,.18],[.5,.38],[-.15,.32]],
+  buka:[[-.15,-.34],[.5,-.42],[1.05,-.4],[1.1,-.26],[.62,-.2],[1.14,-.14],[1.15,.0],[.64,.02],[1.1,.1],[1.06,.24],[.6,.22],[.95,.32],[.88,.44],[.45,.38],[-.15,.3]],
+  tunjuk:[[-.15,-.36],[.45,-.42],[1.38,-.38],[1.4,-.2],[.82,-.16],[.84,.18],[.5,.38],[-.15,.32]]};
+function tangan(c,h,ang,bentuk,kulit,s=44){isi(c,putar(BENTUK_TANGAN[bentuk]||BENTUK_TANGAN.kepal,h,ang,s),kulit,4.5);
+  isi(c,putar([[.08,-.3],[.34,-.72],[.52,-.62],[.42,-.28]],h,ang,s),kulit,4.5);}
+function pisau(c,h,ang){const bl=putar([[8,-20],[168,-14],[192,4],[150,22],[8,22]],h,ang),gg=putar([[-74,-11],[8,-13],[8,13],[-74,11]],h,ang);
+  isi(c,gg,['#5B5578','#3A3556','#221E36'],4.5);isi(c,bl,['#FFFFFF','#D3DCEA','#8F9DB6'],4.5,.45,.8);
+  c.strokeStyle='rgba(255,255,255,.9)';c.lineWidth=4;c.beginPath();const a=putar([[20,12],[150,14]],h,ang);c.moveTo(...a[0]);c.lineTo(...a[1]);c.stroke();}
+
+function tokoh(c,o){
+  const t=o.t||0,s=o.s||1,ar=o.arah||1,wr=o.warna||TOKOH.A,lapis=o.lapis||'semua',bc=clamp(o.bicara||0),b0=o.biji||0;
+  const p=typeof o.pose==='string'?POSE[o.pose]:o.pose,e=typeof o.ekspresi==='string'?EKSPRESI[o.ekspresi]:o.ekspresi;
+  const hh=170,Ht=hh*6,sy=-Ht+hh*1.3,sw=hh*1.5,wy=-Ht*.6,hy=-Ht*.49,hipW=hh*1.22,l1=175,l2=165;
+  const bob=Math.sin(t*2.2+b0)*3-bc*3;
+  const M=new DOMMatrix().translate(o.x,o.y).scale(s*ar,s).translate(0,bob).rotate((p.miring||0)*180/PI);
+  c.save();c.translate(o.x,o.y);c.scale(s*ar,s);c.translate(0,bob);c.rotate(p.miring||0);ARAH=ar;
+  const lokal=w=>{const q=M.inverse().transformPoint(new DOMPoint(w[0],w[1]));return[q.x,q.y];};
+  const tJ=o.raih&&o.raih.jauh?lokal(o.raih.jauh):p.jauh,tD=o.raih&&o.raih.dekat?lokal(o.raih.dekat):p.dekat;
+  const bahuJ=[sw*.36,sy+14],bahuD=[-sw*.36,sy+14],out={};
+  const lengan=(bahu,tuj,tk,bentuk,benda)=>{const{e:el,h}=ik(bahu,tuj,l1,l2,tk);kapsul(c,bahu,el,26,22,wr.baju);
+    kapsul(c,el,h,20,16,wr.kulit);const ang=Math.atan2(h[1]-el[1],h[0]-el[0]);
+    isi(c,putar([[-20,-25],[12,-25],[14,25],[-20,25]],el,ang),wr.baju,4.5,.4,.75);   // lipatan lengan baju
+    if(benda==='pisau')pisau(c,h,o.pegang.sudut??.4);tangan(c,h,ang,bentuk,wr.kulit);return h;};
+  if(lapis!=='lengan'){
+    // kaki
+    for(const sd of[1,-1]){const hx=sd*hipW*.24,fx=sd*44;kapsul(c,[hx,hy],[hx+sd*6,-Ht*.25],44,36,wr.celana);kapsul(c,[hx+sd*6,-Ht*.25],[fx,-30],34,28,wr.celana);
+      isi(c,[[fx-40,-48],[fx+30,-50],[fx+86,-14],[fx+88,8],[fx-44,8]],wr.sepatu,5);}
+    if(lapis==='semua')out.jauh=lengan(bahuJ,tJ,p.kJ,p.tJ,o.pegang&&o.pegang.jauh);
+    // badan + celemek
+    isi(c,[[-sw/2,sy+8],[-sw*.3,sy-12],[sw*.3,sy-12],[sw/2,sy+8],[sw*.45,sy+95],[sw*.37,wy],[hipW/2,hy+40],[-hipW/2,hy+40],[-sw*.37,wy],[-sw*.45,sy+95]],wr.baju);
+    c.strokeStyle=wr.baju[2];c.lineWidth=4;c.beginPath();c.moveTo(sw*.34,sy+40);c.quadraticCurveTo(sw*.28,sy+120,sw*.32,wy-30);c.moveTo(-sw*.3,sy+150);c.lineTo(-sw*.2,sy+190);c.stroke();
+    isi(c,[[-sw*.3,sy+70],[sw*.3,sy+70],[sw*.33,wy],[hipW*.62,hy+200],[-hipW*.62,hy+200],[-sw*.33,wy]],wr.celemek,5,.4,.78);
+    isi(c,[[-sw*.36,wy-14],[sw*.36,wy-14],[sw*.37,wy+24],[-sw*.37,wy+24]],[wr.celemek[1],wr.celemek[2],wr.celemek[2]],4.5);
+    c.save();c.setLineDash([10,9]);c.strokeStyle='rgba(255,255,255,.75)';c.lineWidth=3.5;c.strokeRect(-sw*.16,sy+130,sw*.32,70);c.restore();
+    c.strokeStyle=P.tinta;c.lineWidth=5;c.beginPath();c.moveTo(-sw*.3,sy+70);c.lineTo(-hh*.2,sy-6);c.moveTo(sw*.3,sy+70);c.lineTo(hh*.24,sy-6);c.stroke();
+    // leher + kerah
+    kapsul(c,[0,sy+4],[hh*.05,-Ht+hh*.86],24,21,wr.kulit);c.fillStyle=wr.kulit[2];jalur(c,[[-20,-Ht+hh*.86],[34,-Ht+hh*.86],[28,-Ht+hh*1.08],[-18,-Ht+hh*.98]]);c.fill();
+    isi(c,[[-hh*.3,sy-6],[0,sy+44],[hh*.32,sy-6],[hh*.2,sy-14],[0,sy+18],[-hh*.18,sy-14]],wr.baju,4.5);
+    // kepala
+    c.save();c.translate(hh*.05,-Ht+hh*.5);c.rotate((p.tengok||0)+bc*.05*Math.sin(t*9));
+    kepala(c,wr,e,t,bc,b0,hh);const m=c.getTransform();const k=m.transformPoint(new DOMPoint(0,0)),mu=m.transformPoint(new DOMPoint(hh*.37*.36,hh*.5*.64));
+    out.kepala=[k.x,k.y];out.mulut=[mu.x,mu.y];c.restore();}
+  if(lapis!=='badan'){if(lapis==='lengan')out.jauh=lengan(bahuJ,tJ,p.kJ,p.tJ,null);
+    out.dekat=lengan(bahuD,tD,p.kD,p.tD,o.pegang&&o.pegang.dekat);}
+  c.restore();ARAH=1;return out;}
+
+function kepala(c,wr,e,t,bc,b0,hh){
+  const w=hh*.37,h=hh*.5,x0=w*.18,R=wr.rambut,K=wr.kulit,goy=Math.sin(t*2.1+b0)*3;
+  const cepak=wr.potongan==='cepak';
+  // rambut belakang (bob, atau cepak untuk potongan pendek)
+  if(cepak)isi(c,[[-1.1*w,.25*h],[-1.16*w,-.6*h],[-.6*w,-1.2*h],[.2*w,-1.28*h],[.9*w,-1.0*h],[1.12*w,-.45*h],[1.05*w,0],[.7*w,-.2*h],[-.3*w,.1*h],[-.86*w,.5*h]],R);
+  else isi(c,[[-1.25*w,.85*h+goy],[-1.2*w,0],[-1.06*w,-.76*h],[-.55*w,-1.18*h],[.2*w,-1.25*h],[.86*w,-.98*h],[1.12*w,-.45*h],[1.08*w,.05*h],[.7*w,-.2*h],[-.3*w,.62*h],[-.88*w,1.08*h+goy]],R);
+  // telinga + wajah (lancip 3/4, dagu ke depan)
+  isi(c,[[-.66*w,-.02*h],[-.92*w,-.14*h],[-1.0*w,.18*h],[-.82*w,.42*h],[-.64*w,.32*h]],K,4.5);
+  isi(c,[[-.95*w,-.15*h],[-.86*w,-.7*h],[-.4*w,-1.0*h],[.25*w,-1.02*h],[.78*w,-.75*h],[1.0*w,-.25*h],[.98*w,.22*h],[.74*w,.62*h],[.32*w,.98*h],[.12*w,1.02*h],[-.3*w,.86*h],[-.76*w,.45*h]],K,5,.62,.94);
+  // bayangan poni di dahi (nada tengah, tanpa garis)
+  c.fillStyle=K[1];jalur(c,[[-.8*w,-.5*h],[.95*w,-.45*h],[.98*w,-.18*h],[.7*w,-.12*h],[.5*w,-.3*h],[.28*w,-.06*h],[.1*w,-.34*h],[-.15*w,-.1*h],[-.35*w,-.36*h],[-.6*w,-.05*h]]);c.fill();
+  // pipi merona: arsir miring khas anime
+  if(e.pipi>0){c.globalAlpha=e.pipi;c.fillStyle='rgba(255,105,120,.35)';elips(c,-.42*w,.4*h,.2*w,.09*h);c.fill();elips(c,.76*w,.4*h,.13*w,.08*h);c.fill();
+    c.strokeStyle='rgba(225,70,95,.85)';c.lineWidth=3;c.beginPath();for(let i=0;i<3;i++){c.moveTo(-.55*w+i*.12*w,.44*h);c.lineTo(-.47*w+i*.12*w,.33*h);}c.stroke();c.globalAlpha=1;}
+  // mata
+  const blink=kedip(t,b0+1),pj=e.pejam,ms=e.mataSenyum;
+  for(const[ex,ey,sc,dkt]of[[x0-.42*w,.1*h,1,1],[x0+.5*w,.1*h,.74,0]]){const ew=.29*w*sc,eh=.36*h*Math.min(1.3,e.buka)*(dkt?1:.95);
+    c.strokeStyle=P.tinta;c.lineCap=c.lineJoin='round';
+    if(pj>.5){c.lineWidth=7;c.beginPath();const d=dkt?1:-1;c.moveTo(ex-d*ew,ey-.32*h*.45);c.lineTo(ex+d*ew*.75,ey);c.lineTo(ex-d*ew,ey+.32*h*.42);c.stroke();}
+    else if(ms>.5){c.lineWidth=7;c.beginPath();c.moveTo(ex-ew,ey+.06*h);c.quadraticCurveTo(ex,ey-.26*h,ex+ew,ey+.04*h);c.stroke();}
+    else{const sp=[[ex-ew,ey-eh*.3],[ex+ew*.92,ey-eh*.5],[ex+ew,ey+eh*.32],[ex-ew*.75,ey+eh*.46]];jalur(c,sp);c.fillStyle='#FFFFFF';c.fill();
+      c.save();jalur(c,sp);c.clip();const ix=ex+ew*.08+e.lx*ew*.32,iy=ey+e.ly*eh*.22;
+      const g=c.createLinearGradient(0,iy-eh*.6,0,iy+eh*.55);g.addColorStop(0,'#1B1030');g.addColorStop(.55,wr.iris);g.addColorStop(1,'#C9A8FF');
+      c.fillStyle=g;elips(c,ix,iy,ew*.5,eh*.64);c.fill();c.fillStyle='#160C26';elips(c,ix,iy+eh*.04,ew*.22,eh*.3);c.fill();
+      c.fillStyle='#FFFFFF';elips(c,ix-ew*.16,iy-eh*.2,ew*.15,eh*.14);c.fill();elips(c,ix+ew*.2,iy+eh*.22,ew*.07,eh*.07);c.fill();
+      if(e.airmata>.05){c.fillStyle=`rgba(134,220,255,${.55*e.airmata})`;c.fillRect(ex-ew,ey+eh*.15,ew*2.2,eh*.5);}
+      const lid=Math.max(clamp((1-e.buka)*1.3),blink);if(lid>0){c.fillStyle=K[1];c.fillRect(ex-ew*1.3,ey-eh*1.1,ew*2.6,eh*1.5*lid+eh*.35);}c.restore();
+      const ly=eh*1.55*Math.max(clamp((1-e.buka)*1.3),blink);c.fillStyle=P.tinta;
+      jalur(c,[[ex-ew*1.12,ey-eh*.36+ly],[ex+ew*.95,ey-eh*.6+ly],[ex+ew*(dkt?1.42:1.15),ey-eh*(dkt?.86:.5)+ly],[ex+ew*.9,ey-eh*.38+ly],[ex-ew*1.0,ey-eh*.18+ly]]);c.fill();
+      c.lineWidth=3;c.beginPath();c.moveTo(ex-ew*.6,ey+eh*.52);c.lineTo(ex+ew*.7,ey+eh*.4);c.stroke();}
+    // alis tipis bersudut
+    const by=ey-.36*h-e.alis*.08*h,bw=.3*w*sc,inner=-e.cemas*.09*h,ix=dkt?ex+bw:ex-bw,ox=dkt?ex-bw:ex+bw;
+    c.fillStyle=R[2];jalur(c,[[ox,by+.01*h],[ix,by+inner],[ix,by+inner+.045*h],[ox,by+.045*h]]);c.fill();}
+  // hidung
+  c.strokeStyle=P.tinta;c.lineWidth=3.5;c.beginPath();c.moveTo(x0+.32*w,.2*h);c.lineTo(x0+.42*w,.38*h);c.lineTo(x0+.3*w,.4*h);c.stroke();
+  // mulut: garis bila tertutup, bentuk sudut bila terbuka (bicara / mulutO)
+  const mx=x0+.18*w,my=.64*h,mo=Math.max(bc,e.mulutO),sm=e.senyum;
+  if(mo<.06){c.lineWidth=5;c.beginPath();c.moveTo(mx-.2*w,my-sm*.03*h);c.quadraticCurveTo(mx,my+sm*.1*h,mx+.22*w,my-sm*.06*h);c.stroke();}
+  else{const oh=h*(.05+.22*mo),ow=w*(.15+.06*mo+.04*Math.max(0,sm)),pt=[[mx-ow,my-sm*.03*h],[mx+ow*1.1,my-oh*.15-sm*.04*h],[mx+ow*.75,my+oh],[mx-ow*.55,my+oh*.9]];
+    jalur(c,pt);c.fillStyle='#5E1A2E';c.fill();c.save();c.clip();c.fillStyle='#F07A86';elips(c,mx,my+oh,ow*.62,oh*.42);c.fill();c.fillStyle='#FFFFFF';c.fillRect(mx-ow,my-oh*.5,ow*2.2,oh*.42);c.restore();
+    c.lineWidth=4.5;jalur(c,pt);c.stroke();}
+  // air mata: genangan + aliran khas anime
+  if(e.airmata>.05){const a=e.airmata;
+    for(const[ex,sc]of[[x0-.42*w,1],[x0+.5*w,.7]]){const L=(.25+1.2*a)*h,y0=.24*h,ww=.13*w*sc;
+      const pts=[];for(let i=0;i<=8;i++){const u=i/8;pts.push([ex-.05*w+Math.sin(u*5+t*6)*.05*w-ww*(1-u*.3),y0+u*L]);}
+      for(let i=8;i>=0;i--){const u=i/8;pts.push([ex-.05*w+Math.sin(u*5+t*6)*.05*w+ww*(1-u*.3),y0+u*L]);}
+      c.globalAlpha=Math.min(1,a*1.4);isi(c,pts,P.air,3.5,.4,.75);
+      c.strokeStyle='rgba(255,255,255,.95)';c.lineWidth=3;c.beginPath();for(let j=0;j<3;j++){const yy=y0+((t*1.6+j/3)%1)*L;c.moveTo(ex-.07*w,yy);c.lineTo(ex-.07*w,yy+.06*h);}c.stroke();
+      if(a>.5){const f=(t*2.4+sc)%1;c.fillStyle=P.air[1];elips(c,ex-.05*w-f*.3*w,y0+L+f*.5*h,.06*w,.08*h);c.fill();c.stroke();}c.globalAlpha=1;}}
+  // poni depan bergerigi + kilau rambut + jepit
+  if(cepak){isi(c,[[-1.05*w,-.2*h],[-1.32*w,-.9*h],[-.76*w,-.96*h],[-.82*w,-1.48*h],[-.3*w,-1.16*h],[-.05*w,-1.62*h+goy*.5],[.26*w,-1.16*h],[.66*w,-1.46*h],[.72*w,-1.0*h],[1.2*w,-.96*h],[1.0*w,-.5*h],[1.12*w,-.24*h],[.86*w,-.3*h],[.62*w,-.08*h],[.5*w,-.5*h],[.26*w,-.24*h],[.06*w,-.56*h],[-.2*w,-.3*h],[-.45*w,-.6*h],[-.64*w,-.14*h],[-.8*w,.18*h]],R);
+    c.fillStyle='rgba(255,255,255,.35)';jalur(c,[[-.6*w,-1.0*h],[.1*w,-1.12*h],[.45*w,-1.02*h],[0,-1.0*h]]);c.fill();return;}
+  isi(c,[[-1.0*w,-.1*h],[-.98*w,-.78*h],[-.5*w,-1.2*h],[.25*w,-1.22*h],[.88*w,-.95*h],[1.12*w,-.35*h],[1.02*w,.08*h+goy*.4],[.86*w,-.3*h],[.7*w,-.02*h],[.56*w,-.46*h],[.32*w,-.12*h],[.16*w,-.52*h],[-.1*w,-.2*h],[-.26*w,-.58*h],[-.48*w,-.22*h],[-.6*w,-.56*h],[-.76*w,.3*h+goy*.5],[-.92*w,.55*h+goy]],R);
+  isi(c,[[-.1*w,-1.18*h],[.05*w,-1.62*h+goy],[.32*w,-1.75*h+goy*1.5],[.18*w,-1.55*h+goy],[.12*w,-1.2*h]],R,4.5);
+  c.fillStyle='rgba(255,255,255,.4)';jalur(c,[[-.62*w,-.92*h],[.0*w,-1.1*h],[.5*w,-1.0*h],[.42*w,-.9*h],[0,-.97*h],[-.55*w,-.82*h]]);c.fill();
+  isi(c,putar([[-.14*w,-.06*h],[.14*w,-.06*h],[.14*w,.06*h],[-.14*w,.06*h]],[.62*w,-.72*h],-.5),[wr.jepit,wr.jepit,'#E08A12'],4);}
+
+/* == 4. MULUT ========================================================================
+   Dengan VO: amplop.js berisi window.AMPLOP={A:[{fps:30,mulai:0.4,nilai:[0..1,...]},...],B:[...]} — satu entri per file VO
+   (dibuat skrip ffmpeg di resep; 'mulai' = detik file itu diputar di SCENE.audio.vo).
+   Tanpa VO: mulut buka-tutup sinus sebanyak suku kata tiap kata di KATA. Diatur 15 fps (patah-patah ala kartun). */
+function bukaMulut(t,siapa='A'){const tq=Math.floor(t*15)/15,A=window.AMPLOP&&window.AMPLOP[siapa];
+  if(A){for(const a of[].concat(A)){const f=(tq-(a.mulai||0))*a.fps,i=Math.floor(f);if(i>=0&&i<a.nilai.length)return clamp((lerp(a.nilai[i],a.nilai[i+1]??0,f-i)-.04)*1.7);}return 0;}
+  for(const k of KATA)if((k.s||'A')===siapa&&tq>=k.t0&&tq<k.t1){const u=(tq-k.t0)/(k.t1-k.t0),n=(k.w.match(/[aiueo]/gi)||[1]).length;
+    return clamp(.2+.8*Math.abs(Math.sin(u*PI*n)))*Math.min(1,Math.sin(PI*clamp(u))*3);}return 0;}
+
+/* == 5. KAMERA =======================================================================
+   KAM = [detik, pusatX, pusatY, zoom]. Antar-kunci memakai E.io. Kedalaman d: 0 = langit (diam), 1 = bidang tokoh, >1 = latar depan. */
+const KAM=[[0,410,1030,2.2],[1.3,410,1020,2.05],[2.1,540,1000,1.0],[5.0,540,985,1.05],[5.15,175,905,2.25],[5.75,170,905,2.32],[6.2,520,1000,1.06],[8.6,505,990,1.12]];
+function kamera(t){let i=0;while(i<KAM.length-2&&t>KAM[i+1][0])i++;const a=KAM[i],b=KAM[i+1],k=E.io(seg(t,a[0],b[0]));
+  const goyang=TUMBUK.reduce((s,tc)=>s+Math.max(0,1-Math.abs(t-tc)/.09),0);
+  return{x:lerp(a[1],b[1],k)+nz(t*.45,3)*5,y:lerp(a[2],b[2],k)+nz(t*.45,7)*4,z:lerp(a[3],b[3],k),gy:goyang*5};}
+function pasang(c,cam,d){const z=1+(cam.z-1)*d,cx=W/2+(cam.x-W/2)*d,cy=H/2+(cam.y-H/2)*d;c.setTransform(z,0,0,z,W/2-cx*z,H/2-cy*z+cam.gy*d);}
+function keLayar(cam,x,y,d=1){const z=1+(cam.z-1)*d,cx=W/2+(cam.x-W/2)*d,cy=H/2+(cam.y-H/2)*d;return[W/2+(x-cx)*z,H/2+(y-cy)*z+cam.gy*d];}
+/* == 6. LATAR KOMPLEK ================================================================
+   Latar TANPA garis (bidang 3 nada). Kedalaman: langit .04, matahari .06, awan .12, bukit/kota .22, pohon .4, rumah .88, jalan & tokoh 1. */
+function gumpal(c,x,y,s,k,B){c.fillStyle=k[2];B.forEach(([u,v,r])=>{elips(c,x+u*s,y+v*s+.13*s,r*s,r*.9*s);c.fill();});
+  c.fillStyle=k[1];B.forEach(([u,v,r])=>{elips(c,x+u*s-.06*s,y+v*s-.02*s,r*.94*s,r*.82*s);c.fill();});
+  c.fillStyle=k[0];B.forEach(([u,v,r])=>{elips(c,x+u*s-.18*s,y+v*s-.18*s,r*.7*s,r*.6*s);c.fill();});}
+const AWAN=[[0,0,.9],[-.9,.25,.66],[.95,.22,.7],[-.42,-.36,.72],[.45,-.42,.82],[.05,-.72,.58]];
+const DAUN=[[0,0,.62],[-.6,.2,.5],[.62,.18,.52],[-.3,-.42,.5],[.34,-.45,.52],[0,-.75,.42],[-.85,-.2,.4],[.86,-.25,.42]];
+const TANAH=1180;   // garis depan rumah (jalan melintang mulai di sini)
+function langit(c,cam,t){
+  pasang(c,cam,.04);const g=c.createLinearGradient(0,-200,0,1250);g.addColorStop(0,'#F47E6A');g.addColorStop(.45,P.langit[1]);g.addColorStop(1,P.langit[2]);
+  c.fillStyle=g;c.fillRect(-900,-900,2900,2600);
+  pasang(c,cam,.06);const sx=150,sy=560,sg=c.createRadialGradient(sx,sy,0,sx,sy,520);sg.addColorStop(0,'rgba(255,248,214,1)');sg.addColorStop(.22,'rgba(255,226,170,.6)');sg.addColorStop(1,'rgba(255,200,150,0)');
+  c.fillStyle=sg;c.fillRect(-500,0,1300,1200);c.fillStyle='#FFF6D8';elips(c,sx,sy,86,86);c.fill();
+  c.strokeStyle='rgba(255,255,255,.5)';c.lineWidth=6;elips(c,sx,sy,124+Math.sin(t*2)*5,124+Math.sin(t*2)*5);c.stroke();
+  pasang(c,cam,.12);[[120,300,110],[560,220,90],[900,380,100],[-260,420,80],[1300,260,85]].forEach(([x,y,s],i)=>gumpal(c,((x+t*(9+i*3))%1700)-250,y,s,P.awan,AWAN));
+  pasang(c,cam,.22);   // bukit + atap-atap komplek jauh
+  c.fillStyle=P.bukit[0];c.beginPath();c.moveTo(-700,1300);for(let i=0;i<=34;i++){const x=-700+i*80;c.lineTo(x,820-Math.sin(i*.5)*60-Math.sin(i*1.6)*18);}c.lineTo(2100,1300);c.fill();
+  for(let i=0;i<16;i++){const x=-560+i*150,h=70+hash(i)*70,yb=930;c.fillStyle=i%2?'#FFE7D2':'#FFDCC2';c.fillRect(x,yb-h,110,h+120);
+    c.fillStyle=['#E58A7A','#C9A45C','#D9707A','#9FB58A'][i%4];c.beginPath();c.moveTo(x-12,yb-h);c.lineTo(x+55,yb-h-48);c.lineTo(x+122,yb-h);c.fill();
+    c.fillStyle='#F9C9A3';for(let q=0;q<2;q++)c.fillRect(x+18+q*46,yb-h+24,26,26);}
+  c.fillStyle=P.bukit[1];c.beginPath();c.moveTo(-700,1300);for(let i=0;i<=34;i++){const x=-700+i*80;c.lineTo(x,990-Math.sin(i*.8+2)*28);}c.lineTo(2100,1300);c.fill();
+  pasang(c,cam,.4);for(let i=0;i<10;i++){const x=-420+i*190,y=1010+hash(i+3)*40,s=95+hash(i+9)*40;gumpal(c,x+Math.sin(t*1.3+i)*4,y,s,P.pohon,DAUN);}}
+// rumah (kedalaman .88): dinding krem, atap pelana, pintu, jendela, pagar. Tanpa garis luar.
+function rumah(c,x0,x1,atap,t,sisi){const w=x1-x0,yb=TANAH,yt=yb-400,cx=(x0+x1)/2;
+  c.fillStyle=P.dindingR[2];c.fillRect(x0+w*.06,yt+20,w*.88,yb-yt-20);
+  c.fillStyle=P.dindingR[1];c.fillRect(x0+w*.06,yt+20,w*.80,yb-yt-20);
+  c.fillStyle=P.dindingR[0];c.fillRect(x0+w*.06,yt+20,w*.30,yb-yt-20);
+  // atap pelana 3 nada
+  c.fillStyle=atap[2];jalur(c,[[x0-20,yt+40],[cx,yt-150],[x1+20,yt+40],[x1+20,yt+70],[x0-20,yt+70]]);c.fill();
+  c.fillStyle=atap[1];jalur(c,[[x0-20,yt+40],[cx,yt-150],[x1+20,yt+40]]);c.fill();
+  c.fillStyle=atap[0];jalur(c,[[x0-20,yt+40],[cx,yt-150],[cx-30,yt-118],[x0+30,yt+30]]);c.fill();
+  c.fillStyle='rgba(255,255,255,.35)';for(let i=1;i<6;i++){c.fillRect(cx-i*44,yt-150+i*36,i*88,4);}
+  // pintu di tengah (sasaran "tusuk")
+  const pw=104,ph=200;c.fillStyle=sisi==='C'?'#7A2E2A':'#5A3A26';c.fillRect(cx-pw/2,yb-ph,pw,ph);
+  c.fillStyle='rgba(255,255,255,.18)';c.fillRect(cx-pw/2+10,yb-ph+12,pw*.36,ph-24);c.fillStyle=P.emas[1];elips(c,cx+pw*.3,yb-ph/2,7,7);c.fill();
+  c.fillStyle=P.dindingR[2];c.fillRect(cx-pw/2-14,yb-ph-16,pw+28,16);
+  // jendela kiri-kanan dengan cahaya sore
+  for(const dx of[-w*.3,w*.3]){const wx=cx+dx-60,wy=yb-300;c.fillStyle='#FFF0C8';c.fillRect(wx,wy,120,110);c.fillStyle='#F6C98E';c.fillRect(wx+62,wy,58,110);
+    c.fillStyle=P.dindingR[2];c.fillRect(wx-8,wy+110,136,12);c.fillRect(wx+56,wy,8,110);
+    c.fillStyle='rgba(255,255,255,.55)';jalur(c,[[wx+10,wy+8],[wx+34,wy+8],[wx+10,wy+48]]);c.fill();}
+  // pagar rendah + gerbang terbuka di depan pintu
+  c.fillStyle=P.dindingR[2];c.fillRect(x0-10,yb-70,cx-x0-80,70);c.fillRect(cx+70,yb-70,x1-cx-60,70);
+  c.fillStyle='#FFFFFF';for(let x=x0;x<x1;x+=34){if(Math.abs(x-cx)<80)continue;c.fillRect(x,yb-110,12,40);}c.fillRect(x0-10,yb-118,cx-x0-80,10);c.fillRect(cx+70,yb-118,x1-cx-60,10);
+  // tanaman pot di samping pintu
+  gumpal(c,cx-110,yb-120,46,P.pohon,DAUN);gumpal(c,cx+110,yb-120,46,P.pohon,DAUN);}
+// jalan: melintang di depan rumah + jalan lurus dari bawah yang menusuk pintu Cindy
+const PINTU_C=[290,TANAH];
+function jalan(c,cam,t){pasang(c,cam,1);
+  // trotoar/halaman di bawah
+  c.fillStyle=P.trotoar[1];c.fillRect(-600,TANAH,2300,1200);c.fillStyle=P.trotoar[0];c.fillRect(-600,TANAH,2300,22);
+  // jalan melintang
+  c.fillStyle=P.aspal[1];c.fillRect(-600,TANAH+40,2300,170);c.fillStyle=P.aspal[2];c.fillRect(-600,TANAH+190,2300,20);
+  c.fillStyle='rgba(255,255,255,.8)';for(let x=-560;x<1700;x+=120)c.fillRect(x,TANAH+118,64,8);
+  // jalan lurus menuju pintu Cindy (perspektif: melebar ke bawah)
+  const yA=TANAH+210;c.fillStyle=P.aspal[1];jalur(c,[[PINTU_C[0]-110,yA],[PINTU_C[0]+110,yA],[PINTU_C[0]+520,2200],[PINTU_C[0]-520,2200]]);c.fill();
+  c.fillStyle=P.aspal[0];jalur(c,[[PINTU_C[0]-110,yA],[PINTU_C[0]-80,yA],[PINTU_C[0]-380,2200],[PINTU_C[0]-520,2200]]);c.fill();
+  c.fillStyle='rgba(255,255,255,.85)';for(let i=0;i<6;i++){const u0=i/6+.04,u1=u0+.08,y0=lerp(yA,2200,u0*u0),y1=lerp(yA,2200,u1*u1),w0=lerp(5,26,u0*u0),w1=lerp(5,26,u1*u1);
+    jalur(c,[[PINTU_C[0]-w0,y0],[PINTU_C[0]+w0,y0],[PINTU_C[0]+w1,y1],[PINTU_C[0]-w1,y1]]);c.fill();}
+  // rumput di sisi Sherlyn
+  c.fillStyle=P.rumput[1];c.fillRect(640,yA,1100,900);c.fillStyle=P.rumput[0];c.fillRect(640,yA,1100,18);
+  // bayangan panjang sore (dari kiri ke kanan)
+  c.fillStyle='rgba(90,40,70,.18)';jalur(c,[[-600,TANAH+22],[1700,TANAH+22],[1700,TANAH+60],[-600,TANAH+60]]);c.fill();}
+
+/* == 7. ALAT PERAGA TOPIK: papan DIJUAL, stempel MURAH, lensa peta tusuk sate == */
+const TUMBUK=[.42];   // detik stempel menghantam papan (kamera bergetar)
+function chip(c,x,y,teks,bg,fg,uk=40,sk=1){if(sk<=0)return;c.save();c.translate(x,y);c.scale(sk,sk);c.font=`800 ${uk}px 'M PLUS 1p'`;const w=c.measureText(teks).width+uk*1.1,h=uk*1.5;
+  c.beginPath();c.roundRect(-w/2,-h/2+6,w,h,h/2);c.fillStyle=P.tinta;c.fill();c.beginPath();c.roundRect(-w/2,-h/2,w,h,h/2);c.fillStyle=bg;c.fill();c.lineWidth=5;c.strokeStyle=P.tinta;c.stroke();
+  c.fillStyle=fg;c.textAlign='center';c.textBaseline='middle';c.fillText(teks,0,uk*.06);c.restore();}
+function papan(c,x,y,warna,sub,t,b0){const w=260,h=170,sw=Math.sin(t*1.6+b0)*.012;
+  c.save();c.translate(x,y);c.rotate(sw);
+  isi(c,[[-10,h/2-6],[10,h/2-6],[12,260],[-12,260]],P.kayu,5);
+  isi(c,[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],['#FFFFFF','#F6EDE4','#DCCBBE'],6,.5,.86);
+  isi(c,[[-w/2,-h/2],[w/2,-h/2],[w/2,-h/2+50],[-w/2,-h/2+50]],[warna,warna,warna],6);
+  c.font="400 40px 'Reggae One'";c.textAlign='center';c.textBaseline='middle';c.fillStyle='#FFFFFF';c.fillText('DIJUAL',0,-h/2+27);
+  c.font="800 31px 'M PLUS 1p'";c.fillStyle=P.tinta;c.fillText(sub,0,22);
+  c.strokeStyle='rgba(58,31,43,.35)';c.lineWidth=4;c.beginPath();c.moveTo(-90,58);c.lineTo(90,58);c.stroke();c.restore();}
+function stempel(c,x,y,t){const t0=TUMBUK[0];const k=seg(t,t0-.22,t0);if(k<=0)return;const sk=lerp(2.8,1,E.in(k)),a=Math.min(1,k*2.4);
+  c.save();c.translate(x,y);c.rotate(-.22);c.scale(sk,sk);c.globalAlpha=a;
+  c.strokeStyle=P.aksen;c.lineWidth=10;elips(c,0,0,118,72);c.stroke();c.lineWidth=4;elips(c,0,0,102,58);c.stroke();
+  c.fillStyle=P.aksen;c.font="400 58px 'Reggae One'";c.textAlign='center';c.textBaseline='middle';c.fillText('MURAH!',0,4);c.restore();
+  // garis benturan + serpih
+  const kb=seg(t,t0,t0+.3);if(kb>0&&kb<1){c.strokeStyle=P.tinta;c.lineWidth=7*(1-kb);c.lineCap='round';c.beginPath();
+    for(let i=0;i<8;i++){const an=i*PI/4+.2,r0=150+kb*40,r1=200+kb*70;c.moveTo(x+Math.cos(an)*r0,y+Math.sin(an)*r0*.7);c.lineTo(x+Math.cos(an)*r1,y+Math.sin(an)*r1*.7);}c.stroke();
+    for(let i=0;i<7;i++){const an=hash(i)*PI*2,d=kb*(120+hash(i+4)*90);c.fillStyle=i%2?P.emas[0]:'#FFFFFF';elips(c,x+Math.cos(an)*d,y+Math.sin(an)*d*.7+kb*kb*50,9*(1-kb),9*(1-kb));c.fill();}}}
+// lensa peta (ruang layar): komplek dilihat dari atas, panah merah melesat lurus ke pintu Cindy
+function lensa(c,t,dari){const k=E.back(seg(t,T.lensa,T.lensa+.45));if(k<=0)return;const cx=770,cy=575,R=Math.max(1,232*k);
+  c.setTransform(1,0,0,1,0,0);
+  const d=Math.hypot(cx-dari[0],cy-dari[1]),a=Math.atan2(dari[1]-cy,dari[0]-cx),b=Math.acos(clamp(R/d,-1,1));
+  c.fillStyle='rgba(255,255,255,.28)';c.strokeStyle='rgba(255,255,255,.85)';c.lineWidth=4;c.beginPath();c.moveTo(dari[0],dari[1]);
+  c.lineTo(cx+Math.cos(a+b)*R,cy+Math.sin(a+b)*R);c.lineTo(cx+Math.cos(a-b)*R,cy+Math.sin(a-b)*R);c.closePath();c.fill();c.stroke();
+  c.fillStyle=P.tinta;elips(c,cx+6,cy+10,R+12,R+12);c.fill();
+  c.save();elips(c,cx,cy,R,R);c.clip();c.translate(cx,cy);c.scale(k,k);
+  c.fillStyle=P.rumput[1];c.fillRect(-260,-260,520,520);
+  for(let i=0;i<14;i++){c.fillStyle=P.rumput[i%2?0:2];elips(c,-220+hash(i)*440,-220+hash(i+7)*440,10,6);c.fill();}
+  // jalan melintang + jalan lurus dari bawah (tusuk) menuju rumah Cindy (x 0)
+  c.fillStyle=P.aspal[1];c.fillRect(-260,-6,520,64);c.fillRect(-38,58,76,220);
+  c.fillStyle='rgba(255,255,255,.8)';for(let x=-250;x<260;x+=46)c.fillRect(x,23,24,5);for(let y=74;y<270;y+=44)c.fillRect(-3,y,6,22);
+  // deret rumah (atap dari atas)
+  const rumahAtas=(x,w,atap,nama)=>{isi(c,[[x-w/2,-150],[x+w/2,-150],[x+w/2,-26],[x-w/2,-26]],P.dindingR,4);
+    isi(c,[[x-w/2+8,-142],[x+w/2-8,-142],[x+w/2-8,-34],[x-w/2+8,-34]],atap,4,.45,.8);
+    c.strokeStyle=atap[2];c.lineWidth=4;c.beginPath();c.moveTo(x,-142);c.lineTo(x,-34);c.stroke();
+    if(nama){c.font="800 25px 'M PLUS 1p'";c.textAlign='center';c.textBaseline='middle';c.lineWidth=7;c.strokeStyle=P.tinta;c.strokeText(nama,x,-88);c.fillStyle='#FFFFFF';c.fillText(nama,x,-88);}};
+  rumahAtas(-160,100,['#E8E0D8','#C9BCB0','#9E8F84']);rumahAtas(0,120,P.atapC,'Cindy');rumahAtas(150,120,P.atapS,'Sherlyn');
+  // aliran energi tenang (emas, berkelok) di jalan melintang depan Sherlyn
+  c.strokeStyle=P.emas[0];c.lineWidth=6;c.lineCap='round';c.setLineDash([18,16]);c.lineDashOffset=-t*60;c.beginPath();
+  for(let x=-250;x<=260;x+=10){const y=26+Math.sin(x*.03+t*2)*12;x===-250?c.moveTo(x,y):c.lineTo(x,y);}c.stroke();c.setLineDash([]);
+  // panah merah melesat lurus ke pintu Cindy (berulang tiap 1,1 dtk)
+  const ta=t-T.panah;if(ta>0){const ph=(ta%1.1)/1.1,yH=lerp(270,-20,E.in(Math.min(1,ph*1.35)));
+    const g=c.createLinearGradient(0,yH+170,0,yH);g.addColorStop(0,'rgba(217,35,46,0)');g.addColorStop(1,'rgba(217,35,46,.95)');
+    c.fillStyle=g;jalur(c,[[-16,yH+170],[16,yH+170],[16,yH+20],[-16,yH+20]]);c.fill();
+    isi(c,[[-40,yH+30],[0,yH-24],[40,yH+30],[16,yH+30],[16,yH+40],[-16,yH+40],[-16,yH+30]],['#FF6A70',P.aksen,'#8E0F18'],4);
+    const hit=seg(ph,.74,1);if(hit>0){c.strokeStyle=`rgba(255,255,255,${1-hit})`;c.lineWidth=8*(1-hit);elips(c,0,-30,30+hit*90,18+hit*50);c.stroke();
+      c.strokeStyle=`rgba(217,35,46,${1-hit})`;c.lineWidth=6*(1-hit);c.beginPath();for(const an of[-2.4,-1.9,-1.25,-.7]){c.moveTo(Math.cos(an)*(50+hit*30),-30+Math.sin(an)*(40+hit*30));c.lineTo(Math.cos(an)*(80+hit*60),-30+Math.sin(an)*(70+hit*60));}c.stroke();}}
+  c.restore();
+  c.lineWidth=12;c.strokeStyle=P.tinta;elips(c,cx,cy,R,R);c.stroke();c.lineWidth=5;c.strokeStyle='#FFFFFF';elips(c,cx,cy,Math.max(1,R-8),Math.max(1,R-8));c.stroke();
+  c.fillStyle='rgba(255,255,255,.5)';c.beginPath();c.ellipse(cx,cy,Math.max(1,R-16),Math.max(1,R-16),0,PI*1.08,PI*1.42);c.ellipse(cx,cy,Math.max(1,R-40),Math.max(1,R-40),0,PI*1.42,PI*1.08,true);c.fill();
+  chip(c,cx,cy-R-8,'TUSUK SATE',P.aksen,'#FFFFFF',42,E.back(seg(t,T.lensa+.2,T.lensa+.55)));
+  chip(c,cx-10,cy+R+34,'jalan lurus → pintu','#FFFFFF',P.tinta,36,E.back(seg(t,T.chipJalan,T.chipJalan+.4)));
+  if(t<T.lensa+.9)for(let i=0;i<5;i++){const an=i*1.26+.4,f=seg(t,T.lensa+.1,T.lensa+.9);bintang(c,cx+Math.cos(an)*(R+30+f*40),cy+Math.sin(an)*(R+30+f*40),26*(1-f),f*2,'#FFFFFF');}}
+
+/* == 8. EFEK ANIME ================================================================== */
+function garisFokus(c,t,a){if(a<=0)return;c.setTransform(1,0,0,1,0,0);const sd=Math.floor(t*12);c.fillStyle=`rgba(58,31,43,${.5*a})`;
+  for(let i=0;i<64;i++){const an=i/64*PI*2+hash(i+sd)*.08,r0=430+hash(i*3+sd)*220,r1=1300,w=.006+hash(i*7)*.012;
+    c.beginPath();c.moveTo(W/2+Math.cos(an)*r0,H*.44+Math.sin(an)*r0*1.35);c.lineTo(W/2+Math.cos(an-w)*r1,H*.44+Math.sin(an-w)*r1*1.35);c.lineTo(W/2+Math.cos(an+w)*r1,H*.44+Math.sin(an+w)*r1*1.35);c.fill();}}
+function tandaSeru(c,t,x,y,t0){const k=E.back(seg(t,t0,t0+.25)),h=1-seg(t,t0+.55,t0+.75);if(k<=0||h<=0)return;c.save();c.translate(x,y);c.scale(k*h,k*h);c.rotate(.18);
+  isi(c,[[-14,-90],[18,-90],[10,-14],[-8,-14]],[P.aksen,P.aksen,'#C42A45'],6);elips(c,1,12,15,15);warnai(c,[P.aksen,P.aksen,'#C42A45'],[-14,-3,30,30],6);
+  c.strokeStyle=P.tinta;c.lineWidth=7;c.beginPath();for(const a of[-.5,0,.5]){c.moveTo(Math.cos(a-PI/2+.9)*80,Math.sin(a-PI/2+.9)*80);c.lineTo(Math.cos(a-PI/2+.9)*118,Math.sin(a-PI/2+.9)*118);}c.stroke();c.restore();}
+function sinarMatahari(c,cam,t){c.save();c.globalCompositeOperation='screen';pasang(c,cam,.9);
+  for(let i=0;i<5;i++){const x=40+i*130+Math.sin(t*.7+i)*10,w=40+hash(i)*60,a=.08+.05*Math.sin(t*1.1+i*2);
+    const g=c.createLinearGradient(x,150,x+500,1300);g.addColorStop(0,`rgba(255,255,235,${a})`);g.addColorStop(1,'rgba(255,255,235,0)');c.fillStyle=g;
+    jalur(c,[[x,150],[x+w,150],[x+w+560,1350],[x+560,1350]]);c.fill();}
+  pasang(c,cam,.96);c.fillStyle='rgba(255,255,240,.8)';for(let i=0;i<26;i++){const u=(hash(i)+t*.03*(1+hash(i+9)))%1,x=120+hash(i+2)*700+u*200,y=300+u*800+Math.sin(t+i)*16;
+    elips(c,x,y,2+hash(i+5)*3,2+hash(i+5)*3);c.fill();}c.restore();}
+function daunDepan(c,cam,t){pasang(c,cam,1.35);c.save();c.filter='blur(7px)';c.translate(-70+Math.sin(t*.9)*8,1930);c.rotate(-.7+Math.sin(t*1.1)*.04);
+  c.beginPath();c.moveTo(0,0);c.bezierCurveTo(120,-260,380,-250,430,-40);c.bezierCurveTo(330,90,120,90,0,0);c.fillStyle=P.pohon[2];c.fill();
+  c.fillStyle=P.pohon[1];c.beginPath();c.moveTo(20,-10);c.bezierCurveTo(140,-220,360,-210,410,-50);c.lineTo(20,-10);c.fill();c.restore();c.filter='none';}
+function vinyet(c){c.setTransform(1,0,0,1,0,0);const g=c.createRadialGradient(W/2,H*.48,H*.3,W/2,H*.48,H*.78);g.addColorStop(0,'rgba(120,40,60,0)');g.addColorStop(1,'rgba(120,40,60,.2)');c.fillStyle=g;c.fillRect(0,0,W,H);}
+/* == 9. BALON KATA (subtitle) =======================================================
+   Kata dari SCENE.kata atau window.KATA ({w,t0,t1,s?}); s = id tokoh pembicara (default 'A').
+   Frasa dipotong di . ! ? (bukan "..."), jeda > 0,6 dtk, atau 8 kata. Ekor balon menunjuk mulut pembicara. */
+let KATA=[],FRASA=[];
+function siapkanBalon(){KATA=(window.KATA&&window.KATA.length?window.KATA:SCENE.kata)||[];let cur=[];const tutup=()=>{if(cur.length)FRASA.push(cur);cur=[];};
+  KATA.forEach((k,i)=>{const pv=KATA[i-1];if(cur.length&&(cur.length>=8||/[!?]$|[^.]\.$/.test(pv.w)||k.t0-pv.t1>.6||(k.s||'A')!==(pv.s||'A')))tutup();cur.push(k);});tutup();
+  FRASA=FRASA.map((ws,i)=>{const nx=FRASA[i+1];return{ws,s:ws[0].s||'A',a:ws[0].t0-.12,b:Math.min(ws[ws.length-1].t1+.45,nx?nx[0].t0-.14:1e9)};});}
+let frasaAktif=null;const balon=$('#balon'),bTeks=$('#balonTeks'),bIsi=$('#balonIsi'),bNama=$('#balonNama');
+function balonFrame(t,ANK){const f=FRASA.find(f=>t>=f.a&&t<f.b);balon.style.visibility=f?'visible':'hidden';if(!f)return;
+  if(frasaAktif!==f){frasaAktif=f;bIsi.innerHTML='';f.el=f.ws.map(k=>{const s=mk('span','k',bIsi);s.textContent=k.w;return s;});
+    const tk=TOKOH[f.s]||TOKOH.A;bNama.textContent=tk.nama;bNama.style.background=tk.warnaNama;}
+  f.ws.forEach((k,i)=>{const s=f.el[i],on=t>=k.t0&&t<k.t1+.05,m=E.back(seg(t,k.t0-.03,k.t0+.16));s.style.opacity=t<k.t0-.03?.32:1;
+    s.style.color=on?P.aksen:P.tinta;s.style.transform=`translateY(${(1-m)*10}px) scale(${on?1.06:1})`;});
+  const hgt=bTeks.offsetHeight,bot=AMAN.bawah,top=bot-hgt,bx=70,bw=860,r=40;bTeks.style.top=top+'px';
+  const k=E.back(seg(t,f.a,f.a+.3)),hilang=seg(t,f.b-.15,f.b),sk=(.82+.18*k)*(1-.1*hilang),dy=(1-k)*40+hilang*20;
+  balon.style.opacity=1-hilang;bTeks.style.transform=`translateY(${dy}px) scale(${sk})`;
+  const mu=(ANK[f.s]&&ANK[f.s].mulut)||[W/2,top-300],baseX=clamp(mu[0],bx+90,bx+bw-110),dd=Math.hypot(mu[0]-baseX,mu[1]-top),pj=Math.min(.4,95/dd),tx=lerp(baseX,mu[0],pj),ty=lerp(top,mu[1],pj);
+  const ekor=f.s==='N'?'':`L${baseX-30},${top} L${tx},${ty} L${baseX+30},${top} `;const d=`M${bx+r},${top} ${ekor}L${bx+bw-r},${top} Q${bx+bw},${top} ${bx+bw},${top+r} L${bx+bw},${bot-r} Q${bx+bw},${bot} ${bx+bw-r},${bot} L${bx+r},${bot} Q${bx},${bot} ${bx},${bot-r} L${bx},${top+r} Q${bx},${top} ${bx+r},${top} Z`;
+  $('#balonBadan').setAttribute('d',d);$('#balonBayang').setAttribute('d',d);$('#balonBayang').setAttribute('transform','translate(8,12)');
+  $('#balonG').setAttribute('transform',`translate(${W/2},${bot}) scale(${sk}) translate(${-W/2},${-bot+dy})`);}
+/* == 10. SCENE ======================================================================= */
+const T={sorak:1.9,diam:4.5,kaget:5.2,cemas:6.15,lensa:5.95,panah:6.35,chipJalan:6.9};
+const ANK={};
+const SCENE={
+  dur:8.6,
+  // perkiraan waktu kata (narator, s:'N'); setelah VO jadi diganti kata.js dari tools/tts.py kata
+  kata:[{w:'Cindy',t0:.45,t1:.85,s:'N'},{w:'dan',t0:.85,t1:1.0,s:'N'},{w:'Sherlyn',t0:1.0,t1:1.5,s:'N'},{w:'beli',t0:1.55,t1:1.8,s:'N'},
+        {w:'rumah',t0:1.8,t1:2.1,s:'N'},{w:'di',t0:2.1,t1:2.2,s:'N'},{w:'komplek',t0:2.2,t1:2.55,s:'N'},{w:'yang',t0:2.55,t1:2.7,s:'N'},{w:'sama.',t0:2.7,t1:3.05,s:'N'},
+        {w:'Rumah',t0:3.3,t1:3.6,s:'N'},{w:'Cindy',t0:3.6,t1:3.95,s:'N'},{w:'jauh',t0:3.95,t1:4.25,s:'N'},{w:'lebih',t0:4.25,t1:4.5,s:'N'},{w:'murah.',t0:4.5,t1:5.0,s:'N'},
+        {w:'Ternyata...',t0:5.45,t1:6.05,s:'N'},{w:'ada',t0:6.3,t1:6.5,s:'N'},{w:'alasannya.',t0:6.5,t1:7.3,s:'N'}],
+  sub:{gaya:'mati'},
+  audio:{vo:[],sfx:[],music:null},
+  muat(){return Promise.all([document.fonts.load("800 40px 'M PLUS 1p'"),document.fonts.load("40px 'Reggae One'")]).then(siapkanBalon);},
+  build(tl){const J=$('#judul');wIn(tl,J,.2,{y:90,st:.08,b:8,ease:'back.out(2.2)'});wOut(tl,J,3.2);},
+  frame(t){const c=X,cam=kamera(t);c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);
+    langit(c,cam,t);
+    pasang(c,cam,.88);rumah(c,20,560,P.atapC,t,'C');rumah(c,600,1120,P.atapS,t,'S');
+    jalan(c,cam,t);
+    pasang(c,cam,1);papan(c,410,1010,P.segel,'harga miring',t,0);papan(c,740,1010,P.giok,'harga pasaran',t,2);
+    stempel(c,410,1032,t);
+    // Cindy (kiri, menghadap kanan) dan Sherlyn (kanan, menghadap kiri)
+    const loncat=-Math.abs(Math.sin((t-T.sorak)*PI*2.4))*34*sstep(T.sorak,T.sorak+.2,t)*(1-sstep(T.diam-.4,T.diam,t));
+    const poseA=kunci(t,[[0,'diri'],[T.sorak,'angkat',.32],[T.diam,'diri',.35],[T.kaget,'kaget',.18],[T.cemas,'nangis',.3]],POSE);
+    const eksA=kunci(t,[[0,'senang'],[T.kaget,'kaget',.12],[T.cemas,{...EKSPRESI.sedih,lx:.6,ly:-.2},.3]],EKSPRESI);
+    const poseB=kunci(t,[[0,'diri'],[2.5,'pikir',.4],[T.kaget,'diri',.3],[T.cemas+.3,'pikir',.4]],POSE);
+    const eksB=kunci(t,[[0,{...EKSPRESI.netral,lx:.6}],[2.5,{...EKSPRESI.netral,alis:.6,cemas:.2,senyum:0,lx:.9,ly:-.1},.3],[T.kaget,{...EKSPRESI.kaget,buka:1.15},.15],[T.cemas+.3,{...EKSPRESI.yakin,lx:.9,ly:-.3},.3]],EKSPRESI);
+    c.fillStyle='rgba(90,40,70,.22)';elips(c,150,1640,150,26);c.fill();elips(c,950,1640,150,26);c.fill();
+    ANK.B=tokoh(c,{x:950,y:1640,s:.8,arah:-1,t,pose:poseB,ekspresi:eksB,warna:TOKOH.B,bicara:bukaMulut(t,'B'),biji:2});
+    pasang(c,cam,1);ANK.A=tokoh(c,{x:150,y:1640+loncat,s:.8,arah:1,t,pose:poseA,ekspresi:eksA,warna:TOKOH.A,bicara:bukaMulut(t,'A'),biji:0});
+    pasang(c,cam,1);tandaSeru(c,t,300,760,T.kaget);
+    // kilau saat Cindy bersorak
+    if(t>T.sorak&&t<T.diam&&ANK.A.kepala){c.setTransform(1,0,0,1,0,0);const[hx,hy]=ANK.A.kepala;
+      for(let i=0;i<5;i++){const f=(t*1.1+i*.2)%1,an=i*1.25+.5;bintang(c,hx+Math.cos(an)*(130+f*60),hy+Math.sin(an)*(110+f*50),(1-f)*26*cam.z/1.4,f*3,i%2?'#FFFFFF':P.emas[0]);}}
+    garisFokus(c,t,sstep(T.kaget,T.kaget+.1,t)*(1-sstep(T.lensa-.15,T.lensa+.05,t)));
+    lensa(c,t,keLayar(cam,PINTU_C[0],PINTU_C[1]-60));
+    vinyet(c);
+    balonFrame(t,ANK);}
+};
+
+grainOn(.04);

@@ -1,0 +1,280 @@
+<!--@TITLE Rumah Tusuk Sate: Cindy vs Sherlyn-->
+<!--@RASIO 9:16-->
+<!--@HEAD-->
+<!-- Gaya 2D+ di dunia 3D (racikan Shifu Po): komplek three.js berbayang lembut + tokoh flat 2D (bukan anime) sebagai papan menghadap kamera.
+     Font brand: Cinzel (judul) + Plus Jakarta Sans (subtitle, label). -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;800&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+#stage{background:#F3D2AE}
+#gl{position:absolute;left:0;top:0;display:block}
+#vig{position:absolute;inset:0;pointer-events:none;z-index:4;background:radial-gradient(ellipse at 50% 45%,rgba(90,50,30,0) 58%,rgba(90,50,30,.28) 100%)}
+#judul{position:absolute;left:0;width:100%;top:280px;text-align:center;font:900 64px/1.12 'Cinzel',serif;color:#FFF8EC;visibility:hidden;z-index:76;
+  letter-spacing:.02em;text-shadow:0 3px 3px rgba(40,20,10,.55),0 0 34px rgba(40,20,10,.45)}
+#judul .u{font-size:150px;line-height:1.05;color:#FFFFFF;letter-spacing:.04em;text-shadow:0 4px 0 #7E0F15,0 0 40px rgba(168,22,29,.7)}
+#judul .b{color:#F1DDA8}
+.pil{position:absolute;left:0;top:0;z-index:60;font:800 34px/1 'Plus Jakarta Sans',sans-serif;color:#fff;padding:14px 26px 13px;border-radius:40px;
+  box-shadow:0 10px 24px rgba(40,20,10,.3);white-space:nowrap;transform-origin:50% 100%;opacity:0}
+.muatFont{position:absolute;left:-9999px;top:0}
+</style>
+<!--@BODY-->
+<div id="vig"></div>
+<div id="judul">KENAPA RUMAH<br><span class="u">CINDY</span><br>LEBIH <span class="b">MURAH?</span></div>
+<div class="pil" id="pA" style="background:#A8161D">CINDY</div>
+<div class="pil" id="pB" style="background:#2E7D63">SHERLYN</div>
+<div class="pil" id="pT" style="background:#A8161D;font-size:44px;padding:18px 34px 16px">TUSUK SATE</div>
+<div class="pil" id="pJ" style="background:#F8F4EC;color:#12100E;font-size:32px">jalan lurus → tepat ke pintu</div>
+<div class="muatFont" style="font:800 20px 'Plus Jakarta Sans'">a</div><div class="muatFont" style="font:900 20px 'Cinzel'">a</div>
+<!--@SCRIPT-->
+/* =====================================================================================
+   2D+ DI DUNIA 3D · Shifu Po · "Rumah Tusuk Sate: Cindy vs Sherlyn" · adegan 1 (hook, 8,6 dtk)
+   Close-up papan DIJUAL + stempel MURAH -> crane mundur di atas jalan lurus (kelihatan menusuk pintu Cindy)
+   -> dorong ke wajah Cindy -> crane naik ke pandangan burung: energi merah melesat lurus ke pintu.
+   Kamera: kunci posisi + titik pandang, tiap ruas E.io (mulai & berhenti halus, tanpa patah).
+   BAGIAN: 1 PALET · 2 ALAT 2D · 3 TOKOH FLAT · 4 RENDERER & CAHAYA · 5 DUNIA · 6 PERAGA · 7 KAMERA · 8 SCENE
+   ===================================================================================== */
+
+/* == 1. PALET (brand Shifu Po) ======================================================= */
+const P={tinta:'#12100E',kertas:'#F8F4EC',emas:'#C9A45C',emasT:'#F1DDA8',emasD:'#9C7A35',segel:'#A8161D',segelD:'#7E0F15',giok:'#2E7D63',giokT:'#4E9C80'};
+const TOKOH={
+  A:{kulit:'#F6D2B4',kulitD:'#E3B593',rambut:'#1F1A1E',atasan:'#FFFFFF',atasanD:'#E6DED6',luar:'#B8232B',luarD:'#8C1820',bawah:'#33303F',sepatu:'#F4EEE8',jepit:P.emas,panjang:false},
+  B:{kulit:'#F8D9BE',kulitD:'#E6BC99',rambut:'#5A3A2C',atasan:'#FBF3E4',atasanD:'#E8DAC2',luar:'#2E7D63',luarD:'#225E4B',bawah:'#6A5644',sepatu:'#F4EEE8',jepit:P.segel,panjang:true}};
+
+/* == 2. ALAT 2D (untuk melukis tokoh & papan di kanvas) ================================ */
+const PI=Math.PI;
+function elips(c,x,y,rx,ry,r=0){c.beginPath();c.ellipse(x,y,Math.max(.1,rx),Math.max(.1,ry),r,0,7);}
+function gh(c,x0,x1,a,b){const g=c.createLinearGradient(x0,0,x1,0);g.addColorStop(0,a);g.addColorStop(1,b);return g;}
+function bayang(c,blur=30,a=.22,dy=14){c.shadowColor=`rgba(70,40,30,${a})`;c.shadowBlur=blur;c.shadowOffsetY=dy;}
+function tanpaBayang(c){c.shadowColor='transparent';c.shadowBlur=0;c.shadowOffsetY=0;}
+function ik(S,T,l1,l2,tekuk){const dx=T[0]-S[0],dy=T[1]-S[1],d=clamp(Math.hypot(dx,dy),Math.abs(l1-l2)+1,l1+l2-.5),a=Math.atan2(dy,dx),
+  b=Math.acos(clamp((l1*l1+d*d-l2*l2)/(2*l1*d),-1,1))*tekuk,e=[S[0]+Math.cos(a+b)*l1,S[1]+Math.sin(a+b)*l1],a2=Math.atan2(T[1]-e[1],T[0]-e[0]);
+  return{e,h:[e[0]+Math.cos(a2)*l2,e[1]+Math.sin(a2)*l2]};}
+function campur(a,b,k){const o={};for(const n in b){const u=a[n],v=b[n];o[n]=Array.isArray(v)?v.map((x,i)=>lerp(u[i],x,k)):typeof v==='number'?lerp(u??v,v,k):v;}return o;}
+function kunci(t,daftar,kamus){const ambil=v=>typeof v==='string'?kamus[v]:v;let cur=ambil(daftar[0][1]);
+  for(let i=1;i<daftar.length;i++){const[t0,v,d=.35]=daftar[i];if(t<t0)break;cur=campur(cur,ambil(v),E.io(seg(t,t0,t0+d)));}return cur;}
+
+/* == 3. TOKOH FLAT == */
+const POSE={diri:{J:[46,-420],D:[-44,-420],tJ:1,tD:-1},angkat:{J:[150,-1060],D:[-140,-1050],tJ:1,tD:-1},
+  kaget:{J:[62,-820],D:[-30,-815],tJ:1,tD:-1},cemas:{J:[34,-600],D:[16,-596],tJ:1,tD:-1},pikir:{J:[26,-520],D:[34,-768],tJ:1,tD:1}};
+const EKS={senang:{mata:.7,senyum:1,o:.25,alis:0,lirik:.4},netral:{mata:1,senyum:.25,o:0,alis:0,lirik:.5},heran:{mata:1,senyum:-.1,o:0,alis:.6,lirik:.9},
+  kaget:{mata:1.25,senyum:-.2,o:.8,alis:.8,lirik:0},cemas:{mata:.9,senyum:-.7,o:0,alis:1,lirik:.6},yakin:{mata:.9,senyum:.5,o:0,alis:-.2,lirik:.9}};
+function kedip(t,b){const p=3.1+(b%3)*.5,f=(t+b*1.37)%p;return f<.14?Math.sin(f/.14*PI):0;}
+function orang(c,o){const s=o.s,ar=o.arah,w=o.w,t=o.t,p=o.pose,e=o.eks,nafas=Math.sin(t*2.2+(o.b||0))*3;
+  c.save();c.translate(o.x,o.y);c.scale(s*ar,s);
+  const bahuJ=[38,-700+nafas],bahuD=[-38,-700+nafas],l1=150,l2=140;
+  const lengan=(bahu,tuj,tk,dpn)=>{const{e:el,h}=ik(bahu,tuj,l1,l2,tk);c.lineCap='round';c.lineJoin='round';
+    c.strokeStyle=dpn?w.luar:w.luarD;c.lineWidth=46;c.beginPath();c.moveTo(...bahu);c.lineTo(...el);c.stroke();
+    c.strokeStyle=dpn?w.kulit:w.kulitD;c.lineWidth=34;c.beginPath();c.moveTo(...el);c.lineTo(...h);c.stroke();
+    c.fillStyle=dpn?w.kulit:w.kulitD;elips(c,h[0],h[1],24,26);c.fill();};
+  lengan(bahuJ,p.J,p.tJ,false);
+  c.lineCap='round';for(const[sx,dk]of[[24,0],[-24,1]]){c.strokeStyle=dk?w.bawah:'#24212C';c.lineWidth=52;c.beginPath();c.moveTo(sx,-440);c.lineTo(sx+4,-40);c.stroke();
+    c.fillStyle=w.sepatu;elips(c,sx+22,-22,46,22);c.fill();}
+  bayang(c,24,.18,10);c.fillStyle=gh(c,-90,90,w.atasan,w.atasanD);c.beginPath();c.roundRect(-82,-725+nafas,164,300,[60,60,26,26]);c.fill();tanpaBayang(c);
+  c.fillStyle=gh(c,-100,0,w.luar,w.luarD);c.beginPath();c.moveTo(-90,-690+nafas);c.quadraticCurveTo(-96,-726+nafas,-50,-728+nafas);c.lineTo(-22,-430);c.lineTo(-92,-430);c.closePath();c.fill();
+  c.fillStyle=gh(c,0,100,w.luar,w.luarD);c.beginPath();c.moveTo(90,-690+nafas);c.quadraticCurveTo(96,-726+nafas,50,-728+nafas);c.lineTo(30,-430);c.lineTo(92,-430);c.closePath();c.fill();
+  c.fillStyle='rgba(0,0,0,.12)';c.fillRect(-86,-452,172,22);
+  c.fillStyle=w.kulitD;c.fillRect(-16,-770+nafas,32,50);
+  const hx=8,hy=-838+nafas,R=74;
+  if(w.panjang){c.fillStyle=w.rambut;c.beginPath();c.roundRect(hx-86,hy-30,172,190,[40,40,60,60]);c.fill();}
+  c.fillStyle=w.kulit;elips(c,hx,hy,R*.92,R);c.fill();
+  c.fillStyle=w.kulitD;elips(c,hx-R*.9+4,hy+6,12,18);c.fill();
+  c.fillStyle=w.rambut;c.beginPath();c.ellipse(hx,hy-14,R*1.02,R*.92,0,PI*1.02,PI*1.98+.02);c.lineTo(hx+R*.98,hy+18);c.quadraticCurveTo(hx+R*.6,hy-40,hx+R*.1,hy-46);
+  c.quadraticCurveTo(hx-R*.4,hy-30,hx-R*.75,hy+10);c.lineTo(hx-R*1.0,hy+(w.panjang?40:58));c.closePath();c.fill();
+  if(!w.panjang){c.beginPath();c.roundRect(hx-R*1.04,hy-10,30,74,14);c.fill();}
+  c.fillStyle='rgba(255,255,255,.14)';elips(c,hx-20,hy-62,30,10,-.2);c.fill();
+  c.fillStyle=w.jepit;c.beginPath();c.roundRect(hx+R*.38,hy-52,30,10,5);c.fill();
+  const fx=hx+18+e.lirik*6,ey=hy+6,kd=kedip(t,o.b||0);
+  for(const[dx,sc]of[[-26,1],[24,.9]]){const ry=9*sc*clamp(e.mata,.15,1.3)*(1-kd*.9);c.fillStyle=P.tinta;elips(c,fx+dx,ey,7*sc,Math.max(1.2,ry));c.fill();
+    if(ry>4){c.fillStyle='#FFFFFF';elips(c,fx+dx-2,ey-3,2.2,2.2);c.fill();}
+    c.strokeStyle=w.rambut;c.lineWidth=5;c.lineCap='round';c.beginPath();const by=ey-22-e.alis*3;c.moveTo(fx+dx-10,by+(dx<0?e.alis*4:-e.alis*1));c.lineTo(fx+dx+10,by+(dx<0?-e.alis*1:e.alis*4));c.stroke();}
+  c.fillStyle='rgba(232,120,110,.35)';elips(c,fx-38,ey+22,13,8);c.fill();elips(c,fx+38,ey+22,11,7);c.fill();
+  const my=ey+36,mx=fx-2;if(e.o>.15){c.fillStyle='#7A2E2E';elips(c,mx,my+4,11+e.o*3,6+e.o*10);c.fill();}
+  else{c.strokeStyle='#7A3A34';c.lineWidth=4.5;c.lineCap='round';c.beginPath();c.moveTo(mx-14,my-e.senyum*2);c.quadraticCurveTo(mx,my+e.senyum*11,mx+14,my-e.senyum*2);c.stroke();}
+  lengan(bahuD,p.D,p.tD,true);
+  const m=c.getTransform(),q=m.transformPoint(new DOMPoint(hx,hy));c.restore();
+  return{kepala:[q.x,q.y]};}
+
+
+
+/* == 4. RENDERER & CAHAYA ============================================================= */
+const C=h=>new THREE.Color(h).convertSRGBToLinear(),V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const REN=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+REN.setPixelRatio(1);REN.setSize(W,H);REN.domElement.id='gl';$('#stage').prepend(REN.domElement);
+REN.outputEncoding=THREE.sRGBEncoding;REN.toneMapping=THREE.ACESFilmicToneMapping;REN.toneMappingExposure=1.0;
+REN.shadowMap.enabled=true;REN.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.fog=new THREE.Fog(C('#F2C9A0'),28,80);
+const cam=new THREE.PerspectiveCamera(40,W/H,.05,300);
+function teksturKanvas(w,h,lukis,ulang=[1,1]){const c=kanvas(w,h),x=c.getContext('2d');lukis(x,w,h);
+  const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(...ulang);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t;}
+// langit sore: kubah bergradasi + matahari rendah
+const langitTex=teksturKanvas(16,512,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#E9A07E');g.addColorStop(.38,'#F4C49A');g.addColorStop(.5,'#FBE6CA');g.addColorStop(1,'#F6D5B2');x.fillStyle=g;x.fillRect(0,0,w,h);});
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(150,32,16),new THREE.MeshBasicMaterial({map:langitTex,side:THREE.BackSide,fog:false})));
+const mentari=new THREE.Mesh(new THREE.CircleGeometry(5,40),new THREE.MeshBasicMaterial({color:C('#FFF4D8'),fog:false}));mentari.position.set(-70,22,-110);mentari.lookAt(0,0,0);scene.add(mentari);
+const halo=new THREE.Mesh(new THREE.CircleGeometry(16,40),new THREE.MeshBasicMaterial({map:teksturKanvas(256,256,(x,w,h)=>{const g=x.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);g.addColorStop(0,'rgba(255,240,205,.85)');g.addColorStop(1,'rgba(255,220,180,0)');x.fillStyle=g;x.fillRect(0,0,w,h);}),transparent:true,depthWrite:false,fog:false}));
+halo.position.copy(mentari.position).add(V(.5,0,.5));halo.lookAt(0,0,0);scene.add(halo);
+const sun=new THREE.DirectionalLight(C('#FFD3A0'),2.6);sun.position.set(-18,14,10);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);
+Object.assign(sun.shadow.camera,{left:-16,right:16,top:16,bottom:-16,far:80});sun.shadow.bias=-.0005;sun.shadow.radius=4;scene.add(sun,sun.target);
+scene.add(new THREE.HemisphereLight(C('#FFE7CF'),C('#8A6A58'),.85));
+
+/* == 5. DUNIA: tanah, jalan T, dua rumah, komplek jauh, pohon, lampu ================== */
+const M=(hex,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:C(hex),roughness:.85},o));
+function kotak(w,h,d,mat,x,y,z,bayangan=true){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);m.castShadow=bayangan;m.receiveShadow=true;scene.add(m);return m;}
+const tanahTex=teksturKanvas(512,512,(x,w,h)=>{const r=rng(3);x.fillStyle='#A8C27A';x.fillRect(0,0,w,h);for(let i=0;i<5000;i++){const v=r();x.fillStyle=v<.5?'rgba(120,160,90,.35)':'rgba(200,215,140,.3)';x.fillRect(r()*w,r()*h,3,3);}},[30,30]);
+const tanah=new THREE.Mesh(new THREE.PlaneGeometry(300,300),new THREE.MeshStandardMaterial({map:tanahTex,roughness:1}));tanah.rotation.x=-PI/2;tanah.receiveShadow=true;scene.add(tanah);
+const aspalTex=teksturKanvas(256,256,(x,w,h)=>{const r=rng(7);x.fillStyle='#77707A';x.fillRect(0,0,w,h);for(let i=0;i<4000;i++){const v=90+r()*60|0;x.fillStyle=`rgba(${v},${v-6},${v+4},.35)`;x.fillRect(r()*w,r()*h,2,2);}},[1,1]);
+function jalanMesh(w,d,x,z,rx=1,rz=1){const t=aspalTex.clone();t.needsUpdate=true;t.repeat.set(rx,rz);const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshStandardMaterial({map:t,roughness:.9}));
+  m.rotation.x=-PI/2;m.position.set(x,.01,z);m.receiveShadow=true;scene.add(m);return m;}
+// tata letak (satuan = meter): rumah menghadap +z, jalan melintang di depan, jalan lurus dari +z menusuk pintu Cindy
+const L={rumahZ:-5.6,pagarZ:-3.0,trotoarZ:-2.0,jalanZ:-.2,cindyX:-2.6,sherlynX:2.6,pintuZ:-3.45};
+jalanMesh(80,3.2,0,L.jalanZ,20,1);jalanMesh(2.8,60,L.cindyX,1.4+30,1,15);
+const marka=M('#F7F1E6',{roughness:.6});
+for(let x=-30;x<30;x+=2.2)kotak(1.1,.02,.12,marka,x,.02,L.jalanZ,false);
+for(let z=3;z<55;z+=2.4)kotak(.12,.02,1.2,marka,L.cindyX,.02,z,false);
+const trotoar=M('#E9D9C4');kotak(80,.12,1.1,trotoar,0,.06,L.trotoarZ,false);
+kotak(.5,.12,60,trotoar,L.cindyX-1.65,.06,31.4,false);kotak(.5,.12,60,trotoar,L.cindyX+1.65,.06,31.4,false);
+// rumah
+const dindingTex=teksturKanvas(256,256,(x,w,h)=>{x.fillStyle='#FBEFDF';x.fillRect(0,0,w,h);x.fillStyle='rgba(200,170,140,.18)';for(let y=0;y<h;y+=32)x.fillRect(0,y,w,2);});
+function atapPelana(w,d,tinggi,mat){const s=new THREE.Shape();s.moveTo(-w/2-.3,0);s.lineTo(0,tinggi);s.lineTo(w/2+.3,0);s.lineTo(-w/2-.3,0);
+  const g=new THREE.ExtrudeGeometry(s,{depth:d+.6,bevelEnabled:false});g.translate(0,0,-(d+.6)/2);const m=new THREE.Mesh(g,mat);m.castShadow=m.receiveShadow=true;return m;}
+function rumah(cx,warnaAtap,warnaPintu){const g=new THREE.Group();g.position.set(cx,0,L.rumahZ);scene.add(g);
+  const w=4.4,d=4.4,h=3.0;const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({map:dindingTex,roughness:.9}));b.position.y=h/2;b.castShadow=b.receiveShadow=true;g.add(b);
+  const a=atapPelana(w,d,1.7,M(warnaAtap,{roughness:.7}));a.position.y=h;g.add(a);
+  const lis=new THREE.Mesh(new THREE.BoxGeometry(w+.7,.14,d+.7),M('#EADAC4'));lis.position.y=h;g.add(lis);
+  // pintu + bingkai emas
+  const bk=new THREE.Mesh(new THREE.BoxGeometry(1.25,2.25,.08),M(P.emasD,{metalness:.5,roughness:.4}));bk.position.set(0,1.12,d/2+.03);g.add(bk);
+  const pt=new THREE.Mesh(new THREE.BoxGeometry(1.05,2.1,.1),M(warnaPintu,{roughness:.6}));pt.position.set(0,1.05,d/2+.06);pt.castShadow=true;g.add(pt);
+  const gg=new THREE.Mesh(new THREE.SphereGeometry(.05,12,8),M(P.emasT,{metalness:.8,roughness:.3}));gg.position.set(.35,1.05,d/2+.13);g.add(gg);
+  // jendela bercahaya hangat
+  for(const sx of[-1.4,1.4]){const j=new THREE.Mesh(new THREE.BoxGeometry(1.0,1.0,.06),new THREE.MeshStandardMaterial({color:C('#FFE2A8'),emissive:C('#FFB860'),emissiveIntensity:.7}));
+    j.position.set(sx,1.75,d/2+.03);g.add(j);const kf=new THREE.Mesh(new THREE.BoxGeometry(1.15,.1,.18),M('#EADAC4'));kf.position.set(sx,1.2,d/2+.08);g.add(kf);
+    const kv=new THREE.Mesh(new THREE.BoxGeometry(.06,1.0,.08),M('#EADAC4'));kv.position.set(sx,1.75,d/2+.07);g.add(kv);}
+  // teras & tanaman pot
+  const ts=new THREE.Mesh(new THREE.BoxGeometry(2.2,.14,1.0),M('#E3CDB2'));ts.position.set(0,.07,d/2+.5);ts.receiveShadow=true;g.add(ts);
+  return g;}
+rumah(L.cindyX,'#B8232B','#6E2E26');rumah(L.sherlynX,'#2E7D63','#4E3324');
+// pagar rendah dengan gerbang terbuka di depan pintu
+const pagarM=M('#FFFFFF',{roughness:.6});
+for(const hx of[L.cindyX,L.sherlynX]){for(const sd of[-1,1]){const x0=hx+sd*.75,x1=hx+sd*2.25;kotak(Math.abs(x1-x0),.08,.08,pagarM,(x0+x1)/2,.75,L.pagarZ);kotak(Math.abs(x1-x0),.08,.08,pagarM,(x0+x1)/2,.45,L.pagarZ);
+  for(let x=Math.min(x0,x1);x<=Math.max(x0,x1)+.01;x+=.3)kotak(.07,.85,.07,pagarM,x,.42,L.pagarZ);}}
+// pohon low-poly (berbenih, deterministik)
+const daunM=[M('#7FA563',{flatShading:true}),M('#93B56B',{flatShading:true}),M('#6A8F52',{flatShading:true})],batangM=M('#7A5A44');
+const POHON=[];function pohon(x,z,s,i){const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const bt=new THREE.Mesh(new THREE.CylinderGeometry(.09*s,.13*s,1.4*s,7),batangM);bt.position.y=.7*s;bt.castShadow=true;g.add(bt);
+  [[0,1.75,0,.9],[-.45,1.45,.1,.62],[.45,1.5,-.1,.66],[0,2.25,0,.6]].forEach(([a,b,c2,r],k)=>{const d=new THREE.Mesh(new THREE.IcosahedronGeometry(r*s,0),daunM[(i+k)%3]);d.position.set(a*s,b*s,c2*s);d.castShadow=true;g.add(d);});
+  POHON.push({g,b:i});}
+const RG=rng(11);
+for(let i=0;i<5;i++)pohon(-8+i*4+RG()*1.2,-9.5-RG()*2,1.2+RG()*.4,i);
+pohon(-5.6,-2.6,.85,7);pohon(5.6,-2.6,.85,8);
+for(let i=0;i<9;i++){const z=4+i*4.6;pohon(L.cindyX-3.2-RG()*.8,z,1+RG()*.4,i+20);pohon(L.cindyX+3.4+RG()*.8,z+1.6,1+RG()*.4,i+40);}
+// komplek jauh: deret rumah kecil
+const atapJauh=['#D08A78','#C9A45C','#C77C7C','#9FB28A'];
+for(let i=0;i<12;i++){const x=-24+i*4.3,z=-17-(i%2)*1.5,h=2.4+RG()*.8;kotak(3.4,h,3.4,M(i%2?'#F6E2CC':'#F0D8BE'),x,h/2,z);
+  const a=atapPelana(3.4,3.4,1.3,M(atapJauh[i%4],{roughness:.8}));a.position.set(x,h,z);scene.add(a);}
+// tiang lampu jalan
+const tiangM=M('#3E3A3A',{roughness:.5,metalness:.4});
+for(let i=0;i<4;i++){const z=14+i*9,x=L.cindyX+1.95;kotak(.09,3.2,.09,tiangM,x,1.6,z);kotak(.5,.08,.09,tiangM,x-.22,3.2,z);
+  const lp=new THREE.Mesh(new THREE.SphereGeometry(.13,12,8),new THREE.MeshStandardMaterial({color:C('#FFF2D0'),emissive:C('#FFD38A'),emissiveIntensity:1.2}));lp.position.set(x-.45,3.12,z);scene.add(lp);}
+
+/* == 6. PERAGA: tokoh papan, papan DIJUAL, energi tusuk ============================== */
+// tokoh flat dilukis ke kanvas per frame, ditempel di bidang yang menghadap kamera
+function papanTokoh(w){const cv=kanvas(600,1200),x=cv.getContext('2d'),tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;tx.anisotropy=8;
+  const g=new THREE.PlaneGeometry(1.2,2.4);g.translate(0,1.2,0);
+  const m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({map:tx,transparent:true,alphaTest:.02,depthWrite:true,fog:false}));scene.add(m);
+  const bl=new THREE.Mesh(new THREE.CircleGeometry(.45,32),new THREE.MeshBasicMaterial({color:C('#5A3426'),transparent:true,opacity:.28,depthWrite:false}));
+  bl.rotation.x=-PI/2;bl.scale.set(1,.45,1);scene.add(bl);return{cv,x,tx,m,bl,w};}
+function lukisTokoh(T_,o){T_.x.clearRect(0,0,600,1200);orang(T_.x,{...o,x:300,y:1165,s:1.0,w:T_.w});T_.tx.needsUpdate=true;}
+const TA=papanTokoh(TOKOH.A),TB=papanTokoh(TOKOH.B);
+TA.m.position.set(-1.05,0,L.trotoarZ);TB.m.position.set(1.15,0,L.trotoarZ);
+// papan DIJUAL (kanvas): Cindy dengan stempel MURAH yang dibanting
+function buatPapan(x,z,warna,sub){const cv=kanvas(520,340),c=cv.getContext('2d'),tx=new THREE.CanvasTexture(cv);tx.encoding=THREE.sRGBEncoding;tx.anisotropy=8;
+  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
+  const tiang=new THREE.Mesh(new THREE.BoxGeometry(.08,1.1,.08),M('#A8865E'));tiang.position.y=.55;tiang.castShadow=true;g.add(tiang);
+  const pp=new THREE.Mesh(new THREE.BoxGeometry(1.32,.86,.05),[M('#E8DCCB'),M('#E8DCCB'),M('#E8DCCB'),M('#E8DCCB'),new THREE.MeshStandardMaterial({map:tx,roughness:.7}),M('#E8DCCB')]);
+  pp.position.y=1.45;pp.castShadow=true;g.add(pp);
+  const lukis=(stp)=>{c.fillStyle='#FFFDF8';c.fillRect(0,0,520,340);c.fillStyle=warna;c.fillRect(0,0,520,104);
+    c.textAlign='center';c.textBaseline='middle';c.font="900 66px 'Cinzel'";c.fillStyle='#FFFFFF';c.fillText('DIJUAL',260,56);
+    c.font="800 56px 'Plus Jakarta Sans'";c.fillStyle=P.tinta;c.fillText(sub,260,214);
+    if(stp>0){const sk=lerp(2.4,1,E.in(stp));c.save();c.translate(270,220);c.rotate(-.16);c.scale(sk,sk);c.globalAlpha=Math.min(1,stp*2.2)*.93;
+      c.strokeStyle=P.segel;c.lineWidth=12;c.strokeRect(-200,-78,400,156);c.lineWidth=4;c.strokeRect(-182,-60,364,120);
+      c.fillStyle=P.segel;c.font="900 92px 'Cinzel'";c.fillText('MURAH!',0,8);c.restore();}
+    tx.needsUpdate=true;};
+  return{g,lukis};}
+const PC=buatPapan(L.cindyX-1.3,-2.55,P.segel,'harga miring'),PS=buatPapan(L.sherlynX+1.3,-2.55,P.giok,'harga pasaran');
+// percikan emas saat stempel mendarat (partikel analitis)
+const NP=40,pgeo=new THREE.BufferGeometry(),ppos=new Float32Array(NP*3);pgeo.setAttribute('position',new THREE.BufferAttribute(ppos,3));
+const percik=new THREE.Points(pgeo,new THREE.PointsMaterial({color:C('#F1DDA8'),size:.05,transparent:true,depthWrite:false}));scene.add(percik);
+const PRN=rng(21),PD=Array.from({length:NP},()=>[PRN()*2-1,PRN()*1.4-.2,PRN()*.8,.6+PRN()*.8]);
+// energi tusuk: kepala panah bercahaya + ekor yang melesat lurus di jalan menuju pintu Cindy, lalu cincin benturan
+const merahM=new THREE.MeshBasicMaterial({color:C('#FF3A42'),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+const ekorTex=teksturKanvas(64,512,(x,w,h)=>{const g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'rgba(255,90,90,1)');g.addColorStop(1,'rgba(255,40,50,0)');x.fillStyle=g;x.fillRect(0,0,w,h);});
+const ekor=new THREE.Mesh(new THREE.PlaneGeometry(.95,6),new THREE.MeshBasicMaterial({map:ekorTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));ekor.rotation.x=-PI/2;scene.add(ekor);
+const kp=new THREE.Shape();kp.moveTo(0,-.55);kp.lineTo(.45,.15);kp.lineTo(-.45,.15);kp.lineTo(0,-.55);
+const kepalaPanah=new THREE.Mesh(new THREE.ShapeGeometry(kp),merahM);kepalaPanah.rotation.x=-PI/2;kepalaPanah.scale.setScalar(1.6);scene.add(kepalaPanah);
+const cincin=new THREE.Mesh(new THREE.RingGeometry(.55,.7,48),new THREE.MeshBasicMaterial({color:C('#FFE6C8'),transparent:true,depthWrite:false,side:THREE.DoubleSide}));
+cincin.position.set(L.cindyX,1.0,L.pintuZ+.12);scene.add(cincin);
+// aliran tenang (emas) di jalan melintang depan rumah Sherlyn
+const NF=14,emasM=new THREE.MeshBasicMaterial({color:C('#F1DDA8'),transparent:true,depthWrite:false});
+const ALIR=Array.from({length:NF},(_,i)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(.08,10,8),emasM);scene.add(m);return m;});
+
+/* == 7. KAMERA: [detik, posisi, titik pandang]; tiap ruas E.io -> mulai/berhenti halus == */
+const KAM=[
+  [0.0, [-3.35,1.45,-.7], [-3.9,1.42,-2.55]],   // dekat papan DIJUAL Cindy
+  [1.3, [-3.3,1.48,-1.0], [-3.9,1.42,-2.55]],
+  [2.6, [-1.9,2.3,8.6], [-.4,1.45,-2.6]],     // crane mundur di atas jalan lurus: jalan menusuk pintu Cindy
+  [4.9, [-1.8,2.2,7.6], [-.4,1.4,-2.6]],
+  [5.6, [-.85,1.62,.6],  [-1.05,1.6,-2.0]],    // dorong ke wajah Cindy
+  [6.0, [-.83,1.66,.45], [-1.05,1.6,-2.0]],
+  [7.1, [-2.5,9.5,15.5], [-2.5,.4,-1.2]],       // crane naik: pandangan burung
+  [8.6, [-2.45,10.2,14.2],[-2.5,.4,-1.6]]];
+function kamera(t){let i=0;while(i<KAM.length-2&&t>KAM[i+1][0])i++;const a=KAM[i],b=KAM[i+1],k=E.io(seg(t,a[0],b[0]));
+  const p=a[1].map((v,j)=>lerp(v,b[1][j],k)),l=a[2].map((v,j)=>lerp(v,b[2][j],k));
+  cam.position.set(p[0]+nz(t*.35,3)*.03,p[1]+nz(t*.35,7)*.025,p[2]);cam.lookAt(l[0],l[1],l[2]);}
+
+/* == 8. SCENE ======================================================================== */
+const T={stempel:.42,sorak:1.9,diam:4.4,kaget:5.4,cemas:6.1,panah:6.7,nama:2.4,label:7.0};
+const proj=V(0,0,0);
+function pilDi(el,x,y,z,k,dy=0){proj.set(x,y,z).project(cam);const sx=(proj.x*.5+.5)*W,sy=(-proj.y*.5+.5)*H+dy;
+  el.style.opacity=clamp(k);el.style.transform=`translate(${sx}px,${sy}px) translate(-50%,-100%) scale(${.7+.3*clamp(k)})`;}
+const SCENE={
+  dur:8.6,
+  // perkiraan waktu kata narator; setelah VO jadi diganti kata.js dari tools/tts.py kata
+  kata:[{w:'Cindy',t0:.45,t1:.85},{w:'dan',t0:.85,t1:1.0},{w:'Sherlyn',t0:1.0,t1:1.5},{w:'beli',t0:1.55,t1:1.8},
+        {w:'rumah',t0:1.8,t1:2.1},{w:'di',t0:2.1,t1:2.2},{w:'komplek',t0:2.2,t1:2.55},{w:'yang',t0:2.55,t1:2.7},{w:'sama.',t0:2.7,t1:3.05},
+        {w:'Rumah',t0:3.3,t1:3.6},{w:'Cindy',t0:3.6,t1:3.95},{w:'jauh',t0:3.95,t1:4.25},{w:'lebih',t0:4.25,t1:4.5},{w:'murah.',t0:4.5,t1:5.0},
+        {w:'Ternyata...',t0:5.45,t1:6.05},{w:'ada',t0:6.3,t1:6.5},{w:'alasannya.',t0:6.5,t1:7.3}],
+  sub:{gaya:'pil',font:"800 58px 'Plus Jakarta Sans'",warna:'#FFFFFF',aksen:'#F1DDA8',kunci:['murah.','alasannya.','Cindy'],y:.75},
+  audio:{vo:[],sfx:[],music:null},
+  muat(){return Promise.all([document.fonts.load("800 40px 'Plus Jakarta Sans'"),document.fonts.load("900 40px 'Cinzel'")]).then(()=>{PS.lukis(0);});},
+  build(tl){const J=$('#judul');wIn(tl,J,.25,{y:60,st:.08,b:8});wOut(tl,J,3.3);},
+  frame(t){
+    kamera(t);
+    // papan & stempel
+    PC.lukis(seg(t,T.stempel-.22,T.stempel));
+    const kb=seg(t,T.stempel,T.stempel+.6);percik.material.opacity=kb>0&&kb<1?1-kb:0;
+    for(let i=0;i<NP;i++){const d=PD[i],f=E.out(kb);ppos[i*3]=PC.g.position.x+d[0]*.8*f;ppos[i*3+1]=1.45+d[1]*.6*f-kb*kb*.5;ppos[i*3+2]=-2.5+d[2]*.6*f;}
+    pgeo.attributes.position.needsUpdate=true;
+    // tokoh: pose & ekspresi dari kunci waktu
+    const loncat=Math.abs(Math.sin((t-T.sorak)*PI*2.0))*.12*sstep(T.sorak,T.sorak+.25,t)*(1-sstep(T.diam-.45,T.diam,t));
+    const pA=kunci(t,[[0,'diri'],[T.sorak,'angkat',.4],[T.diam,'diri',.4],[T.kaget,'kaget',.25],[T.cemas,'cemas',.4]],POSE);
+    const eA=kunci(t,[[0,'senang'],[T.kaget,'kaget',.2],[T.cemas,'cemas',.4]],EKS);
+    const pB=kunci(t,[[0,'diri'],[2.6,'pikir',.5],[T.kaget,'diri',.35],[T.cemas+.3,'pikir',.5]],POSE);
+    const eB=kunci(t,[[0,'netral'],[2.6,'heran',.4],[T.kaget,'kaget',.22],[T.cemas+.3,'yakin',.4]],EKS);
+    lukisTokoh(TA,{arah:1,t,pose:pA,eks:eA,b:0});lukisTokoh(TB,{arah:-1,t,pose:pB,eks:eB,b:2});
+    TA.m.position.y=loncat;
+    for(const Q of[TA,TB]){Q.m.quaternion.copy(cam.quaternion);Q.bl.position.set(Q.m.position.x,.03,Q.m.position.z+.05);Q.bl.material.opacity=.28-Q.m.position.y*.8;}
+    // pohon bergoyang pelan
+    for(const p of POHON)p.g.rotation.z=Math.sin(t*1.1+p.b)*.015;
+    // aliran emas tenang
+    for(let i=0;i<NF;i++){const u=((i/NF)+t*.06)%1,x=lerp(-9,9,u);ALIR[i].position.set(x,.12,L.jalanZ+Math.sin(x*1.2+t*1.5)*.45);ALIR[i].material.opacity=.85*sstep(T.panah-.6,T.panah,t);}
+    // energi tusuk (berulang tiap 1,25 dtk)
+    const ta=t-T.panah,on=ta>0;ekor.visible=kepalaPanah.visible=on;cincin.visible=false;
+    if(on){const ph=(ta%1.25)/1.25,u=E.in(clamp(ph*1.3)),z=lerp(12,L.pintuZ+.5,u);
+      kepalaPanah.position.set(L.cindyX,.06,z);ekor.position.set(L.cindyX,.05,z+3.1);merahM.opacity=ekor.material.opacity=ph<.77?1:1-seg(ph,.77,.9);
+      const hit=seg(ph,.76,1);if(hit>0){cincin.visible=true;cincin.scale.setScalar(1+hit*2.4);cincin.material.opacity=1-hit;}}
+    REN.render(scene,cam);
+    // label melekat ke titik 3D
+    const kn=E.back(seg(t,T.nama,T.nama+.4))*(1-sstep(T.kaget-.35,T.kaget-.1,t));
+    pilDi($('#pA'),TA.m.position.x,2.2+loncat,TA.m.position.z,kn);pilDi($('#pB'),TB.m.position.x,2.2,TB.m.position.z,E.back(seg(t,T.nama+.15,T.nama+.55))*(1-sstep(T.kaget-.35,T.kaget-.1,t)));
+    pilDi($('#pT'),L.cindyX,5.6,L.rumahZ,E.back(seg(t,T.label,T.label+.45)),-20);
+    pilDi($('#pJ'),L.cindyX,0,5.5,E.back(seg(t,T.label+.35,T.label+.8)));}
+};
