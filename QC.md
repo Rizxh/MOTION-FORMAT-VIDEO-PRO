@@ -16,7 +16,7 @@ Alatnya `tools/qc.py`. Skill Claude `mf-qc` (di `toon-addon/skills/mf-qc/`) menj
 |---|---|---|---|
 | 1. Lint | setelah `scene.html` ditulis, sebelum potret | `python tools/qc.py lint <proyek>` | 0 gagal |
 | 2. Potret aset | sebelum render | `mf.py potret <proyek> --t ...` minimal 1 frame per adegan + tiap aset baru dilihat dekat | semua poin DAFTAR CEK MATA lulus |
-| 3. Video | setelah render | `python tools/qc.py video <proyek>` | 0 gagal (kedip ≤ 6, tanpa frame hitam, durasi ≤ 60) |
+| 3. Video | setelah render | `python tools/qc.py video <proyek>` | 0 gagal (kedip ≤ 6, tanpa frame hitam, durasi ≤ 90) |
 | 4. Mata | setelah gerbang 3 | buka `<proyek>/qc/lembar-qc.jpg` (1 frame per 2 dtk) | semua poin DAFTAR CEK MATA lulus |
 
 `python tools/qc.py semua <proyek>` menjalankan gerbang 1 dan 3 sekaligus. Laporan tersimpan di
@@ -33,7 +33,7 @@ Alatnya `tools/qc.py`. Skill Claude `mf-qc` (di `toon-addon/skills/mf-qc/`) menj
 | Kedip di MP4 | bayangan berenang, bloom di bidang putih, garis tipis berkilau | kunci bayangan, gelapkan bidang putih besar, kurangi benda sangat tipis di jauh |
 | Kedip di shot udara (warna tanah bergantian tiap frame) | z-fighting: dua bidang datar terlalu dekat (mis. 7 cm) dilihat dari ratusan meter | beri jarak ≥ 0,5 m antar lapisan tanah/lantai/air; `cam.near` ikut ketinggian (`Math.max(1, tinggi/25)`) |
 | Frame hitam di tengah | `gelap`/dip terlalu lama, kamera di dalam objek | perpendek dip (≤ 0,4 dtk), cek posisi kamera |
-| Durasi > 60 dtk | VO terlalu panjang | padatkan kalimat atau naikkan laju VO, jangan potong video |
+| Durasi > 90 dtk | VO terlalu panjang | padatkan kalimat atau naikkan laju VO, jangan potong video. 60–90 dtk boleh (user setuju) asal tiap adegan padat |
 | Loudness | VO terlalu pelan atau keras | target -16 s/d -14 LUFS, puncak ≤ -1 dBFS |
 
 ## DAFTAR CEK MATA (gerbang 2 dan 4)

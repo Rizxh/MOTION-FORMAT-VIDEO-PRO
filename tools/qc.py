@@ -10,7 +10,7 @@ Kode keluar 1 bila ada yang GAGAL. Jangan kirim video yang gagal QC.
 
 Ambang (bisa diubah lewat argumen):
   --kedip 6      jumlah titik kedip maksimum (kecerahan naik-turun bolak-balik > 0,8 dari 255 dalam 3 frame)
-  --maks-dur 60  durasi Reels maksimum (detik)
+  --maks-dur 90  durasi maksimum (detik); Shifu Po boleh > 60 dtk asal padat
 """
 import argparse, json, pathlib, re, shutil, subprocess, sys
 
@@ -80,7 +80,7 @@ def lint(proyek, L):
     m = re.search(r'\bdur\s*:\s*([\d.]+)|DUR\s*:\s*([\d.]+)', kode)
     if m:
         d = float(m.group(1) or m.group(2))
-        (L.ok if d <= 60 else L.fail)('durasi scene', f'{d:g} dtk (maks 60 untuk Reels)')
+        (L.ok if d <= 90 else L.fail)('durasi scene', f'{d:g} dtk (maks 90; > 60 dtk boleh asal tiap detik padat)')
     if re.search(r'Math\.sin\(\s*t\s*\*\s*\d+(\.\d+)?\s*\)\s*\*\s*\.0[0-4]', kode) and toon:
         L.warn('gerak kecil berulang', 'ada Math.sin(t*…)*0.0x: pastikan bukan goyang/denyut tokoh, tombol, atau kamera')
     bab = re.findall(r"\{\s*a:\s*([^,]+),\s*b:\s*([^,]+),\s*kicker", kode)
@@ -160,7 +160,7 @@ def main():
     ap.add_argument('perintah', choices=['lint', 'video', 'semua'])
     ap.add_argument('target')
     ap.add_argument('--kedip', type=int, default=6)
-    ap.add_argument('--maks-dur', type=float, default=60)
+    ap.add_argument('--maks-dur', type=float, default=90)
     a = ap.parse_args()
     proyek, mp4 = cari_proyek(a.target)
     L = Laporan()

@@ -18,7 +18,7 @@ Wajib 0 gagal. Aturan yang dicek:
 - tanpa `grainOn`
 - tanpa `D.guncang`
 - toon-3d wajib `D.pusatBayangan` diset per set
-- durasi ≤ 60 dtk
+- durasi ≤ 90 dtk (60–90 boleh asal padat)
 
 Template `sejarah-3d` bawaan melanggar dua aturan pertama (goyang genggam dan grainOn). Hapus keduanya setiap kali
 membuat proyek dari template itu.
@@ -46,7 +46,7 @@ Wajib 0 gagal. Batasnya:
 - kedip ≤ 6 titik
 - tanpa frame hitam di tengah
 - resolusi 1080×1920 atau 2160×3840
-- durasi ≤ 60 dtk
+- durasi ≤ 90 dtk
 
 Loudness -16 s/d -14 LUFS boleh berupa peringatan.
 
