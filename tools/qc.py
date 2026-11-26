@@ -122,7 +122,9 @@ def video(proyek, mp4, L, ambang_kedip, maks_dur):
     # kedip: kecerahan naik-turun bolak-balik dalam 3 frame
     v = kecerahan(mp4, qc)
     d = [v[i] - v[i - 1] for i in range(1, len(v))]
-    titik = [i for i in range(1, len(d)) if abs(d[i]) > .8 and abs(d[i - 1]) > .8 and d[i] * d[i - 1] < 0]
+    # bolak-balik dengan besar mirip; satu lompatan besar lalu pantulan kecil = potongan kamera / perubahan disengaja, bukan kedip
+    titik = [i for i in range(1, len(d)) if abs(d[i]) > .8 and abs(d[i - 1]) > .8 and d[i] * d[i - 1] < 0
+             and min(abs(d[i]), abs(d[i - 1])) / max(abs(d[i]), abs(d[i - 1])) > .35]
     detik = sorted({round(i / 30) for i in titik})
     if len(titik) > ambang_kedip:
         L.fail('kedip', f'{len(titik)} titik (maks {ambang_kedip}) di detik {detik[:20]}. Cek bayangan ikut kamera, bloom di bidang putih, benda tipis berkilau')
