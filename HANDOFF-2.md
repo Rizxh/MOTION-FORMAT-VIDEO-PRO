@@ -89,3 +89,15 @@ memanggil `mf.Halaman` dan membaca `window.__errs`. Error umum: nama global bent
    (anti kedip)?
 3. Simpan pola Sejarah 3D Shifu Po (lembah, kota, kapal) sebagai kerangka yang bisa dipakai ulang bila user minta
    lebih banyak video.
+
+## 8. Update 27 Nov 2026 (malam): revisi kualitas Tulou & Kapal
+- **Baca dulu `PANDUAN-VIDEO-MAKSIMAL.md`**: standar "maksimal", urutan kerja, dan tabel jebakan yang sudah terjadi.
+- `proyek/sp-tulou-v2` (89,3 dtk): naskah baru bercerita (cincin = kampung, **kampung digulung jadi cincin**),
+  warga low-poly beraktivitas (halaman, galeri, sawah, gerbang malam, rumah modern), lampion menyala bergiliran,
+  pohon detail, papan 土楼, font brand, **Ko Popo merah** sebagai pemandu 2D+ (lip-sync, melambai di CTA).
+- `proyek/sp-kompas-v2` (89,8 dtk): kapal Cheng Ho + rute 7 pelayaran, zoom panji, 風水 = angin & air, komplek perumahan (rumah tetangga, kanal, jalan, taman berkolam, rumah jauh)
+  (angin datang, air mengalir, pintu, arah energi, mawar mata angin), **arah bangun** (bersandar bukit, menghadap terbuka,
+  di Tiongkok duduk utara menghadap selatan), **potongan isi rumah**, luopan 24 arah, **Ko Popo emas**, suara laut ffmpeg.
+- Alat baru: `tools/suara_alam.py` (ombak, angin, layar, derit, ciprat).
+- Ko Popo berikutnya: **merah** (urutan: Tulou merah, Kapal emas).
+- Render keduanya CRF 14; QC video wajib sebelum kirim. `scene.html` sejarah-3d tetap di-ignore (kode template berlisensi).
