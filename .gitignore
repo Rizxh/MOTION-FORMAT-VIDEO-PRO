@@ -1,3 +1,11 @@
 .env
 **/.potret/
 **/frames/
+
+# dibuat ulang otomatis / berat
+proyek/*/index.html
+**/.paralel/
+**/.video-sunyi.mp4
+**/.render.log
+**/*.sebelum-toon
+*.mp4

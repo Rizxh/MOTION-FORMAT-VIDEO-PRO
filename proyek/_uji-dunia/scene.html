@@ -1,0 +1,55 @@
+<!--@TITLE Uji dunia toon-->
+<!--@RASIO 9:16-->
+<!--@HEAD-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--@MESIN toon-tokoh.js toon-dunia.js-->
+<!--@BODY-->
+<div id="dunia"></div>
+<!--@SCRIPT-->
+const LANGIT = q.get('langit') || 'sore';
+const D = TOON3D.mulai({ el: $('#dunia'), langit: LANGIT, ss: 1.5 });
+const S = D.scene, nyala = LANGIT === 'malam' ? 1 : 0;
+S.add(D.tanah({ lebar: 260, dalam: 260 }));
+S.add(D.jalan({ panjang: 120, lebar: 6 }));
+// deret rumah kiri & kanan jalan
+const warnaDinding = ['#F3E2CC', '#E9EFE2', '#F6DCD2', '#E8E4F2', '#FBEBC8', '#DDEBF0'];
+const warnaAtap = ['#C8483A', '#3F6E8C', '#B8603A', '#5F7F4A', '#9E3B4A', '#C8483A'];
+for (let i = 0; i < 6; i++) for (const s of [-1, 1]) {
+  const r = D.rumah({ benih: i * 2 + (s > 0 ? 1 : 0), dinding: warnaDinding[(i * 2 + (s > 0)) % 6], atap: warnaAtap[(i + (s > 0) * 3) % 6], nyala, lampion: i === 1 && s < 0 ? 2 : 0, nomor: 10 + i * 2 + (s > 0), bata: i % 3 === 1 });
+  r.position.set(s * 9.4, 0, 14 - i * 10.5); r.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; S.add(r);
+}
+for (let i = 0; i < 10; i++) for (const s of [-1, 1]) {
+  const p = D.pohon({ benih: i * 2 + (s > 0), tinggi: 4.2 + (i % 3) * .6, warna: ['#5FA453', '#4E9A5E', '#78AE4A'][i % 3], jenis: i % 4 === 3 ? 'cemara' : 'bulat' });
+  p.position.set(s * 5.3, 0, 18 - i * 6.3); S.add(p);
+}
+const tiang = [];
+for (let i = 0; i < 6; i++) { const t2 = D.tiang({ nyala, arah: 1 }); t2.position.set(-4.4, 0, 16 - i * 12); t2.rotation.y = Math.PI / 2; S.add(t2); tiang.push(t2); }
+for (let i = 0; i < 5; i++) for (const k of [0, 2]) {
+  const A = tiang[i].userData.kabel[k].clone(), B = tiang[i + 1].userData.kabel[k].clone();
+  tiang[i].localToWorld(A); tiang[i + 1].localToWorld(B); S.add(D.kabel(A, B, .5));
+}
+const mobil = D.mobil({ warna: '#E8C04A', nyala }); mobil.position.set(1.6, 0, -6); S.add(mobil);
+const motor = D.motor({}); motor.position.set(-3.6, 0, 3); motor.rotation.y = .3; S.add(motor);
+S.add(D.bukit({ warna: '#8FA87A' }));
+S.add(D.awan({ n: 7 }));
+const papan = D.papan({ gambar: (c, w, h) => { c.fillStyle = '#C4262E'; c.fillRect(0, 0, w, h); c.fillStyle = '#FFF6E8'; c.font = '900 120px system-ui'; c.textAlign = 'center'; c.fillText('DIJUAL', w / 2, h * .62); } });
+papan.position.set(-6.2, 0, 7.2); papan.rotation.y = .5; S.add(papan);
+
+const R = TOKOH_TOON.RUPA_CONTOH;
+const kopo = D.tokoh({ tinggi: 1.6 }), cindy = D.tokoh({ tinggi: 1.55 }), ibu = D.tokoh({ tinggi: 1.55 }), anak = D.tokoh({ tinggi: 1.15 }), pak = D.tokoh({ tinggi: 1.55 });
+
+const SCENE = {
+  dur: 6,
+  frame(t) {
+    const k = E.io(seg(t, 0, 6));
+    D.kamera([lerp(-2, 1, k), lerp(5.5, 4.5, k), lerp(17, 15, k)], [0, 1.4, 3], 36);
+    kopo.atur(-1.4, 7.2, { rupa: R.koPopo, pose: TOKOH_TOON.poseDari(t, [[0, 'hormat'], [2.5, 'tunjuk']]), ekspresi: 'senyum', t, benih: 3, bicara: t > 2.5 ? .4 + .3 * Math.sin(t * 9) : 0 });
+    cindy.atur(1.0, 6.6, { rupa: R.cindy, pose: 'kaget', ekspresi: 'kaget', t, benih: 2 });
+    const jalanZ = -2 + t * 1.1;
+    ibu.atur(-3.2, jalanZ, { rupa: R.ibu, jalan: 1, fase: TOKOH_TOON.faseDariJarak(t * 1.1), hadap: 0, t, benih: 6, ekspresi: 'senyum' });
+    const ax = 4 - t * 2.4;
+    anak.atur(ax, 2, { rupa: R.anak, pose: 'lari', fase: TOKOH_TOON.faseDariJarak(t * 2.4, .7), hadap: -1, t, benih: 4, ekspresi: 'senang' });
+    pak.atur(3.3, 4.2, { rupa: R.pakRT, pose: 'pegang', pegang: 'hp', ekspresi: 'netral', t, benih: 5 });
+    D.render(t);
+  }
+};

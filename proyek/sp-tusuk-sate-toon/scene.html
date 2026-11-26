@@ -1,0 +1,192 @@
+<!--@TITLE Rumah Tusuk Sate · Toon 3D-->
+<!--@RASIO 9:16-->
+<!-- Gaya "Toon 3D" (racikan Shifu Po): dunia three.js bertinta + tokoh chibi 2D sebagai kartu.
+     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA · 4 TOKOH & NPC · 5 KAMERA · 6 TEKS (hook, label, CTA) · 7 SCENE
+     Struktur cerita (pola A): HOOK visual 0–3 dtk → masalah → penjelasan Shifu Po → solusi → CTA.
+     Ganti isi, pertahankan kerangka: semua detik di WAKTU, semua warna di BRAND. -->
+<!--@HEAD-->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--@MESIN toon-tokoh.js toon-dunia.js-->
+<style>
+  .kicker{visibility:hidden;font:800 46px 'Plus Jakarta Sans';letter-spacing:.18em;color:#FFF6E2;text-transform:uppercase;text-shadow:0 3px 0 rgba(40,15,20,.35),0 0 30px rgba(60,20,30,.45)}
+  .judul{visibility:hidden;font:900 104px/1.02 'Cinzel';color:#FFF8EA;text-align:center;-webkit-text-stroke:3px #2B1A2C;paint-order:stroke fill;text-shadow:0 8px 0 #7E0F15,0 14px 30px rgba(40,10,20,.5)}
+  .judul em{font-style:normal;color:#F1DDA8}
+  #hook{position:absolute;left:60px;right:150px;top:260px;text-align:center}
+  #stempel{position:absolute;left:50%;top:620px;transform:translate(-50%,-50%);opacity:0;font:900 120px 'Cinzel';color:#FFF3E6;
+    background:#A8161D;padding:10px 46px 18px;border:8px solid #FFF3E6;outline:6px solid #A8161D;border-radius:18px;letter-spacing:.04em;white-space:nowrap;
+    box-shadow:0 20px 50px rgba(60,0,10,.45)}
+  #cta{position:absolute;left:90px;right:150px;top:300px;opacity:0;text-align:center;padding:46px 40px 50px;border-radius:40px;
+    background:linear-gradient(#FBF6EC,#F1E6D2);border:3px solid #C9A45C;box-shadow:0 30px 80px rgba(40,15,20,.35)}
+  #cta img{height:92px;display:block;margin:0 auto 18px}
+  #cta .tanya{font:800 34px 'Plus Jakarta Sans';color:#7E0F15;letter-spacing:.08em;text-transform:uppercase}
+  #cta .besar{font:900 66px/1.08 'Cinzel';color:#12100E;margin:14px 0 26px}
+  #cta .tombol{display:inline-block;font:800 40px 'Plus Jakarta Sans';color:#12100E;padding:22px 50px;border-radius:999px;
+    background:linear-gradient(#F1DDA8,#C9A45C);box-shadow:0 8px 0 #9C7A35,0 18px 40px rgba(120,80,20,.35)}
+  #cta .kecil{font:700 28px 'Plus Jakarta Sans';color:#5A4E44;margin-top:26px}
+</style>
+<!--@BODY-->
+<div id="dunia"></div>
+<div id="hook"><div class="kicker" id="hKick">Rumah termurah di komplek</div><div class="judul" id="hJudul">ternyata ada <em>sebabnya</em></div></div>
+<div id="stempel">TUSUK SATE</div>
+<div id="cta">
+  <img id="logo" alt="">
+  <div class="tanya">Rumah Anda tusuk sate?</div>
+  <div class="besar">Tata dulu<br>arahnya</div>
+  <div class="tombol" id="tombol">Konsultasi via WhatsApp</div>
+  <div class="kecil">Shifu Po · Feng Shui &amp; BaZi</div>
+</div>
+<!--@SCRIPT-->
+/* == 1. BRAND ================================================================ */
+const BRAND = { tinta: '#12100E', kertas: '#F8F4EC', emas: '#C9A45C', emasTerang: '#F1DDA8', merah: '#A8161D', giok: '#2E7D63' };
+const R = TOKOH_TOON.RUPA_CONTOH;
+
+/* == 2. WAKTU (detik) — geser di sini saja; setelah ada VO, turunkan dari kata.js ================= */
+const WAKTU = {
+  energiMulai: 0, benturan: 2.7,          // HOOK: qi tajam melesat lurus di jalan lalu menghantam pintu
+  kagetCindy: 2.8, label: 3.6, labelHabis: 6.4,
+  kopoMasuk: 5.6, kopoBerhenti: 7.4, kopoJelas: 7.9,
+  tanamTumbuh: 8.8, shengMulai: 9.4,
+  cta: 11.2, dur: 15
+};
+
+/* == 3. DUNIA ================================================================= */
+const D = TOON3D.mulai({ el: $('#dunia'), langit: 'sore', ss: 1.5, area: 34 });
+D.atur({ matahari: { az: -55, el: 13 }, dof: .55, dofRentang: .7 });
+const S = D.scene;
+S.add(D.tanah({ lebar: 300, dalam: 300 }));
+const jalanUtama = D.jalan({ panjang: 70, lebar: 6 }); jalanUtama.position.z = 9.5; S.add(jalanUtama);
+const jalanSilang = D.jalan({ panjang: 90, lebar: 6 }); jalanSilang.rotation.y = Math.PI / 2; jalanSilang.position.z = -26; S.add(jalanSilang);
+S.add(D.bukit({ warna: '#93AE84' }));
+S.add(D.awan({ n: 8, benih: 4 }));
+
+const DINDING = ['#F3E2CC', '#E6EEDF', '#F6DCD2', '#E8E4F2', '#FBEBC8', '#DDEBF0'], ATAP = ['#C8483A', '#3F6E8C', '#B8603A', '#5F7F4A', '#9E3B4A'];
+// rumah Cindy: tepat di ujung jalan lurus (pintu segaris jalan) = "tusuk sate"
+const rumahCindy = D.rumah({ benih: 21, dinding: '#FBEFE0', atap: '#B83A32', pintu: BRAND.merah, lampion: 2, nomor: 1, lebar: 7.4 });
+rumahCindy.position.set(7.4 * .18, 0, -33.6); S.add(rumahCindy);
+const papanJual = D.papan({ lebar: 1.3, tinggi: .85, gambar: (c, w, h) => { c.fillStyle = '#C4262E'; c.fillRect(0, 0, w, h); c.fillStyle = '#FFF6E8'; c.font = "900 118px 'Plus Jakarta Sans'"; c.textAlign = 'center'; c.fillText('DIJUAL', w / 2, h * .5); c.font = "800 62px 'Plus Jakarta Sans'"; c.fillText('MURAH!', w / 2, h * .85); } });
+papanJual.position.set(3.6, 0, -31.2); papanJual.rotation.y = -.25; S.add(papanJual);
+// tetangga di ujung & di sepanjang jalan (menghadap jalan)
+[[-9.0, -33.6, 0], [10.8, -33.6, 0]].forEach((p, i) => { const r = D.rumah({ benih: 30 + i, dinding: DINDING[i + 2], atap: ATAP[i + 1], nomor: 3 + i * 2 }); r.position.set(p[0], 0, p[1]); S.add(r); });
+const rumahSherlyn = D.rumah({ benih: 5, dinding: '#E6EEDF', atap: '#2E6E5A', lampion: 1, nomor: 2 }); rumahSherlyn.position.set(-9.6, 0, -16); rumahSherlyn.rotation.y = Math.PI / 2; S.add(rumahSherlyn);
+for (let i = 0; i < 6; i++) for (const s of [-1, 1]) {
+  if (s < 0 && i === 0) continue;
+  const r = D.rumah({ benih: i * 2 + (s > 0) + 40, dinding: DINDING[(i * 2 + (s > 0)) % 6], atap: ATAP[(i + (s > 0) * 2) % 5], nomor: 4 + i * 2 + (s > 0), bata: i % 3 === 1, lampion: (i + s) % 4 === 0 ? 2 : 0 });
+  r.position.set(s * 9.6, 0, (s < 0 ? -16 : -18) + i * 10.5 + (s < 0 ? 0 : 0) + (s < 0 && i > 0 ? 0 : 0)); if (s < 0) r.position.z = -16 + i * 10.5; r.rotation.y = s > 0 ? -Math.PI / 2 : Math.PI / 2; S.add(r);
+}
+// pohon, tiang, kabel, mobil parkir, bangku, motor
+for (let i = 0; i < 9; i++) for (const s of [-1, 1]) { const p = D.pohon({ benih: i * 2 + (s > 0), tinggi: 4 + (i % 3) * .7, warna: ['#5FA453', '#4E9A5E', '#78AE4A'][i % 3], jenis: i % 5 === 4 ? 'cemara' : 'bulat', mahkota: 1.5 + (i % 2) * .3 }); p.position.set(s * 5.4, 0, 36 - i * 6.6); S.add(p); }
+const tiang = [];
+for (let i = 0; i < 6; i++) { const t2 = D.tiang({ arah: 1 }); t2.position.set(-4.5, 0, 38 - i * 11.5); t2.rotation.y = Math.PI / 2; S.add(t2); tiang.push(t2); }
+for (let i = 0; i < 5; i++) for (const k of [0, 2]) { const A = tiang[i].userData.kabel[k].clone(), B = tiang[i + 1].userData.kabel[k].clone(); tiang[i].localToWorld(A); tiang[i + 1].localToWorld(B); S.add(D.kabel(A, B, .5)); }
+[[2.0, 4, '#E8C04A', 0], [-2.0, 22, '#F4F1EA', Math.PI], [12, -27.6, '#3F7FD0', Math.PI / 2]].forEach(q => { const m = D.mobil({ warna: q[2] }); m.position.set(q[0], 0, q[1]); m.rotation.y = q[3]; S.add(m); });
+const mobilLewat = D.mobil({ warna: '#D9534F' }); S.add(mobilLewat);
+const motor = D.motor({ warna: '#3F6FB5' }); motor.position.set(-3.7, 0, -12); motor.rotation.y = .4; S.add(motor);
+const bangku = D.bangku({}); bangku.position.set(5.4, 0, -6); bangku.rotation.y = -Math.PI / 2; S.add(bangku);
+const singaL = D.singa({}), singaR = D.singa({}); singaL.position.set(-9.6 + 3, 0, -16 - 1.6 * 0 + 0); singaL.visible = false; S.add(singaL); S.add(singaR); singaR.visible = false;
+const koi = D.kolamKoi({}); koi.position.set(-6.6, 0, -11.4); S.add(koi);
+// SOLUSI: pagar hidup (bambu + semak tinggi) yang tumbuh di depan gerbang Cindy + aliran qi lembut
+const solusi = new THREE.Group(); solusi.position.set(0, 0, -30.9); S.add(solusi);
+[-2.6, -1.4, 1.4, 2.6].forEach((x, i) => { const b = D.bambu({ benih: i + 3, n: 5, tinggi: 2.6 }); b.position.set(x, 0, 0); solusi.add(b); });
+[-2, 2].forEach((x, i) => { const s2 = D.semak({ benih: i + 50, lebar: 1.3, tinggi: .75, bunga: '#FFE066' }); s2.position.set(x, 0, .25); solusi.add(s2); });
+const cermin = D.cerminBagua({ besar: .42 }); cermin.position.set(0, 3.26, -34.72); S.add(cermin);
+
+// energi: sha (merah, lurus) dan sheng (emas, berkelok)
+const sha = D.energi({ jenis: 'sha', titik: [[0, .9, 26], [0, 1.15, -34.6]], tebal: .16 }); S.add(sha);
+const sheng = D.energi({ jenis: 'sheng', titik: [[0, .8, -26.8], [0, 1.1, -34.6]], tebal: .11 }); S.add(sheng);
+
+/* == 4. TOKOH & NPC =========================================================== */
+const cindy = D.tokoh({ tinggi: 1.55, res: 2 }), kopo = D.tokoh({ tinggi: 1.62, res: 2 }), sherlyn = D.tokoh({ tinggi: 1.55, res: 1.6 });
+const warga = [
+  D.warga({ n: 5, jalur: [[-4.6, 36], [-4.6, -24]], benih: 3 }),
+  D.warga({ n: 5, jalur: [[4.6, -24], [4.6, 36]], benih: 7 }),
+  D.warga({ n: 3, jalur: [[-30, -30.4], [-5.5, -30.4]], benih: 11, anak: .5 })
+];
+
+/* == 5. KAMERA ================================================================ */
+const kamera = D.jalurKamera([
+  { t: 0, pos: [0, 30, 44], lihat: [0, 0, -8], fov: 42 },
+  { t: 1.6, pos: [0, 12, 14], lihat: [0, 1, -26], fov: 40, ease: 'in' },
+  { t: 2.7, pos: [.6, 3.6, -16], lihat: [0, 1.4, -32], fov: 38, ease: 'out' },
+  { t: 5.4, pos: [1.6, 2.3, -19.8], lihat: [.7, 1.35, -29.8], fov: 42 },
+  { t: 8.2, pos: [-1.0, 2.4, -19.4], lihat: [.2, 1.3, -29.6], fov: 43 },
+  { t: 10.6, pos: [3.4, 5.6, -16.6], lihat: [0, 1.4, -30.8], fov: 44 },
+  { t: 12.4, pos: [0, 1.95, -22.6], lihat: [0, 1.75, -30], fov: 46 },
+  { t: 15, pos: [0, 2.05, -22.0], lihat: [0, 1.8, -30], fov: 46, ease: 'lin' }
+]);
+
+/* == 6. TEKS ================================================================== */
+const IMG = {};
+const muatGambar = (k, src) => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.onerror = r; i.src = src; });
+const Ljalan = MFlabel({ teks: 'jalan lurus → tepat ke pintu', warna: BRAND.emasTerang, dx: 120, dy: -330, ukuran: 46 });
+const Lsolusi = MFlabel({ teks: 'pagar hidup memecah arus', warna: '#BDF2C9', dx: 170, dy: -220, ukuran: 46 });
+
+/* == 7. SCENE ================================================================= */
+const SCENE = {
+  dur: WAKTU.dur,
+  muat: () => Promise.all([muatGambar('logo', 'assets/gambar/logo-shifupo.png')]).then(() => { if (IMG.logo) $('#logo').src = IMG.logo.src; else $('#logo').style.display = 'none'; }),
+  sub: { gaya: 'mati' },
+  build(tl) {
+    wIn(tl, $('#hKick'), .25, { y: 60, st: .05 });
+    wIn(tl, $('#hJudul'), .7, { y: 90, st: .08, d: .7 });
+    wOut(tl, $('#hook'), 2.35);
+  },
+  frame(t) {
+    const T = TOKOH_TOON;
+    // kamera + guncangan saat benturan
+    kamera(t, 1);
+    D.guncang(t, WAKTU.benturan, .22, .55);
+
+    // energi sha melesat lalu memudar; sheng mengalir setelah solusi
+    sha.userData.atur(t, Math.pow(seg(t, WAKTU.energiMulai, WAKTU.benturan), 1.25));
+    sha.visible = t < WAKTU.kopoJelas + .5 && t >= WAKTU.energiMulai;
+    sha.children.forEach(m => m.material.opacity = 1 - seg(t, WAKTU.kopoJelas - .4, WAKTU.kopoJelas + .4));
+    sheng.userData.atur(t, E.io(seg(t, WAKTU.shengMulai, WAKTU.shengMulai + 1.8)));
+
+    // solusi tumbuh dengan lewat-sasaran
+    solusi.children.forEach((c, i) => { const k = E.back(seg(t, WAKTU.tanamTumbuh + i * .12, WAKTU.tanamTumbuh + .6 + i * .12)); c.scale.set(Math.max(.001, k), Math.max(.001, k), Math.max(.001, k)); });
+    koi.userData.atur(t);
+
+    // mobil lewat di jalan silang (bahaya kendaraan kebablasan disiratkan, tidak dramatis)
+    const xm = lerp(-40, 40, seg(t, 3.2, 9.2)); mobilLewat.position.set(xm, 0, -24.6); mobilLewat.rotation.y = Math.PI / 2;
+
+    // CINDY: santai → kaget saat benturan → cemas → lega & melambai di CTA
+    cindy.atur(lerp(1.8, 1.25, E.io(seg(t, WAKTU.cta - .6, WAKTU.cta + .6))), -29.1, {
+      rupa: R.cindy, t, benih: 2, hadap: t < WAKTU.kagetCindy ? 0 : -.3,
+      pose: T.poseDari(t, [[0, 'santai'], [WAKTU.kagetCindy, 'kaget'], [5.0, 'pikir'], [WAKTU.tanamTumbuh + .4, 'sorak'], [WAKTU.cta + .3, 'lambai']]),
+      ekspresi: T.ekspresiDari(t, [[0, 'senyum'], [WAKTU.kagetCindy, 'kaget'], [5.0, 'cemas'], [WAKTU.tanamTumbuh + .4, 'senang']]),
+      naik: t > WAKTU.kagetCindy && t < WAKTU.kagetCindy + .5 ? Math.sin(seg(t, WAKTU.kagetCindy, WAKTU.kagetCindy + .5) * Math.PI) * 40 : 0
+    });
+    // KO POPO: berjalan masuk (fase dari jarak → kaki tidak meluncur), berhenti, hormat, menjelaskan, menunjuk jalan
+    const kJalan = seg(t, WAKTU.kopoMasuk, WAKTU.kopoBerhenti), jarak = kJalan * 6.2;
+    const kx = lerp(-6.2, -1.4, kJalan) + E.io(seg(t, WAKTU.cta - .6, WAKTU.cta + .6)) * .5, kz = lerp(-24.0, -28.9, kJalan);
+    const berjalan = t > WAKTU.kopoMasuk && t < WAKTU.kopoBerhenti;
+    const bicara = t > WAKTU.kopoJelas && t < WAKTU.cta ? clamp(.35 + .35 * Math.sin(t * 11) + .2 * Math.sin(t * 17)) : 0;
+    kopo.atur(kx, kz, {
+      tampak: t > WAKTU.kopoMasuk - .1, rupa: R.koPopo, t, benih: 3,
+      jalan: berjalan ? 1 - seg(t, WAKTU.kopoBerhenti - .35, WAKTU.kopoBerhenti) * .9 : 0, fase: T.faseDariJarak(jarak, .5), hadap: berjalan ? .85 : .25,
+      pose: T.poseDari(t, [[0, 'diri'], [WAKTU.kopoBerhenti + .1, 'hormat'], [WAKTU.kopoJelas + .5, 'tunjukBawah'], [WAKTU.tanamTumbuh, 'presentasi'], [WAKTU.cta + .2, 'jelaskan']]),
+      ekspresi: T.ekspresiDari(t, [[0, 'senyum'], [WAKTU.kopoJelas, 'yakin'], [WAKTU.tanamTumbuh, 'senang']]), bicara
+    });
+    // SHERLYN di teras rumahnya (pembanding: rumah tidak di ujung jalan)
+    sherlyn.atur(-6.0, -14.2, { rupa: R.sherlyn, t, benih: 7, hadap: .4, pose: T.poseDari(t, [[0, 'santai'], [WAKTU.kagetCindy + .3, 'tunjuk']]), ekspresi: 'senyum', cermin: true });
+    warga.forEach(w => w.atur(t));
+
+    // label menempel ke dunia
+    const pj = D.layar(0, .1, -24.2); Ljalan.atur(t, WAKTU.label, WAKTU.labelHabis, pj[0], pj[1]);
+    const ps = D.layar(-1.4, 2.2, -30.9); Lsolusi.atur(t, WAKTU.tanamTumbuh + .7, WAKTU.cta - .3, ps[0], ps[1]);
+
+    // stempel TUSUK SATE dibanting saat benturan
+    const ks = seg(t, WAKTU.benturan, WAKTU.benturan + .35), ko = 1 - seg(t, WAKTU.benturan + 2.2, WAKTU.benturan + 2.6);
+    const st = $('#stempel'); st.style.opacity = t >= WAKTU.benturan ? ko : 0;
+    st.style.transform = `translate(-50%,-50%) rotate(${lerp(-14, -6, E.back(ks))}deg) scale(${lerp(1.7, 1, E.out(ks))})`;
+
+    // CTA: kartu naik pelan, tombol berdenyut
+    const kc = E.out(seg(t, WAKTU.cta, WAKTU.cta + .7)), c = $('#cta');
+    c.style.opacity = kc; c.style.transform = `translateY(${lerp(80, 0, kc)}px) scale(${lerp(.94, 1, kc)})`;
+    $('#tombol').style.transform = `scale(${1 + .04 * Math.max(0, Math.sin((t - WAKTU.cta) * 5)) * seg(t, WAKTU.cta + .8, WAKTU.cta + 1)})`;
+    D.atur({ dof: t > WAKTU.cta ? lerp(.55, 1, seg(t, WAKTU.cta, WAKTU.cta + .8)) : .55 });
+
+    D.render(t);
+  }
+};

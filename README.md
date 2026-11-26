@@ -1,5 +1,7 @@
 # MOTION-FORMAT-VIDEO-PRO
 
+> Setup di komputer baru: lihat **[SETUP.md](SETUP.md)**.
+
 Folder kerja video dengan skill **motion-format v2.0.0** (`~/.claude/skills/motion-format`).
 
 ```
@@ -23,3 +25,18 @@ python %USERPROFILE%\.claude\skills\motion-format\scripts\mf.py render proyek\<n
 ```
 
 Kredit ElevenLabs hanya terpakai kalau ada `--ya`. Default VO: stability 0.5, similarity 0.9, tempo 1.1.
+
+## Gaya Toon 3D (Shifu Po)
+
+Gaya utama untuk konten Shifu Po: dunia three.js bertinta (rumah komplek, jalan, pohon, warga, lampion,
+aset Feng Shui) + tokoh chibi 2D dengan rig IK (jalan/lari tanpa kaki meluncur). Kodenya ada di `toon-addon/` (dipasang ke skill dengan
+`python toon-addon/pasang.py`), resepnya di `toon-addon/references/gaya/toon-3d.md`
+(bank topik, brief, kerangka adegan, rumus hook & CTA).
+
+```
+python %USERPROFILE%\.claude\skills\motion-format\scripts\mf.py baru proyek\<nama> --dasar toon-3d --rasio 9:16
+copy brand\shifupo\logo-shifupo-red.png proyek\<nama>\assets\gambar\logo-shifupo.png
+```
+
+Contoh jadi: `proyek/sp-tusuk-sate-toon` (Rumah Tusuk Sate, 15 dtk, hook → CTA, belum ber-VO).
+`proyek/_uji-tokoh` = lembar uji semua pose/ekspresi/siklus jalan, `proyek/_uji-dunia` = uji aset dunia.

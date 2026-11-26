@@ -7,10 +7,13 @@
 <!--@SCRIPT-->
 const cv=kanvas(W,H,$('#dunia')),x=cv.getContext('2d');
 const T=TOKOH_TOON,R=T.RUPA_CONTOH;
-const daftar=[
- [R.koPopo,'tunjuk','senyum',{bicara:.6}],[R.cindy,'kaget','kaget',{}],[R.sherlyn,'lambai','senang',{}],[R.pakRT,'pegang','yakin',{pegang:'luopan'}],
- [R.ibu,'jelaskan','tawa',{}],[R.anak,'sorak','senang',{}],[R.koki,'pinggang','sombong',{}],[R.cindy,'pikir','bingung',{hadap:1}],
- [R.koPopo,'diri','cemas',{jalan:1,fase:.25}],[R.sherlyn,'sedih','sedih',{}],[R.pakRT,'pegang','marah',{pegang:'hp'}],[R.anak,'lari','kaget',{fase:.1,cermin:true}]];
+const pose1=[[R.koPopo,'hormat','senyum',{}],[R.cindy,'kaget','kaget',{}],[R.sherlyn,'lambai','senang',{}],[R.pakRT,'pegang','yakin',{pegang:'luopan'}],
+ [R.ibu,'jelaskan','tawa',{bicara:.6}],[R.anak,'sorak','senang',{}],[R.koki,'pinggang','sombong',{}],[R.cindy,'pikir','bingung',{hadap:.6}],[R.koPopo,'tunjuk','yakin',{}],[R.sherlyn,'sedekap','sombong',{}]];
 const SCENE={dur:2,frame(t){x.setTransform(1,0,0,1,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBE9D6');g.addColorStop(1,'#EBC9A9');x.fillStyle=g;x.fillRect(0,0,W,H);
- daftar.forEach((d,i)=>{const c=i%6,r=Math.floor(i/6),s=.5;x.setTransform(s,0,0,s,40+c*315-0,30+r*520);
-  T.gambar(x,{rupa:d[0],pose:d[1],ekspresi:d[2],t,benih:i+1,...d[3]});});}};
+ const s=.36;
+ pose1.forEach((d,i)=>{x.setTransform(s,0,0,s,i*190-20,-60);T.gambar(x,{rupa:d[0],pose:d[1],ekspresi:d[2],t,benih:i+1,...d[3]});});
+ for(let i=0;i<8;i++){x.setTransform(s,0,0,s,i*150+0,280);T.gambar(x,{rupa:R.koPopo,pose:'diri',ekspresi:'senyum',t,benih:3,jalan:1,fase:i/8,hadap:1});}
+ for(let i=0;i<4;i++){x.setTransform(s,0,0,s,1200+i*170,280);T.gambar(x,{rupa:R.cindy,pose:'diri',ekspresi:'netral',t,benih:2,jalan:1,fase:i/4});}
+ for(let i=0;i<8;i++){x.setTransform(s,0,0,s,i*150,640);T.gambar(x,{rupa:R.anak,pose:'lari',ekspresi:'senang',t,benih:4,fase:i/8,hadap:1});}
+ for(let i=0;i<4;i++){x.setTransform(s,0,0,s,1200+i*170,640);T.gambar(x,{rupa:R.ibu,pose:T.poseDari(i*.12,[[0,'diri'],[0,'tunjuk']],.42),ekspresi:'senyum',t,benih:6});}
+}};
