@@ -9,3 +9,13 @@ proyek/*/index.html
 **/.render.log
 **/*.sebelum-toon
 *.mp4
+
+# hasil QC dibuat ulang otomatis
+**/qc/
+**/.yavg.txt
+# turunan template berlisensi Motion Format (sejarah-3d & contoh gaya): jangan ke repo publik
+proyek/_contoh-*/
+proyek/sp-kompas-laut/scene.html
+proyek/sp-kaisar-jingshan/scene.html
+style-image/
+uji-suara/

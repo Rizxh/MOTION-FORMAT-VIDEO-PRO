@@ -1,0 +1,378 @@
+<!--@TITLE Dari Obeng ke Scanner · Doktermobil · Toon 3D-->
+<!--@RASIO 9:16-->
+<!-- Doktermobil · Toon 3D · ±58 dtk. Story: lampu check engine mobil Raka nyala → Pak Darto menahan →
+     1886 Benz roda tiga → 1913 ban berjalan Ford → era karburator (obeng & telinga) → injeksi + komputer → 1996 colokan diagnosa
+     → sekarang puluhan komputer (x-ray) → bengkel Doktermobil: di-scan dulu → CTA "Klik link di bio".
+     Suara gratis edge-tts: narator Andrew, Raka = Brian, Pak Darto = William. Semua waktu dari kata VO.
+     Tiap era punya set sendiri (jauh di sumbu x) dan kamera potong keras antar set. Warna makin pudar untuk era lama.
+     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA & SET · 4 TOKOH · 5 KAMERA · 6 TEKS · 7 SCENE -->
+<!--@HEAD-->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--@MESIN toon-tokoh.js toon-dunia.js-->
+<style>
+  #cta{position:absolute;left:80px;right:140px;top:280px;opacity:0;text-align:center;padding:44px 40px 50px;border-radius:36px;background:#FFFFFF;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+  #cta img{height:84px;display:block;margin:0 auto 22px}
+  #cta .tanya{display:inline-block;font:800 30px 'Plus Jakarta Sans';color:#E31E24;border:3px solid #E31E24;border-radius:999px;padding:10px 28px}
+  #cta .besar{font:800 62px/1.1 'Plus Jakarta Sans';color:#111111;margin:22px 0 28px;letter-spacing:-.01em}
+  #cta .tombol{display:inline-block;font:800 42px 'Plus Jakarta Sans';color:#FFFFFF;padding:24px 52px;border-radius:999px;background:#E31E24;box-shadow:0 8px 0 #9E1216,0 18px 40px rgba(160,20,24,.35)}
+  #cta .kecil{font:700 30px 'Plus Jakarta Sans';color:#333;margin-top:26px}
+  .tbJudul{font-family:'Plus Jakarta Sans' !important;font-weight:800 !important;letter-spacing:-.01em;text-shadow:0 6px 0 #9E1216,0 12px 26px rgba(0,0,0,.45) !important}
+  .tbJudul em{color:#FFD9D9 !important}
+</style>
+<!--@BODY-->
+<div id="dunia"></div>
+<div id="cta">
+  <img id="logo" alt="">
+  <div class="tanya">Lampu check engine nyala?</div>
+  <div class="besar">Jangan ditebak,<br>scan dulu</div>
+  <div class="tombol" id="tombol">KLIK LINK DI BIO →</div>
+  <div class="kecil">Di Doktermobil pasti beres!</div>
+</div>
+<!--@SCRIPT-->
+/* == 1. BRAND ================================================================ */
+const BRAND = { merah: '#E31E24', merahTua: '#9E1216', hitam: '#111111', putih: '#FFFFFF', amber: '#FFB020' };
+const TK = TOKOH_TOON;
+
+/* == 2. WAKTU ================================================================= */
+const VO = [0.4, 4.45, 7.9, 15.65, 23.2, 27.0, 36.05, 44.35, 47.6];
+const KATA = window.KATA || [];
+const K = (w, n = 1, cad = 0) => { let c = 0; for (const k of KATA) if (k.w.toLowerCase().replace(/[^\p{L}\d]/gu, '').startsWith(w)) { if (++c === n) return k.t0; } return cad; };
+const WAKTU = {
+  nyala: K('nyala', 1, 1.9), bongkar: K('bongkar', 1, 2.68), eits: VO[1],
+  benz: K('karl', 1, 10.6), tiga: K('tiga', 1, 14.8), ford: K('ford', 1, 17.85), ban: K('ban', 1, 18.8), murah: K('murah', 1, 20.55), ramai: K('ramai', 1, 22.4),
+  obeng: K('obeng', 1, 24.9), telinga: K('telinga', 1, 25.9), injeksi: K('injeksi', 1, 27.64), komputer: K('komputer', 1, 28.58),
+  sejak: K('sejak', 1, 29.93), colokan: K('colokan', 1, 34.4), diagnosa: K('diagnosa', 1, 34.92),
+  puluhan: K('puluhan', 1, 37.53), bicara: K('bicara', 1, 39.15), lampu2: K('lampu', 2, 40.07), scanner: K('scanner', 1, 43.53),
+  scan: K('scan', 1, 46.2), cta: VO[8], klik: K('klik', 1, 51.6), dur: 58
+};
+// set & potongan kamera
+const POTONG = [[0, 'dash'], [2.6, 'garasi'], [7.75, 'benz'], [15.5, 'ford'], [23.05, 'karbu'], [29.8, 'obd'], [35.9, 'xray'], [44.2, 'bengkel']];
+const setDi = t => { let s = POTONG[0][1]; for (const [a, n] of POTONG) if (t >= a) s = n; return s; };
+const X = { dash: -60, garasi: 0, benz: 60, ford: 120, karbu: 180, obd: 240, xray: 0, bengkel: 300 };
+
+/* == 3. DUNIA & SET ============================================================ */
+const D = TOON3D.mulai({ el: $('#dunia'), langit: 'siang', ss: 1.5, area: 24 });
+D.atur({ matahari: { az: -35, el: 48 }, dof: .35, dofRentang: .9 });
+const S = D.scene;
+const G0 = { sat: D.U.sat.value, kon: D.U.kontras.value, h: D.U.hangat.value.clone(), grain: D.U.grain.value };
+S.add(D.tanah({ lebar: 600, dalam: 200, jenis: 'rumput' }));
+S.add(D.bukit({ warna: '#A9BF96' })); S.add(D.awan({ n: 8, benih: 6 }));
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+const bikinKanvas = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const tx = new THREE.CanvasTexture(cv); tx.encoding = THREE.sRGBEncoding; tx.anisotropy = 8; return { cv, tx, c: cv.getContext('2d') }; };
+const muka = (w, h, d, P, sisi, x, y, z) => D.kotak(w, h, d, [D.bahan(sisi), D.bahan(sisi), D.bahan(sisi), D.bahan(sisi), D.bahan('#FFFFFF', { map: P.tx }), D.bahan(sisi)], x, y, z);
+function roda(r, tebal, ban, jari, n) {   // roda berjari, bidang XY (berputar di rotation.z)
+  const g = new THREE.Group();
+  const t = new THREE.Mesh(new THREE.TorusGeometry(r, tebal, 8, 28), D.bahan(ban)); g.add(t);
+  for (let i = 0; i < n; i++) { const s = D.kotak(r * 1.9, .022, .03, D.bahan(jari), 0, 0, 0, false); s.rotation.z = i * Math.PI / n; g.add(s); }
+  g.add(D.tabung(r * .16, r * .16, .1, D.bahan(jari), 0, -.05, 0, 10)); g.children[g.children.length - 1].rotation.x = Math.PI / 2;
+  return g;
+}
+
+/* --- DASBOR (hook) --- */
+const xd = X.dash, DASH = new THREE.Group(); DASH.position.x = xd; S.add(DASH);
+const kabin = D.bahan('#2A2A30');
+DASH.add(D.kotak(4, .1, 4, kabin, 0, .3, 0)); DASH.add(D.kotak(4, 3, .1, kabin, 0, 1.5, -1.6)); DASH.add(D.kotak(.1, 3, 4, kabin, -1.6, 1.5, 0)); DASH.add(D.kotak(.1, 3, 4, kabin, 1.6, 1.5, 0));
+const kaca = new THREE.Mesh(new THREE.PlaneGeometry(3, 1.1), D.bahanDasar('#CFE3F2')); kaca.position.set(0, 2.0, -1.54); DASH.add(D.lapisan(kaca, 1));
+const PD = bikinKanvas(1024, 384);
+function gambarDasbor(nyala) {
+  const { c, cv, tx } = PD, w = cv.width, h = cv.height;
+  c.fillStyle = '#16161C'; c.fillRect(0, 0, w, h);
+  [[250, 'km/h', .35], [774, 'rpm', .12]].forEach(([cx, lab, v]) => {
+    c.strokeStyle = '#3A3A46'; c.lineWidth = 18; c.beginPath(); c.arc(cx, 210, 140, Math.PI * .75, Math.PI * 2.25); c.stroke();
+    c.strokeStyle = '#F4F4F2'; c.lineWidth = 6; for (let i = 0; i <= 10; i++) { const a = Math.PI * (.75 + i * .15); c.beginPath(); c.moveTo(cx + Math.cos(a) * 118, 210 + Math.sin(a) * 118); c.lineTo(cx + Math.cos(a) * 134, 210 + Math.sin(a) * 134); c.stroke(); }
+    const a = Math.PI * (.75 + v * 1.5); c.strokeStyle = BRAND.merah; c.lineWidth = 8; c.beginPath(); c.moveTo(cx, 210); c.lineTo(cx + Math.cos(a) * 112, 210 + Math.sin(a) * 112); c.stroke();
+    c.fillStyle = '#9A9AA6'; c.font = "700 30px 'Plus Jakarta Sans'"; c.textAlign = 'center'; c.fillText(lab, cx, 300);
+  });
+  // ikon mesin (check engine)
+  c.save(); c.translate(512, 205); c.fillStyle = nyala ? BRAND.amber : '#3A3428';
+  c.beginPath(); c.rect(-62, -30, 112, 66); c.rect(-30, -52, 50, 22); c.rect(-86, -12, 24, 34); c.rect(50, -18, 26, 46); c.rect(-20, 36, 30, 14); c.fill();
+  c.restore();
+  if (nyala) { c.fillStyle = 'rgba(255,176,32,.18)'; c.beginPath(); c.arc(512, 205, 120, 0, 7); c.fill(); }
+  tx.needsUpdate = true;
+}
+const panel = muka(2.4, .9, .35, PD, '#1E1E24', 0, 1.15, 0); DASH.add(panel);
+DASH.add(D.kotak(3.2, .25, 1.0, D.bahan('#26262E'), 0, .62, .1));
+const setir = new THREE.Mesh(new THREE.TorusGeometry(.38, .045, 10, 32), D.bahan('#1A1A20')); setir.position.set(-.55, 1.0, .55); setir.rotation.x = -.35; DASH.add(setir);
+const setirP = D.kotak(.5, .06, .06, D.bahan('#1A1A20'), -.55, 1.0, .55); setirP.rotation.x = -.35; DASH.add(setirP);
+const cahayaIkon = D.pendar(BRAND.amber, .45, 1.2); cahayaIkon.position.set(0, 1.15, .2); DASH.add(cahayaIkon);
+
+/* --- GARASI (sekarang) + X-RAY --- */
+const rumah = D.rumah({ benih: 9, dinding: '#F2EEE6', atap: '#3F4A5C', pagar: false, lampion: 0 }); rumah.position.set(-1.5, 0, -5.5); S.add(rumah);
+const paving = D.tanah({ lebar: 14, dalam: 9, jenis: 'paving' }); paving.position.set(0, .012, 0); S.add(paving);
+for (let i = 0; i < 4; i++) { const p = D.pohon({ benih: 20 + i, tinggi: 4.6 }); p.position.set([-8, -6.5, 6.5, 8.5][i], 0, [-4, 1, -3, 1.5][i]); S.add(p); }
+const MOBIL = { x: -0.2, z: 0.3 };
+const mobilRaka = D.mobil({ warna: '#F4F4F2' }); mobilRaka.rotation.y = Math.PI / 2; mobilRaka.position.set(MOBIL.x, 0, MOBIL.z); S.add(mobilRaka);
+const mobilX = D.mobil({ warna: '#8FD3FF' }); mobilX.rotation.y = Math.PI / 2; mobilX.position.set(MOBIL.x, 0, MOBIL.z); S.add(mobilX);
+mobilX.traverse(o => { if (o.material) { const ms = Array.isArray(o.material) ? o.material : [o.material]; const n = ms.map(m => { const k = m.clone(); k.transparent = true; k.opacity = .38; k.depthWrite = false; return k; }); o.material = Array.isArray(o.material) ? n : n[0]; o.castShadow = false; } });
+// ECU di dalam mobil (koordinat lokal mobil: panjang di z, depan +z)
+const ECU_POS = [[0, .55, .2], [.35, .95, 1.45], [-.45, .85, 1.6], [0, .5, .9], [0, .62, -.1], [.55, .95, -.4], [0, 1.05, .65], [-.55, .95, .3], [.5, .75, -1.5], [-.5, .75, -1.6], [0, 1.25, -.6], [.3, .45, 1.8]];
+const ecu = [], jaring = [];
+ECU_POS.forEach((p, i) => {
+  const b = D.kotak(.2, .11, .16, D.bahanDasar(i === 0 ? '#FFFFFF' : '#38D1FF'), p[0], p[1], p[2], false); mobilX.add(D.lapisan(b, 1)); ecu.push(b);
+  const pn = D.pendar('#38D1FF', .5, 1.2); pn.position.set(p[0], p[1], p[2]); mobilX.add(pn); b.userData.pn = pn;
+  if (i) { const geo = new THREE.BufferGeometry().setFromPoints([V3(...ECU_POS[0]), V3(...p)]); const l = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: D.lin('#7FE3FF'), transparent: true })); mobilX.add(D.lapisan(l, 1)); jaring.push(l); }
+});
+const lampuX = D.pendar(BRAND.amber, .8, 2.2); lampuX.position.set(0, 1.12, .55); mobilX.add(lampuX);
+const wargaG = D.warga({ n: 3, jalur: [[-12, 6.2], [12, 6.2]], benih: 31 });
+
+/* --- 1886: jalan tanah, Benz roda tiga --- */
+const xb = X.benz;
+const jlTanah = D.tanah({ lebar: 70, dalam: 4.2, jenis: 'tanah' }); jlTanah.position.set(xb, .014, 0); S.add(jlTanah);
+for (let i = 0; i < 14; i++) { const pg = D.kotak(.08, .9, .08, D.bahan('#6E5238'), xb - 14 + i * 2, .45, -2.6); S.add(pg); }
+S.add(D.kotak(28, .06, .05, D.bahan('#6E5238'), xb, .75, -2.6)); S.add(D.kotak(28, .06, .05, D.bahan('#6E5238'), xb, .45, -2.6));
+const rngB = TOON3D.rng(41);
+for (let i = 0; i < 6; i++) { const j = D.gumpal(.9, D.bahan('#D9B45A'), xb - 10 + i * 4.2, .55, -5 - rngB() * 3, rngB, 1, .75, 1); S.add(j); }
+for (let i = 0; i < 5; i++) { const p = D.pohon({ benih: 50 + i, tinggi: 5.5 }); p.position.set(xb - 12 + i * 6, 0, -9); S.add(p); }
+function benzMotorwagen() {
+  const g = new THREE.Group(), kayu = D.bahan('#4A3424'), besi = D.bahan('#2A2A30'), kuning = D.bahan('#C9A45C');
+  [-.38, .38].forEach(z => { g.add(D.kotak(2.0, .05, .05, besi, .1, .55, z)); });
+  g.add(D.kotak(.06, .05, .8, besi, -.7, .55, 0)); g.add(D.kotak(.06, .05, .8, besi, .9, .55, 0));
+  const kursi = D.kotakBulat(.75, .14, .9, .04, D.bahan('#2A1A16')); kursi.position.set(-.3, .95, 0); g.add(kursi);
+  const sandar = D.kotakBulat(.12, .45, .9, .04, D.bahan('#2A1A16')); sandar.position.set(-.68, 1.18, 0); g.add(sandar);
+  g.add(D.kotak(.7, .35, .8, kayu, -.3, .72, 0));
+  g.add(D.tabung(.32, .32, .05, kuning, -1.05, .72, 0, 24));   // roda gila horizontal
+  g.add(D.tabung(.12, .12, .34, besi, -.9, .58, .2, 12));
+  const tiller = D.kotak(.04, .7, .04, besi, .55, .9, 0); tiller.rotation.z = -.5; g.add(tiller);
+  g.add(D.kotak(.3, .04, .04, besi, .38, 1.22, 0));
+  const garpu = D.kotak(.05, .55, .05, besi, .95, .55, 0); garpu.rotation.z = .25; g.add(garpu);
+  const rB1 = roda(.55, .03, '#2A2420', '#B9A07A', 12), rB2 = roda(.55, .03, '#2A2420', '#B9A07A', 12), rD = roda(.33, .025, '#2A2420', '#B9A07A', 10);
+  rB1.position.set(-.7, .55, .5); rB2.position.set(-.7, .55, -.5); rD.position.set(1.05, .33, 0); g.add(rB1); g.add(rB2); g.add(rD);
+  g.userData.roda = [[rB1, .55], [rB2, .55], [rD, .33]];
+  return g;
+}
+const benz = benzMotorwagen(); S.add(benz);
+
+/* --- 1913: ban berjalan Ford --- */
+const xf = X.ford;
+const lantaiF = D.tanah({ lebar: 30, dalam: 12, jenis: 'paving', warna: '#9C9AA0' }); lantaiF.position.set(xf, .015, 0); S.add(lantaiF);
+const bata = D.bahan('#FFFFFF', { map: D.ulang(D.TEX.bata('#9C5A3C'), 10, 2) });
+S.add(D.kotak(30, 6, .3, bata, xf, 3, -5)); S.add(D.kotak(30, .3, 12, D.bahan('#5A4A44'), xf, 6.1, 0));
+for (let i = 0; i < 8; i++) { S.add(D.kotak(.25, 6, .25, D.bahan('#3A3438'), xf - 14 + i * 4, 3, -4)); }
+for (let i = 0; i < 6; i++) { const jd = D.kotak(2.2, 1.6, .05, D.bahanDasar('#F6E7C8'), xf - 11 + i * 4.4, 3.8, -4.83, false); S.add(D.lapisan(jd, 1)); }
+S.add(D.kotak(26, .35, 1.6, D.bahan('#2E2A30'), xf, .18, 0));
+for (let i = 0; i < 26; i++) S.add(D.kotak(.12, .06, 1.6, D.bahan('#5A5660'), xf - 12.5 + i, .38, 0, false));
+function modelT() {
+  const g = new THREE.Group(), hitam = D.bahan('#16141A'), kuning = D.bahan('#C9A45C');
+  const sasis = D.kotakBulat(3.0, .3, 1.4, .08, hitam); sasis.position.y = .78; g.add(sasis);
+  g.add(D.kotak(1.0, .55, .95, hitam, 1.0, 1.18, 0)); g.add(D.kotak(.1, .7, .95, kuning, 1.55, 1.2, 0));
+  g.add(D.kotak(1.3, .7, 1.35, hitam, -.35, 1.28, 0));
+  g.add(D.kotak(1.7, .07, 1.45, hitam, -.25, 2.12, 0));
+  [[.5, .68], [.5, -.68], [-1.0, .68], [-1.0, -.68]].forEach(([x, z]) => g.add(D.kotak(.05, .5, .05, hitam, x, 1.87, z)));
+  const kc = D.kotak(.04, .5, 1.3, D.bahanDasar('#BFD3E6'), .45, 1.85, 0, false); g.add(D.lapisan(kc, 1));
+  const rd = []; [[1.0, .72], [1.0, -.72], [-1.05, .72], [-1.05, -.72]].forEach(([x, z]) => { const r = roda(.38, .07, '#1A1A1E', '#C9A45C', 10); r.position.set(x, .45, z); g.add(r); rd.push([r, .38]); });
+  g.userData.roda = rd; return g;
+}
+const tModel = [0, 1, 2, 3, 4, 5].map(() => { const m = modelT(); S.add(m); return m; });
+
+/* --- KARBURATOR (era 70-an) --- */
+const xk = X.karbu;
+const lantaiK = D.tanah({ lebar: 16, dalam: 10, jenis: 'paving', warna: '#B8AFA2' }); lantaiK.position.set(xk, .015, 0); S.add(lantaiK);
+S.add(D.kotak(16, 4, .3, D.bahan('#FFFFFF', { map: D.ulang(D.TEX.plester('#D9CBB4'), 5, 1.3) }), xk, 2, -3.5));
+const mobil70 = D.mobil({ warna: '#D8A23A' }); mobil70.position.set(xk, 0, 0); S.add(mobil70);
+mobil70.children[1].visible = false;   // kap tertutup disembunyikan
+const engsel = new THREE.Group(); engsel.position.set(0, 1.0, .55); mobil70.add(engsel);
+const kap = D.kotakBulat(1.6, .06, 1.25, .03, D.bahan('#D8A23A')); kap.position.set(0, 0, .62); engsel.add(kap); engsel.rotation.x = -1.15;
+const mesin = new THREE.Group(); mesin.position.set(0, .9, 1.3); mobil70.add(mesin);
+mesin.add(D.kotak(.8, .32, .6, D.bahan('#4A4A52'), 0, 0, 0)); mesin.add(D.kotak(.6, .08, .5, D.bahan('#A8161D'), 0, .2, 0));
+mesin.add(D.tabung(.25, .25, .1, D.bahan('#C9CCD6'), 0, .24, 0, 24));
+const kabelInj = [], ecu70 = D.kotak(.26, .12, .18, D.bahanDasar('#38D1FF'), .5, .25, -.2, false); mesin.add(D.lapisan(ecu70, 1));
+[[[-.3, .1, .2], [.5, .25, -.2]], [[0, .2, .25], [.5, .25, -.2]], [[.3, .1, .2], [.5, .25, -.2]], [[-.2, .25, -.2], [.5, .25, -.2]]].forEach(([a, b]) => {
+  const l = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V3(...a), V3((a[0] + b[0]) / 2, .45, (a[2] + b[2]) / 2), V3(...b)]), new THREE.LineBasicMaterial({ color: D.lin('#7FE3FF') })); mesin.add(D.lapisan(l, 1)); kabelInj.push(l);
+});
+const rak70 = D.kotak(1.4, 1.8, .4, D.bahan('#7A4A2E'), xk - 3, .9, -3.1); S.add(rak70);
+const kotakAlat = D.kotakBulat(.6, .35, .35, .04, D.bahan('#C4262E')); kotakAlat.position.set(xk + 1.9, .18, 1.0); S.add(kotakAlat);
+
+/* --- OBD: colokan diagnosa di bawah dasbor --- */
+const xo = X.obd, OBD = new THREE.Group(); OBD.position.x = xo; S.add(OBD);
+OBD.add(D.kotak(3, 2, .1, D.bahan('#1E1E24'), 0, 1, -.4)); OBD.add(D.kotak(3, .1, 2, D.bahan('#26262C'), 0, .2, .4));
+OBD.add(D.kotak(1.6, .5, .4, D.bahan('#2E2E36'), 0, 1.3, -.2));
+const PO = bikinKanvas(512, 256);
+(() => { const { c } = PO; c.fillStyle = '#121216'; c.fillRect(0, 0, 512, 256); c.fillStyle = '#26262E'; c.beginPath(); c.moveTo(40, 40); c.lineTo(472, 40); c.lineTo(430, 216); c.lineTo(82, 216); c.closePath(); c.fill();
+  c.fillStyle = '#0A0A0C'; for (let r = 0; r < 2; r++) for (let i = 0; i < 8; i++) { c.fillRect(92 + i * 42 + r * 8, 80 + r * 70, 22, 34); }
+  c.fillStyle = '#C9CCD6'; for (let r = 0; r < 2; r++) for (let i = 0; i < 8; i++) c.fillRect(98 + i * 42 + r * 8, 90 + r * 70, 10, 14); PO.tx.needsUpdate = true; })();
+const soket = muka(.36, .18, .1, PO, '#121216', 0, .92, -.02); OBD.add(soket);
+const colok = new THREE.Group(); colok.add(D.kotakBulat(.3, .14, .22, .03, D.bahan('#3A3A44'))); colok.add(D.kotak(.05, .7, .05, D.bahan('#2A2A30'), 0, -.42, .1));
+colok.add(D.kotak(.33, .03, .05, D.bahan(BRAND.merah), 0, .09, .1)); OBD.add(colok);
+
+/* --- BENGKEL DOKTERMOBIL --- */
+const xw = X.bengkel;
+const ruang = D.ruang({ lebar: 10, dalam: 8, tinggi: 4.2, dinding: '#F2F2F0', lantai: 'keramik', warnaLantai: '#D9D9DC', isi: 'kosong', pintu: false, jendela: false });
+ruang.position.set(xw, 0, -1); S.add(ruang);
+const PS = bikinKanvas(1024, 256);
+const papanDM = muka(5.2, 1.3, .15, PS, BRAND.merah, xw, 3.1, -4.85); S.add(papanDM);
+S.add(D.kotak(10, .5, .05, D.bahan(BRAND.merah), xw, .25, -4.88));
+const mobilB = D.mobil({ warna: '#F4F4F2' }); mobilB.rotation.y = Math.PI / 2; mobilB.position.set(xw - .3, 0, -1.2); S.add(mobilB);
+[[xw - 4.2, -3.5], [xw + 4.2, -3.5]].forEach(([x, z]) => { const lm = D.kotakBulat(.7, 1.1, .5, .05, D.bahan(BRAND.merah)); lm.position.set(x, .55, z); S.add(lm); for (let i = 0; i < 3; i++) S.add(D.kotak(.66, .02, .02, D.bahan('#7A0E12'), x, .3 + i * .3, z + .26, false)); });
+S.add(D.kotak(.1, 3.2, .1, D.bahan('#C9CCD6'), xw - 3, 1.6, -2.8)); S.add(D.kotak(.1, 3.2, .1, D.bahan('#C9CCD6'), xw + 2.4, 1.6, -2.8));
+const kabelScan = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V3(xw + .9, 1.05, 1.55), V3(xw + 1.0, .6, .6), V3(xw + 1.2, .8, -.4)]), new THREE.LineBasicMaterial({ color: D.lin('#1A1A20') })); S.add(D.lapisan(kabelScan, 1));
+
+/* == 4. TOKOH ================================================================= */
+TK.POSE.telinga = { L: { a: 20, j: .9, s: 1 }, R: { a: -165, j: .52, s: 1, b: 'buka' } };
+TK.POSE.tahan = { L: { a: 10, j: .97, s: 1 }, R: { a: 62, j: .92, s: 1, b: 'buka' } };
+TK.POSE.jempol = { L: { a: 10, j: .97, s: 1 }, R: { a: 72, j: .68, s: 1, b: 'kepal' } };
+TK.POSE.pegangTablet = { L: { a: -30, j: .62, s: 1, d: 1 }, R: { a: -28, j: .64, s: 1, d: 1 } };
+const RUPA = {
+  raka: { kulit: '#E9B994', rambut: '#1E1614', gayaRambut: 'jabrik', atasan: '#2F5F9E', jenisAtasan: 'hoodie', bawahan: '#2A2D38', sepatu: '#F4F1EA', bangun: 'dewasa' },
+  darto: { kulit: '#E5B38C', rambut: '#D9D4CC', gayaRambut: 'uban', atasan: '#7A4A2A', jenisAtasan: 'batik', aksen: '#F0C66A', bawahan: '#2A2D38', kumis: '#D9D4CC', bangun: 'lansia', kacamata: '#5A4632' },
+  dartoMuda: { kulit: '#E5B38C', rambut: '#1A1412', gayaRambut: 'rapi', atasan: '#D98C3C', jenisAtasan: 'kemeja', aksen: '#FFFFFF', bawahan: '#5A4A3A', kumis: '#1A1412', bangun: 'dewasa' },
+  pengemudi: { kulit: '#F0C8A6', rambut: '#4A3426', gayaRambut: 'rapi', atasan: '#2A2A30', jenisAtasan: 'jas', aksen: '#FFFFFF', bawahan: '#2A2A30', topi: 'topi', warnaTopi: '#2A2A30', kumis: '#4A3426', bangun: 'dewasa' },
+  mekanik: { kulit: '#E9B994', rambut: '#1E1614', gayaRambut: 'cepak', atasan: BRAND.merah, jenisAtasan: 'kemeja', aksen: '#FFFFFF', bawahan: '#2A2D38', sepatu: '#1A1A1E', topi: 'topi', warnaTopi: BRAND.merah, bangun: 'dewasa' }
+};
+const raka = D.tokoh({ tinggi: 1.64, res: 2 }), darto = D.tokoh({ tinggi: 1.52, res: 2 }), dartoMuda = D.tokoh({ tinggi: 1.62, res: 2 });
+const pengemudi = D.tokoh({ tinggi: 1.6, res: 1.6 }), mekanik = D.tokoh({ tinggi: 1.64, res: 2 });
+const penonton = [0, 1].map(i => ({ tk: D.tokoh({ tinggi: [1.5, 1.1][i], res: 1.3 }), rupa: Object.assign(TK.rupaAcak(700 + i * 9, i === 1), { jenisAtasan: 'kemeja' }) }));
+const buruh = [0, 1, 2].map(i => ({ tk: D.tokoh({ tinggi: 1.58, res: 1.3 }), rupa: Object.assign(TK.rupaAcak(910 + i * 13), { jenisAtasan: 'kaos', atasan: ['#6E7E8E', '#8A7A5A', '#5A6A5A'][i], topi: 'topi', warnaTopi: '#3A3438' }) }));
+function jalur(titik, t) {
+  if (t <= titik[0][0]) return { x: titik[0][1], z: titik[0][2], jarak: 0, jalan: 0, dx: 0 };
+  let jarak = 0;
+  for (let i = 0; i < titik.length - 1; i++) {
+    const [t0, x0, z0] = titik[i], [t1, x1, z1] = titik[i + 1], L = Math.hypot(x1 - x0, z1 - z0);
+    if (t < t1) { const k = (t - t0) / (t1 - t0); return { x: lerp(x0, x1, k), z: lerp(z0, z1, k), jarak: jarak + L * k, jalan: L > .01 ? 1 : 0, dx: x1 - x0, dz: z1 - z0 }; }
+    jarak += L;
+  }
+  const a = titik[titik.length - 1]; return { x: a[1], z: a[2], jarak, jalan: 0, dx: 0 };
+}
+const hadapDari = (j, base = 0) => j.jalan ? clamp((j.dx || 0) * 1.2 / Math.max(.3, Math.hypot(j.dx || 0, j.dz || 0)), -1, 1) * .9 : base;
+
+/* == 5. KAMERA (satu jalur per set, potong keras antar set) ==================== */
+const KAM = {
+  dash: D.jalurKamera([{ t: 0, pos: [xd - .15, 1.5, 3.7], lihat: [xd - .1, 1.1, 0], fov: 40 }, { t: 2.6, pos: [xd + .05, 1.32, 2.4], lihat: [xd + .02, 1.14, 0], fov: 40 }]),
+  garasi: D.jalurKamera([{ t: 2.6, pos: [0.6, 1.7, 7.6], lihat: [0.4, 1.1, 1.4], fov: 44 }, { t: 7.75, pos: [-0.1, 1.6, 6.4], lihat: [0.0, 1.1, 1.8], fov: 44 }]),
+  benz: D.jalurKamera([{ t: 7.75, pos: [xb - 3.6, 1.6, 5.4], lihat: [xb - 4.4, .9, 0], fov: 44 }, { t: 11.6, pos: [xb - 1.0, 1.35, 4.4], lihat: [xb - .7, .9, 0], fov: 44 }, { t: 15.5, pos: [xb + 2.2, 1.5, 6.2], lihat: [xb + 1.8, .8, .3], fov: 44 }]),
+  ford: D.jalurKamera([{ t: 15.5, pos: [xf - 6.5, 2.6, 6.8], lihat: [xf - 3, 1.1, 0], fov: 44 }, { t: 19.6, pos: [xf - 1.2, 3.8, 9.0], lihat: [xf, 1.1, 0], fov: 46 }, { t: 23.05, pos: [xf + 3.4, 1.9, 6.0], lihat: [xf + 5, 1.1, 0], fov: 44 }]),
+  karbu: D.jalurKamera([{ t: 23.05, pos: [xk + 1.6, 2.2, 5.6], lihat: [xk + .5, 1.15, 1.2], fov: 44 }, { t: 26.9, pos: [xk + 1.0, 2.0, 4.6], lihat: [xk + .4, 1.1, 1.3], fov: 44 }, { t: 29.8, pos: [xk + .6, 2.4, 4.0], lihat: [xk + .1, 1.0, 1.3], fov: 44 }]),
+  obd: D.jalurKamera([{ t: 29.8, pos: [xo + 1.1, 1.2, 1.8], lihat: [xo + .05, .92, .15], fov: 34 }, { t: 35.9, pos: [xo + .85, 1.1, 1.45], lihat: [xo + .05, .92, .12], fov: 34 }]),
+  xray: D.jalurKamera([{ t: 35.9, pos: [-0.2, 2.9, 6.8], lihat: [-0.2, 1.0, .3], fov: 56 }, { t: 40.0, pos: [0.2, 2.5, 6.4], lihat: [-0.2, 1.0, .3], fov: 56 }, { t: 44.2, pos: [0.5, 2.2, 6.0], lihat: [-0.1, 1.0, .3], fov: 56 }]),
+  bengkel: D.jalurKamera([{ t: 44.2, pos: [xw, 1.85, 7.8], lihat: [xw - .05, 1.3, 0.6], fov: 44 }, { t: 47.6, pos: [xw, 1.8, 7.4], lihat: [xw - .05, 1.3, 0.6], fov: 44 }, { t: 49.0, pos: [xw - .05, 1.75, 8.1], lihat: [xw - .05, 2.05, 0.6], fov: 46 }, { t: 58, pos: [xw - .05, 1.75, 7.7], lihat: [xw - .05, 2.05, 0.6], fov: 46, ease: 'lin' }])
+};
+
+/* == 6. TEKS ================================================================== */
+const IMG = {};
+const muatGambar = (k, src) => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.onerror = r; i.src = src; });
+const BAB = D.judulBab([
+  { a: .3, b: 2.5, kicker: 'Lampu mesin nyala', judul: 'Bongkar <em>sendiri</em>?', besar: 1 },
+  { a: WAKTU.benz - .2, b: 15.3, kicker: 'Karl Benz', judul: '1886', besar: 1 },
+  { a: 15.7, b: 22.9, kicker: 'Ban berjalan Ford', judul: '1913', besar: 1 },
+  { a: 23.25, b: 26.85, kicker: 'Era karburator', judul: 'Obeng dan <em>telinga</em>' },
+  { a: WAKTU.injeksi - .1, b: 29.7, kicker: 'Era injeksi', judul: 'Datang <em>komputer</em>' },
+  { a: WAKTU.sejak - .1, b: 35.8, kicker: 'Sejak 1996', judul: 'Colokan <em>diagnosa</em>' },
+  { a: 36.2, b: 44.1, kicker: 'Sekarang', judul: 'Puluhan <em>komputer</em>' },
+  { a: WAKTU.scan - .3, b: WAKTU.cta - .4, kicker: 'Kuncinya', judul: 'Di-<em>scan</em> dulu' }
+], { warnaKicker: '#FFB3B5' });
+
+/* == 7. SCENE ================================================================= */
+let dashNyala = -1;
+const SCENE = {
+  dur: WAKTU.dur,
+  muat: () => Promise.all([muatGambar('logo', 'assets/gambar/logo-doktermobil.png'), document.fonts.load("800 40px 'Plus Jakarta Sans'"), document.fonts.load("900 40px 'Cinzel'")])
+    .then(() => {
+      if (IMG.logo) $('#logo').src = IMG.logo.src; else $('#logo').style.display = 'none';
+      const { c } = PS; c.fillStyle = BRAND.merah; c.fillRect(0, 0, 1024, 256); c.fillStyle = '#FFFFFF'; c.textAlign = 'center'; c.font = "800 130px 'Plus Jakarta Sans'"; c.fillText('DOKTERMOBIL', 512, 172); PS.tx.needsUpdate = true;
+      dashNyala = -1;
+    }),
+  sub: { gaya: 'polos', font: "800 56px 'Plus Jakarta Sans'", warna: '#FFFFFF', aksen: '#FFB3B5', y: (t) => t > WAKTU.cta + .3 ? { x: W / 2, y: 1130 } : { x: W / 2, y: H * .755 }, maks: 5,
+    kunci: ['nyala!', 'Bongkar', '1886,', 'tiga.', '1913,', 'berjalan.', 'murah,', 'obeng', 'telinga.', 'injeksi', 'komputer', '1996,', 'diagnosa.', 'puluhan', 'kode,', 'scanner.', 'Di-scan', 'Doktermobil.', 'Doktermobil', 'beres!'] },
+  audio: {
+    vo: [{ src: 'assets/audio/vo-01.mp3', at: 0.4, teks: 'Pak, lampu mesin nyala! Bongkar sendiri aja ya?' },
+         { src: 'assets/audio/vo-02.mp3', at: 4.45, teks: 'Eits. Mobil sekarang beda, Ka.' },
+         { src: 'assets/audio/vo-03.mp3', at: 7.9, teks: 'Tahun 1886, Karl Benz mematenkan mobil bensin pertama. Rodanya cuma tiga.' },
+         { src: 'assets/audio/vo-04.mp3', at: 15.65, teks: 'Tahun 1913, Ford memakai ban berjalan. Mobil jadi murah, dan jalanan mulai ramai.' },
+         { src: 'assets/audio/vo-05.mp3', at: 23.2, teks: 'Dulu, mesin disetel pakai obeng dan telinga.' },
+         { src: 'assets/audio/vo-06.mp3', at: 27.0, teks: 'Lalu datang injeksi dan komputer mesin. Sejak 1996, mobil baru di Amerika wajib punya colokan diagnosa.' },
+         { src: 'assets/audio/vo-07.mp3', at: 36.05, teks: 'Sekarang, mobil punya puluhan komputer yang saling bicara. Lampu itu menyimpan kode, yang cuma bisa dibaca pakai scanner.' },
+         { src: 'assets/audio/vo-08.mp3', at: 44.35, teks: 'Jadi jangan ditebak. Di-scan dulu.' },
+         { src: 'assets/audio/vo-09.mp3', at: 47.6, teks: 'Lampu check engine nyala? Langsung scan di Doktermobil. Klik link di bio, karena di Doktermobil pasti beres!' }],
+    sfx: [{ src: 'assets/audio/sfx-ting.mp3', at: WAKTU.nyala - .05, vol: .45 }, { src: 'assets/audio/sfx-whoosh.mp3', at: 2.5, vol: .3 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 7.65, vol: .35 }, { src: 'assets/audio/sfx-mobil.mp3', at: 8.2, vol: .18 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 15.4, vol: .35 }, { src: 'assets/audio/sfx-ketik.mp3', at: 16.2, vol: .12 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 22.95, vol: .35 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.komputer, vol: .3 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 29.7, vol: .3 }, { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.diagnosa + .25, vol: .45 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 35.8, vol: .35 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.puluhan, vol: .25 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.lampu2, vol: .35 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 44.1, vol: .35 }, { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.cta + .1, vol: .35 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.klik, vol: .35 }],
+    loops: [{ src: 'assets/audio/amb-siang.mp3', a: 2.6, b: WAKTU.dur, vol: .1 }],
+    music: { src: 'assets/audio/musik.mp3', vol: .08 }
+  },
+  frame(t) {
+    const Wt = WAKTU, set = setDi(t);
+    KAM[set](t);
+    D.pusatBayangan = (D._pb || (D._pb = new THREE.Vector3())).set(X[set], 0, set === 'bengkel' ? -1 : 0);   /* pusat bayangan diam per set (anti kedip) */
+    const bump = (x, a, d = .55) => Math.sin(Math.PI * seg(x, a, a + d));
+
+    // grade per era (sekarang = warna penuh)
+    const GR = { benz: [.32, 1.14, 1.0, .78, .05], ford: [.45, 1.08, 1.0, .86, .04], karbu: [.85, 1.06, 1.0, .9, .03] }[set];
+    if (GR) { D.U.sat.value = GR[0]; D.U.hangat.value.set(GR[1], GR[2], GR[3]); D.U.grain.value = GR[4]; }
+    else { D.U.sat.value = G0.sat; D.U.hangat.value.copy(G0.h); D.U.grain.value = G0.grain; }
+
+    // dasbor
+    const n = t >= Wt.nyala ? 1 : 0; if (n !== dashNyala) { dashNyala = n; gambarDasbor(n); }
+    cahayaIkon.visible = n === 1; cahayaIkon.material.opacity = E.out(seg(t, Wt.nyala, Wt.nyala + .3));
+
+    // garasi / x-ray
+    const xr = set === 'xray';
+    mobilRaka.visible = !xr; mobilX.visible = xr;
+    ecu.forEach((b, i) => { const k = i === 0 ? E.out(seg(t, 36.0, 36.4)) : E.back(seg(t, Wt.puluhan + (i - 1) * .14, Wt.puluhan + (i - 1) * .14 + .35)); b.scale.setScalar(Math.max(.01, k)); b.userData.pn.material.opacity = k; });
+    jaring.forEach((l, i) => { l.material.opacity = seg(t, Wt.bicara - .4 + i * .06, Wt.bicara + i * .06); });
+    lampuX.material.opacity = E.out(seg(t, Wt.lampu2, Wt.lampu2 + .3));
+    wargaG.atur(t);
+
+    // 1886: Benz melaju, roda berputar sesuai jarak
+    const bx = lerp(xb - 6, xb + 3.2, E.io(seg(t, 7.75, 15.5)) * .15 + seg(t, 7.75, 15.5) * .85);
+    benz.position.set(bx, 0, .3);
+    benz.userData.roda.forEach(([r, rr]) => { r.rotation.z = -(bx - (xb - 6)) / rr; });
+    pengemudi.atur(bx - .25, .3, { tampak: set === 'benz', rupa: RUPA.pengemudi, t, benih: 61, pose: 'duduk', hadap: .7, ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [Wt.tiga, 'senang']]) }, .62);
+    penonton.forEach((p, i) => p.tk.atur(xb + 1.2 + i * .7, -1.9, { tampak: set === 'benz', rupa: p.rupa, t, benih: 70 + i, hadap: -.5, lirik: -.7,
+      pose: TK.poseDari(t, [[0, 'diri'], [11.0 + i * .3, 'kaget'], [12.4 + i * .3, i ? 'tunjuk' : 'pikir']]), ekspresi: TK.ekspresiDari(t, [[0, 'netral'], [11.0, 'kaget'], [12.4, 'senang']]) }));
+
+    // 1913: Model T bergerak di ban berjalan
+    tModel.forEach((m, i) => { const x = xf - 12 + ((i * 4.4 + (t - 15.5) * .75) % 26.4); m.position.set(x, .38, 0); m.userData.roda.forEach(([r]) => { r.rotation.z = 0; }); });
+    buruh.forEach((b, i) => b.tk.atur(xf - 3 + i * 3.2, 1.45, { tampak: set === 'ford', rupa: b.rupa, t, benih: 80 + i, hadap: -.6 + i * .3, pegang: 'kunci',
+      pose: TK.poseDari(t, [[0, i % 2 ? 'diri' : 'pegang'], [Wt.murah + i * .2, 'jempol']]), ekspresi: TK.ekspresiDari(t, [[0, 'yakin'], [Wt.murah, 'senang']]) }));
+
+    // karburator: Darto muda menyetel dengan obeng & telinga, lalu kabel injeksi + komputer muncul
+    dartoMuda.atur(xk + 1.05, 1.75, { tampak: set === 'karbu', rupa: RUPA.dartoMuda, t, benih: 90, hadap: -.6, pegang: t < Wt.injeksi ? 'kunci' : null,
+      pose: TK.poseDari(t, [[0, 'pegang'], [Wt.telinga - .15, 'telinga'], [Wt.injeksi + .1, 'kaget'], [Wt.komputer + .5, 'garuk']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'yakin'], [Wt.telinga, 'senyum'], [Wt.injeksi, 'kaget'], [Wt.komputer + .4, 'bingung']]), naik: bump(t, Wt.injeksi + .1) * 10 });
+    kabelInj.forEach((l, i) => { l.visible = t > Wt.injeksi + i * .12; });
+    ecu70.scale.setScalar(Math.max(.01, E.back(seg(t, Wt.komputer - .05, Wt.komputer + .35))));
+
+    // OBD: colokan masuk saat "diagnosa"
+    const ck = E.io(seg(t, Wt.diagnosa - .35, Wt.diagnosa + .3));
+    colok.position.set(0, .92, lerp(.75, .1, ck));
+
+    // RAKA & PAK DARTO (garasi, x-ray, bengkel)
+    const diGarasi = set === 'garasi', diBengkel = set === 'bengkel';
+    const lsR = TK.lipsync(t, KATA, VO[0] - .05, VO[1] - .1), lsD = TK.lipsync(t, KATA, t < 10 ? VO[1] - .05 : VO[7] - .05, t < 10 ? VO[2] - .1 : VO[8] - .1);
+    if (diGarasi) {
+      const jr = jalur([[2.6, 0.6, 1.9], [3.2, 0.6, 1.9], [3.9, 1.35, 1.75]], t);
+      raka.atur(set === 'xray' ? 1.9 : jr.x, set === 'xray' ? 2.2 : jr.z, { rupa: RUPA.raka, t, benih: 11, jalan: set === 'xray' ? 0 : jr.jalan, fase: TK.faseDariJarak(jr.jarak, .5), hadap: jr.jalan && set !== 'xray' ? hadapDari(jr) : -.45,
+        lirik: t > VO[1] && t < 7.7 ? -.9 : -.4, pegang: t > Wt.bongkar && t < VO[1] + 1.2 ? 'kunci' : null,
+        pose: TK.poseDari(t, [[0, 'kaget'], [Wt.bongkar, 'pegang'], [VO[1] + .4, 'kaget'], [VO[1] + 1.4, 'garuk'], [36, 'pikir'], [Wt.lampu2, 'kaget']]),
+        ekspresi: TK.ekspresiDari(t, [[0, 'cemas'], [Wt.bongkar, 'yakin'], [VO[1] + .3, 'kaget'], [VO[1] + 1.4, 'bingung'], [Wt.puluhan, 'kaget']]),
+        bicara: lsR.bicara, vokal: lsR.vokal, alisNaik: lsR.alisNaik, naik: bump(t, VO[1] + .3, .5) * 10 });
+      const jd = jalur([[2.6, -3.6, 2.4], [3.4, -3.6, 2.4], [VO[1] + .2, -0.1, 2.2]], t);
+      darto.atur(set === 'xray' ? -1.8 : jd.x, set === 'xray' ? 2.3 : jd.z, { rupa: RUPA.darto, t, benih: 12, jalan: set === 'xray' ? 0 : jd.jalan, fase: TK.faseDariJarak(jd.jarak, .45), hadap: jd.jalan && set !== 'xray' ? hadapDari(jd) : .45, lirik: .8,
+        pose: TK.poseDari(t, [[0, 'diri'], [VO[1] + .2, 'tahan'], [VO[1] + 1.6, 'jelaskan'], [36, 'sedekap'], [Wt.scanner - .2, 'tunjuk']]),
+        ekspresi: TK.ekspresiDari(t, [[0, 'netral'], [VO[1], 'yakin'], [VO[1] + 1.6, 'senyum'], [36, 'yakin']]),
+        bicara: lsD.bicara, vokal: lsD.vokal, alisNaik: lsD.alisNaik });
+    } else if (diBengkel) {
+      raka.atur(xw - 0.2, 2.0, { rupa: RUPA.raka, t, benih: 11, hadap: .3, lirik: .7,
+        pose: TK.poseDari(t, [[0, 'diri'], [Wt.scan + .3, 'jempol'], [Wt.cta + .4, 'lambai'], [Wt.klik, 'jempol']]), ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [Wt.cta, 'senang']]) });
+      darto.atur(xw - 0.95, 2.3, { rupa: RUPA.darto, t, benih: 12, hadap: .4, lirik: .8,
+        pose: TK.poseDari(t, [[0, 'jelaskan'], [Wt.scan - .1, 'tunjuk'], [Wt.cta + .3, 'jempol']]), ekspresi: TK.ekspresiDari(t, [[0, 'yakin'], [Wt.cta, 'senang']]),
+        bicara: lsD.bicara, vokal: lsD.vokal, alisNaik: lsD.alisNaik });
+    } else { raka.atur(0, 0, { tampak: false }); darto.atur(0, 0, { tampak: false }); }
+    mekanik.atur(xw + .85, 1.6, { tampak: diBengkel, rupa: RUPA.mekanik, t, benih: 13, hadap: -.4, lirik: -.6, pegang: 'hp',
+      pose: TK.poseDari(t, [[0, 'pegangTablet'], [Wt.cta + .6, 'jempol']]), ekspresi: TK.ekspresiDari(t, [[0, 'yakin'], [Wt.cta, 'senang']]) });
+
+    BAB.atur(t);
+
+    // CTA
+    const kc = E.out(seg(t, Wt.cta, Wt.cta + .7)), c = $('#cta');
+    c.style.opacity = kc; c.style.transform = `translateY(${lerp(80, 0, kc)}px) scale(${lerp(.94, 1, kc)})`;
+    $('#tombol').style.transform = `scale(${lerp(.88, 1, E.back(seg(t, Wt.cta + .5, Wt.cta + 1.1)))})`;
+    D.atur({ dof: set === 'dash' || set === 'obd' ? .7 : (t > Wt.cta ? lerp(.35, .85, seg(t, Wt.cta, Wt.cta + .8)) : .35) });
+
+    D.render(t);
+  }
+};

@@ -149,6 +149,7 @@ Lalu `--t 5,8.5,10.5,13` untuk tokoh, solusi, CTA.
 - Qi tidak terlihat dari udara: mulai jalur dari dalam frame, `muncul` jangan `E.in` tajam.
 - Pita qi raksasa di depan lensa: titik awal jalur jangan lebih dekat dari 4 m ke kamera.
 - Garis tinta ganda di benda tipis (kabel, daun bambu, cahaya): taruh di lapisan 1 (`D.lapisan(obj,1)`), tidak bertinta.
+- **Video berkedip-kedip** (tepi bayangan berenang saat kamera bergerak pelan): kunci `D.pusatBayangan = new THREE.Vector3(x,0,z)` per set/adegan; jangan biarkan mengikuti kamera.
 - Render lambat (> 2 dtk/frame): `ss: 1.25`, kurangi `D.warga` n, `bayangan: 1024`.
 
 ## Revisi cepat

@@ -11,6 +11,7 @@ Yang dilakukan (aman diulang):
   3. salin references/gaya/toon-3d.md                      -> <skill>/references/gaya/
   4. tambal scripts/mf.py: penanda <!--@MESIN ...--> di @HEAD menanam modul mesin ke index.html
   5. daftarkan gaya toon-3d di SKILL.md dan references/mesin.md
+  6. pasang skill mf-qc (gerbang kualitas video) di sebelah skill motion-format
 File skill yang diubah dicadangkan sekali sebagai *.sebelum-toon.
 Add-on ini TIDAK berisi skill Motion Format; skill itu harus dibeli/dipasang sendiri.
 """
@@ -116,6 +117,13 @@ def main():
             if not a.cek:
                 cadang(f, a.cek); f.write_text(t.rstrip('\n') + '\n' + BAGIAN_MESIN, encoding='utf-8')
             laporan.append(('PERLU ' if a.cek else 'tambah') + ' references/mesin.md (modul tambahan)')
+
+    # 6 skill mf-qc (gerbang kualitas) -> ~/.claude/skills/mf-qc/SKILL.md (sejajar dengan motion-format)
+    s, d = ADDON / 'skills' / 'mf-qc' / 'SKILL.md', sk.parent / 'mf-qc' / 'SKILL.md'
+    sama = d.exists() and d.read_bytes() == s.read_bytes()
+    if not sama and not a.cek:
+        d.parent.mkdir(parents=True, exist_ok=True); shutil.copy2(s, d)
+    laporan.append(f'{"ok    " if sama else ("PERLU " if a.cek else "salin ")} ../mf-qc/SKILL.md (skill QC)')
 
     print(f'skill: {sk}')
     print('\n'.join('  ' + x for x in laporan))

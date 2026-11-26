@@ -1,0 +1,320 @@
+<!--@TITLE Cimeng vs Bipong · Peta BaZi · Toon 3D-->
+<!--@RASIO 9:16-->
+<!-- Shifu Po · Toon 3D · ±47 dtk. Story "Nico vs Simon": dua ruko bersebelahan, buka di hari yang sama.
+     Cimeng ganti usaha terus (rolling door turun-naik, papan berganti), Bipong satu usaha tetap ramai.
+     Ko Popo (merah) membawa papan Peta BaZi → dampak nyata → Bipong: fokus satu jalur → CTA "tim Cimeng atau tim Bipong?".
+     Suara gratis edge-tts: narator Andrew (Ko Popo), Cimeng = Brian, Bipong = William. Semua waktu dari kata VO.
+     BAGIAN: 1 BRAND · 2 WAKTU · 3 DUNIA · 4 RUKO · 5 TOKOH · 6 KAMERA · 7 TEKS · 8 SCENE -->
+<!--@HEAD-->
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<!--@MESIN toon-tokoh.js toon-dunia.js-->
+<style>
+  #cta{position:absolute;left:90px;right:150px;top:290px;opacity:0;text-align:center;padding:44px 40px 48px;border-radius:40px;
+    background:linear-gradient(#FBF6EC,#F1E6D2);border:3px solid #C9A45C;box-shadow:0 30px 80px rgba(40,15,20,.35)}
+  #cta img{height:88px;display:block;margin:0 auto 16px}
+  #cta .tanya{font:800 32px 'Plus Jakarta Sans';color:#7E0F15;letter-spacing:.07em;text-transform:uppercase}
+  #cta .besar{font:900 62px/1.08 'Cinzel';color:#12100E;margin:14px 0 24px}
+  #cta .tombol{display:inline-block;font:800 40px 'Plus Jakarta Sans';color:#12100E;padding:22px 50px;border-radius:999px;background:linear-gradient(#F1DDA8,#C9A45C);box-shadow:0 8px 0 #9C7A35,0 18px 40px rgba(120,80,20,.35)}
+  #cta .kecil{font:700 28px 'Plus Jakarta Sans';color:#5A4E44;margin-top:24px}
+</style>
+<!--@BODY-->
+<div id="dunia"></div>
+<div id="cta">
+  <img id="logo" alt="">
+  <div class="tanya">Tim Cimeng atau tim Bipong?</div>
+  <div class="besar">Cek peta BaZi<br>Anda dulu</div>
+  <div class="tombol" id="tombol">Konsultasi via WhatsApp</div>
+  <div class="kecil">Shifu Po · Feng Shui &amp; BaZi</div>
+</div>
+<!--@SCRIPT-->
+/* == 1. BRAND ================================================================ */
+const BRAND = { tinta: '#12100E', emas: '#C9A45C', emasTerang: '#F1DDA8', merah: '#A8161D', giok: '#2E7D63' };
+const TK = TOKOH_TOON;
+const KO_POPO = TK.koPopo('merah');   // selang-seling: Tusuk Sate merah, Meja Kantor emas, Cimeng vs Bipong merah
+
+/* == 2. WAKTU (dari kata VO) =================================================== */
+const VO = [0.4, 4.43, 6.6, 9.11, 13.55, 17.24, 20.7, 29.4, 34.5, 38.1];
+const KATA = window.KATA || [];
+const K = (w, n = 1, cad = 0) => { let c = 0; for (const k of KATA) if (k.w.toLowerCase().replace(/[^\p{L}]/gu, '').startsWith(w)) { if (++c === n) return k.t0; } return cad; };
+const WAKTU = {
+  sama: K('sama', 1, 3.2), lima: K('lima', 1, 4.5), ganti: K('ganti', 1, 7.4), empat: K('empat', 1, 8.0),
+  kopi: VO[3], baju: K('baju', 1, 10.3), jualan: K('jualan', 1, 12.3), mi: K('mi', 1, 12.7),
+  ramai: K('ramai', 1, 16.2), bedanya: K('bedanya', 1, 17.8), bazi1: K('bazi', 1, 19.7),
+  bazi2: K('bazi', 2, 21.1), unsur: K('unsur', 1, 24.6), kekuatan: K('kekuatan', 1, 26.1), selaras: K('selaras', 1, 28.3),
+  sadar: K('sadar', 1, 32.2), tren: K('tren', 1, 33.6), fokus: K('fokus', 1, 35.4), dalam: K('diperdalam', 1, 36.6),
+  cta: VO[9], wa: K('whatsapp', 1, 43.7), dur: 47.5
+};
+
+/* == 3. DUNIA: jalan ruko, sore keemasan ======================================== */
+const D = TOON3D.mulai({ el: $('#dunia'), langit: 'sore', ss: 1.5, area: 26 });
+D.atur({ matahari: { az: -38, el: 32 }, dof: .4, dofRentang: .9, tintaJauh: 70 });
+const S = D.scene;
+D.pusatBayangan = new THREE.Vector3(0, 0, 1);   /* pusat bayangan diam: tanpa ini tepi bayangan berkedip saat kamera bergerak */
+S.add(D.tanah({ lebar: 240, dalam: 240, jenis: 'rumput' }));
+const muka = D.tanah({ lebar: 40, dalam: 1.6, jenis: 'paving' }); muka.position.set(0, .012, .7); S.add(muka);
+const jl = D.jalan({ panjang: 90, lebar: 6, trotoar: 1.6 }); jl.rotation.y = Math.PI / 2; jl.position.z = 5.2; S.add(jl);
+// latar: pohon di belakang deret ruko (menyembul di atas atap) + ujung jalan; tidak ada apa pun di antara kamera dan ruko
+for (let i = 0; i < 9; i++) { const p = D.pohon({ benih: i + 40, tinggi: 7.5 + (i % 3) * .8, warna: ['#5FA453', '#4E9A5E', '#78AE4A'][i % 3] }); p.position.set(-16 + i * 4 + (i % 2) * .8, 0, -7.5 - (i % 2) * 1.5); S.add(p); }
+[-13.6, 13.6].forEach(x => { const p = D.pohon({ benih: x > 0 ? 61 : 62, tinggi: 5 }); p.position.set(x, 0, 1.2); S.add(p); });
+[-10.4, 10.4].forEach(x => { const tg = D.tiang({ nyala: 0 }); tg.position.set(x, 0, 2.6); S.add(tg); });
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+S.add(D.kabel(V3(-10.4, 7.2, 2.6), V3(10.4, 7.2, 2.6), .9));
+S.add(D.bukit({ warna: '#B7A98E' })); S.add(D.awan({ n: 7, benih: 4 }));
+const mobil1 = D.mobil({ warna: '#3F7FD0' }); mobil1.rotation.y = Math.PI / 2; S.add(mobil1);
+const mobil2 = D.mobil({ warna: '#E2C06E' }); mobil2.rotation.y = -Math.PI / 2; S.add(mobil2);
+const motor = D.motor({ warna: '#2E7D63' }); motor.rotation.y = .5; motor.position.set(-5.3, 0, 1.0); S.add(motor);
+const warga = D.warga({ n: 3, jalur: [[-26, 2.9], [-6.2, 2.9]], benih: 23 }), warga2 = D.warga({ n: 3, jalur: [[6.2, 2.9], [26, 2.9]], benih: 29 });
+
+/* == 4. RUKO =================================================================== */
+const kanvasTeks = (w, h) => { const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const tx = new THREE.CanvasTexture(cv); tx.encoding = THREE.sRGBEncoding; tx.anisotropy = 8; return { cv, tx, c: cv.getContext('2d') }; };
+function gambarPapan(P, teks, bg, fg, sub) {
+  const { c, cv, tx } = P, w = cv.width, h = cv.height;
+  c.fillStyle = bg; c.fillRect(0, 0, w, h);
+  c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 14; c.strokeRect(7, 7, w - 14, h - 14);
+  c.fillStyle = fg; c.textAlign = 'center'; c.font = "900 104px 'Cinzel'"; c.fillText(teks, w / 2, h * (sub ? .58 : .68));
+  if (sub) { c.font = "800 40px 'Plus Jakarta Sans'"; c.globalAlpha = .85; c.fillText(sub, w / 2, h * .86); c.globalAlpha = 1; }
+  tx.needsUpdate = true;
+}
+const garis = (warnaA, warnaB, n, tegak) => { const P = kanvasTeks(256, 256); for (let i = 0; i < n; i++) { P.c.fillStyle = i % 2 ? warnaA : warnaB; if (tegak) P.c.fillRect(i * 256 / n, 0, 256 / n, 256); else P.c.fillRect(0, i * 256 / n, 256, 256 / n); } P.tx.needsUpdate = true; return P.tx; };
+function ruko(x, o) {
+  const g = new THREE.Group(); g.position.x = x; S.add(g);
+  const W = 5, Hh = 6.4, Dd = 5;
+  const mD = D.bahan('#FFFFFF', { map: D.ulang(D.TEX.plester(o.dinding), W / 3, Hh / 3) });
+  g.add(D.kotak(W, Hh, Dd, mD, 0, Hh / 2, -Dd / 2));
+  g.add(D.kotak(W + .2, .18, Dd + .2, D.bahan('#FFFFFF'), 0, Hh, -Dd / 2));
+  g.add(D.kotak(W + .1, .12, .3, D.bahan('#FFFFFF'), 0, 3.2, .1));   // lis lantai 2
+  // lantai 2: jendela + pot
+  [-1.25, 1.25].forEach(s => { g.add(D.kotak(1.5, 1.4, .06, D.bahan('#2D4D73'), s, 4.75, .02)); g.add(D.kotak(1.62, .1, .2, D.bahan('#FFFFFF'), s, 4.0, .08)); });
+  // bukaan toko (dalam gelap) + etalase + rak
+  g.add(D.kotak(4.3, 2.75, .05, D.bahan('#3E2F2A'), 0, 1.38, .02, false));
+  const rakIsi = new THREE.Group(); for (let r = 0; r < 2; r++) for (let b = 0; b < 6; b++) rakIsi.add(D.kotak(.4, .35, .1, D.bahan(o.isi[(r + b) % o.isi.length]), -1.5 + b * .6, 1.5 + r * .55, .08, false));
+  g.add(rakIsi);
+  const etalase = D.kotakBulat(2.6, .95, .6, .05, D.bahan(o.etalase)); etalase.position.set(.3, .48, .55); g.add(etalase);
+  g.add(D.kotak(2.5, .06, .55, D.bahan('#CFE6F2'), .3, .98, .55, false));
+  // kanopi bergaris
+  const kan = D.kotak(5.1, .08, 1.5, D.bahan('#FFFFFF', { map: garis(o.kanopi, '#FBF4E6', 10, true) }), 0, 3.0, .72); kan.rotation.x = .32; g.add(kan);
+  // papan nama (kanvas, bisa diganti)
+  const P = kanvasTeks(1024, 256), pm = D.bahan('#FFFFFF', { map: P.tx });
+  const papan = D.kotak(4.4, 1.0, .12, [D.bahan(o.etalase), D.bahan(o.etalase), D.bahan(o.etalase), D.bahan(o.etalase), pm, D.bahan(o.etalase)], 0, 3.75, .12);
+  g.add(papan);
+  // rolling door: berporos di atas bukaan, skala-y 0 (terbuka) → 1 (tertutup)
+  const pintu = new THREE.Group(); pintu.position.set(0, 2.78, .09);
+  const daun = D.kotak(4.36, 2.76, .05, D.bahan('#FFFFFF', { map: garis('#AEB3BC', '#C9CDD4', 22, false) }), 0, -1.38, 0); pintu.add(daun);
+  pintu.add(D.kotak(4.4, .12, .1, D.bahan('#7F858F'), 0, -2.74, 0)); g.add(pintu);
+  // lampion & pot
+  [-2.2, 2.2].forEach(s => { const l = D.lampion({ besar: .38 }); l.position.set(s, 2.75, 1.25); g.add(l); });
+  const pt = D.pot({ warna: '#E9E2D6', besar: 1.2, benih: x | 0 }); pt.position.set(-2.1, 0, .6); g.add(pt);
+  return { g, P, pintu, papan };
+}
+const CIM = ruko(-2.6, { dinding: '#F3D9C4', kanopi: '#C8483A', etalase: '#7A4A2E', isi: ['#6B4430', '#A9744F', '#E8D2B0'] });
+const BIP = ruko(2.6, { dinding: '#EAF0E2', kanopi: '#2E7D63', etalase: '#C99A62', isi: ['#E7B66E', '#C98A3E', '#F6E2B8'] });
+const TET1 = ruko(-7.8, { dinding: '#DDE6EE', kanopi: '#3F6FB5', etalase: '#5A6E8A', isi: ['#9FB8D6', '#F4F0E4'] });
+const TET2 = ruko(7.8, { dinding: '#F6E7C6', kanopi: '#9E3B4A', etalase: '#8A5A3C', isi: ['#D98C9C', '#F4F0E4'] });
+// usaha Cimeng berganti; Bipong tetap
+const USAHA_CIM = [['KOPI', '#4A2E22', '#F1DDA8', 'Cimeng'], ['BAJU', '#D98C9C', '#2B1A2C', 'Cimeng'], ['SEPATU', '#3F6FB5', '#FFFFFF', 'Cimeng'], ['PULSA', '#F2C744', '#2B1A2C', 'Cimeng'], ['MI', '#A8161D', '#F1DDA8', 'Cimeng']];
+const ISI_CIM = [['#6B4430', '#A9744F', '#E8D2B0'], ['#D98C9C', '#7E9BCB', '#F4F0E4'], ['#3F6FB5', '#2E2A36', '#E2C06E'], ['#F2C744', '#3A8F5A', '#C4262E'], ['#E2A23A', '#F4F0E4', '#A8161D']];
+// jadwal ganti: rolling door turun → papan berganti saat tertutup → naik lagi
+const GANTI = () => [WAKTU.ganti - .2, WAKTU.ganti + .6, WAKTU.empat + .25, WAKTU.mi - .35];
+let usahaKini = -1;
+function aturCimeng(t) {
+  const jd = GANTI(); let tutup = 0, idx = 0;
+  jd.forEach((t0, i) => { const a = seg(t, t0, t0 + .28), b = seg(t, t0 + .42, t0 + .72); tutup = Math.max(tutup, Math.min(E.in(a), 1 - E.out(b))); if (t > t0 + .32) idx = i + 1; });
+  CIM.pintu.scale.y = Math.max(.02, tutup);
+  if (idx !== usahaKini) { usahaKini = idx; const u = USAHA_CIM[idx]; gambarPapan(CIM.P, u[0], u[1], u[2], u[3]); }
+  return tutup;
+}
+
+// papan Peta BaZi (empat pilar × lima unsur)
+const UNSUR = { kayu: ['Kayu', '#3A8F5A'], api: ['Api', '#D8452F'], tanah: ['Tanah', '#C99A3E'], logam: ['Logam', '#9AA3AE'], air: ['Air', '#2F5F9E'] };
+const PILAR = [['Tahun', 'kayu', 'air'], ['Bulan', 'api', 'tanah'], ['Hari', 'tanah', 'api'], ['Jam', 'logam', 'kayu']];
+let bzTahap = -1;
+const bazi = D.papan({ lebar: 1.5, tinggi: 1.15, tiang: .95, res: 768, gambar: () => {} });
+bazi.position.set(0.1, 0, 1.35); bazi.rotation.y = .12; S.add(bazi);
+function gambarBazi(tahap) {
+  const cv = bazi.userData.kanvas, c = cv.getContext('2d'), w = cv.width, h = cv.height;
+  c.fillStyle = '#FBF6EC'; c.fillRect(0, 0, w, h); c.strokeStyle = BRAND.emas; c.lineWidth = 16; c.strokeRect(8, 8, w - 16, h - 16);
+  c.fillStyle = BRAND.merah; c.textAlign = 'center'; c.font = "900 64px 'Cinzel'"; c.fillText('PETA BAZI', w / 2, 92);
+  const kw = (w - 80) / 4;
+  PILAR.forEach((p, i) => {
+    const x = 40 + i * kw, cx = x + kw / 2, sorot = tahap >= 2 && i === 2;
+    c.fillStyle = sorot ? '#F6E3B4' : '#F1E6D2'; c.fillRect(x + 8, 124, kw - 16, h - 160);
+    if (sorot) { c.strokeStyle = BRAND.emas; c.lineWidth = 10; c.strokeRect(x + 8, 124, kw - 16, h - 160); }
+    c.fillStyle = '#5A4E44'; c.font = "800 34px 'Plus Jakarta Sans'"; c.fillText(p[0], cx, 172);
+    [p[1], p[2]].forEach((u, j) => {
+      const y = 260 + j * 150, U = UNSUR[u];
+      c.globalAlpha = tahap >= 1 ? 1 : .18; c.fillStyle = U[1]; c.beginPath(); c.arc(cx, y, 54, 0, 7); c.fill();
+      c.fillStyle = '#FFFFFF'; c.font = "800 28px 'Plus Jakarta Sans'"; c.fillText(U[0], cx, y + 10); c.globalAlpha = 1;
+    });
+  });
+  bazi.userData.tekstur.needsUpdate = true;
+}
+const sheng = D.energi({ jenis: 'sheng', titik: [[0.3, 1.6, 1.4], [1.2, 2.6, 1.2], [2.0, 3.3, .9], [2.6, 3.8, .45]], tebal: .08 }); S.add(sheng);
+const shaCim = D.energi({ jenis: 'sha', titik: [[-4.6, 2.2, 1.6], [-3.4, 2.4, 1.1], [-2.2, 2.0, 1.5], [-1.0, 2.5, 1.0]], tebal: .06 }); S.add(shaCim);
+
+/* == 5. TOKOH ================================================================= */
+TK.POSE.jempol = { L: { a: 10, j: .97, s: 1 }, R: { a: 72, j: .68, s: 1, b: 'kepal' } };
+TK.POSE.serah = { L: { a: 10, j: .97, s: 1 }, R: { a: 48, j: .86, s: 1, b: 'buka', d: 1 } };
+const RUPA_CIMENG = { kulit: '#F0C29C', rambut: '#2A1E1C', gayaRambut: 'jabrik', atasan: '#F28C38', jenisAtasan: 'kaos', bawahan: '#3B5B9A', sepatu: '#F4F1EA', bangun: 'dewasa' };
+const RUPA_BIPONG = { kulit: '#F7D3B6', rambut: '#1E1614', gayaRambut: 'rapi', atasan: '#FBF6EE', jenisAtasan: 'celemek', aksen: BRAND.giok, bawahan: '#2A2D38', sepatu: '#3A2A26', bangun: 'dewasa', kacamata: '#3A2E2A' };
+const cimeng = D.tokoh({ tinggi: 1.6, res: 2 }), bipong = D.tokoh({ tinggi: 1.62, res: 2 }), kopo = D.tokoh({ tinggi: 1.64, res: 2 });
+const pelanggan = [0, 1, 2, 3].map(i => ({ tk: D.tokoh({ tinggi: [1.5, 1.08, 1.56, 1.45][i], res: 1.3 }), rupa: TK.rupaAcak(300 + i * 17, i === 1), x: 3.4 + i * .62, z: 1.55 + (i % 2) * .25 }));
+function jalur(titik, t) {
+  if (t <= titik[0][0]) return { x: titik[0][1], z: titik[0][2], jarak: 0, jalan: 0, dx: 0 };
+  let jarak = 0;
+  for (let i = 0; i < titik.length - 1; i++) {
+    const [t0, x0, z0] = titik[i], [t1, x1, z1] = titik[i + 1], L = Math.hypot(x1 - x0, z1 - z0);
+    if (t < t1) { const k = (t - t0) / (t1 - t0); return { x: lerp(x0, x1, k), z: lerp(z0, z1, k), jarak: jarak + L * k, jalan: L > .01 ? 1 : 0, dx: x1 - x0, dz: z1 - z0 }; }
+    jarak += L;
+  }
+  const a = titik[titik.length - 1]; return { x: a[1], z: a[2], jarak, jalan: 0, dx: 0 };
+}
+const hadapDari = (j, base = 0) => j.jalan ? clamp((j.dx || 0) * 1.2 / Math.max(.3, Math.hypot(j.dx || 0, j.dz || 0)), -1, 1) * .9 : base;
+
+/* == 6. KAMERA ================================================================ */
+const kamera = D.jalurKamera([
+  { t: 0, pos: [0, 3.4, 11.2], lihat: [0, 1.75, 1.0], fov: 44 },
+  { t: 4.3, pos: [0, 2.2, 9.3], lihat: [0, 1.65, 1.0], fov: 44 },
+  { t: 6.5, pos: [-2.5, 2.2, 9.4], lihat: [-2.55, 2.75, 0.3], fov: 44 },
+  { t: 9.2, pos: [-2.45, 2.1, 8.6], lihat: [-2.5, 2.6, .5], fov: 44 },
+  { t: 13.3, pos: [-2.35, 2.0, 8.2], lihat: [-2.45, 2.5, .6], fov: 44 },
+  { t: 15.0, pos: [2.9, 2.4, 9.2], lihat: [2.9, 2.1, 0], fov: 44 },
+  { t: 17.4, pos: [2.7, 2.3, 9.4], lihat: [2.7, 2.0, .3], fov: 44 },
+  { t: 20.5, pos: [1.0, 2.0, 7.8], lihat: [0.9, 1.6, 1.2], fov: 44 },
+  { t: 25.0, pos: [0.5, 1.95, 8.6], lihat: [0.5, 1.6, 1.4], fov: 44 },
+  { t: 28.4, pos: [1.5, 3.0, 10.0], lihat: [1.4, 2.4, .8], fov: 46 },
+  { t: 29.6, pos: [-0.7, 1.65, 6.6], lihat: [-0.9, 1.35, 2.0], fov: 40 },
+  { t: 34.2, pos: [-0.75, 1.6, 6.2], lihat: [-0.9, 1.35, 2.0], fov: 40, ease: 'lin' },
+  { t: 35.0, pos: [0.4, 1.85, 9.2], lihat: [0.4, 1.4, 1.8], fov: 44 },
+  { t: 38.0, pos: [0.4, 1.82, 9.0], lihat: [0.4, 1.4, 1.8], fov: 44, ease: 'lin' },
+  { t: 39.2, pos: [0.4, 1.75, 9.6], lihat: [0.4, 1.95, 1.8], fov: 46 },
+  { t: 47.5, pos: [0.4, 1.75, 9.2], lihat: [0.4, 1.95, 1.8], fov: 46, ease: 'lin' }
+]);
+
+/* == 7. TEKS ================================================================== */
+const IMG = {};
+const muatGambar = (k, src) => new Promise(r => { const i = new Image(); i.onload = () => { IMG[k] = i; r(); }; i.onerror = r; i.src = src; });
+const BAB = D.judulBab([
+  { a: .25, b: 4.15, kicker: 'Buka di hari yang sama', judul: '<em>Cimeng</em> vs <em>Bipong</em>', besar: 1 },
+  { a: WAKTU.lima - .1, b: VO[4] - .4, kicker: '5 tahun kemudian', judul: 'Cimeng ganti usaha <em>4 kali</em>' },
+  { a: VO[4] + .1, b: VO[5] - .35, kicker: 'Bipong', judul: '<em>Satu</em> usaha, tetap ramai' },
+  { a: WAKTU.bazi1 - .1, b: VO[6] + .9, kicker: 'Salah satu bedanya', judul: 'Cek <em>peta BaZi</em> dulu' },
+  { a: VO[6] + 1.0, b: VO[7] - .4, kicker: 'Dalam BaZi', judul: 'Peta <em>unsur</em> diri' },
+  { a: VO[7] + .1, b: VO[8] - .4, kicker: 'Dampak nyata', judul: 'Pilih arah dengan <em>sadar</em>' },
+  { a: VO[8] + .1, b: WAKTU.cta - .45, kicker: 'Kuncinya', judul: 'Fokus, lalu <em>perdalam</em>' }
+]);
+
+/* == 8. SCENE ================================================================= */
+const SCENE = {
+  dur: WAKTU.dur,
+  muat: () => Promise.all([muatGambar('logo', 'assets/gambar/logo-shifupo.png'), document.fonts.load("800 40px 'Plus Jakarta Sans'"), document.fonts.load("900 40px 'Cinzel'")])
+    .then(() => {
+      if (IMG.logo) $('#logo').src = IMG.logo.src; else $('#logo').style.display = 'none';
+      gambarPapan(BIP.P, 'ROTI', '#2E7D63', '#F1DDA8', 'Bipong'); gambarPapan(TET1.P, 'LAUNDRY', '#3F6FB5', '#FFFFFF'); gambarPapan(TET2.P, 'APOTEK', '#F4F0E4', '#9E3B4A');
+      usahaKini = -1; bzTahap = -1;
+    }),
+  sub: { gaya: 'polos', font: "800 56px 'Plus Jakarta Sans'", warna: '#FFFFFF', aksen: '#FFD27A', y: (t) => t > WAKTU.cta + .3 ? { x: W / 2, y: 1085 } : { x: W / 2, y: H * .755 }, maks: 5,
+    kunci: ['Cimeng', 'Bipong,', 'Bipong?', 'Bipong', 'empat', 'kali.', 'ramai.', 'BaZi', 'BaZi,', 'unsur.', 'kekuatan', 'selaras.', 'sadar,', 'tren.', 'fokus', 'diperdalam.', 'WhatsApp'] },
+  audio: {
+    vo: [{ src: 'assets/audio/vo-01.mp3', at: 0.4, teks: 'Cimeng dan Bipong, buka usaha di hari yang sama.' },
+         { src: 'assets/audio/vo-02.mp3', at: 4.43, teks: 'Lima tahun kemudian...' },
+         { src: 'assets/audio/vo-03.mp3', at: 6.6, teks: 'Cimeng sudah ganti usaha empat kali.' },
+         { src: 'assets/audio/vo-04.mp3', at: 9.11, teks: 'Kopi sepi, baju sepi... ya udah, jualan mi aja!' },
+         { src: 'assets/audio/vo-05.mp3', at: 13.55, teks: 'Bipong? Cuma satu usaha, dan masih ramai.' },
+         { src: 'assets/audio/vo-06.mp3', at: 17.24, teks: 'Salah satu bedanya: Bipong cek peta BaZi dulu.' },
+         { src: 'assets/audio/vo-07.mp3', at: 20.7, teks: 'Dalam BaZi, tanggal dan jam lahir dibaca sebagai peta unsur. Kelihatan kekuatan diri, dan jalur yang selaras.' },
+         { src: 'assets/audio/vo-08.mp3', at: 29.4, teks: 'Secara nyata, Anda memilih arah dengan sadar, bukan ikut tren.' },
+         { src: 'assets/audio/vo-09.mp3', at: 34.5, teks: 'Jadi saya fokus di satu jalur, terus diperdalam.' },
+         { src: 'assets/audio/vo-10.mp3', at: 38.1, teks: 'Anda tim Cimeng, atau tim Bipong? Cek peta BaZi Anda dulu, lewat WhatsApp Shifu Po.' }],
+    sfx: [{ src: 'assets/audio/sfx-pop.mp3', at: .9, vol: .3 }, { src: 'assets/audio/sfx-pop.mp3', at: 2.1, vol: .3 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 4.4, vol: .35 },
+          { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.ganti - .02, vol: .3 }, { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.ganti + .78, vol: .3 },
+          { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.empat + .43, vol: .3 }, { src: 'assets/audio/sfx-hantam.mp3', at: WAKTU.mi - .17, vol: .3 },
+          { src: 'assets/audio/sfx-whoosh.mp3', at: 13.4, vol: .3 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.ramai, vol: .3 },
+          { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.bazi1 - .05, vol: .4 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.unsur, vol: .3 },
+          { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.kekuatan, vol: .3 }, { src: 'assets/audio/sfx-whoosh.mp3', at: WAKTU.selaras - .1, vol: .35 },
+          { src: 'assets/audio/sfx-pop.mp3', at: WAKTU.cta + .1, vol: .35 }, { src: 'assets/audio/sfx-ting.mp3', at: WAKTU.wa - .05, vol: .35 }],
+    loops: [{ src: 'assets/audio/amb-siang.mp3', a: 0, b: WAKTU.dur, vol: .12 }],
+    music: { src: 'assets/audio/musik.mp3', vol: .08 }
+  },
+  frame(t) {
+    const Wt = WAKTU;
+    kamera(t);
+
+    // ruko & papan
+    aturCimeng(t);
+    const bz = E.back(seg(t, Wt.bazi1 - .3, Wt.bazi1 + .35));
+    bazi.visible = bz > .01; bazi.scale.setScalar(Math.max(.01, bz));
+    const tahap = t < Wt.unsur ? 0 : t < Wt.kekuatan ? 1 : 2;
+    if (tahap !== bzTahap) { bzTahap = tahap; gambarBazi(tahap); }
+    sheng.userData.atur(t, E.io(seg(t, Wt.selaras - .3, Wt.selaras + 1.4)));
+    sheng.visible = t > Wt.selaras - .3 && t < VO[7] + 1.5;
+    shaCim.visible = false;
+
+    // lalu lintas (linear = disengaja)
+    // kendaraan hanya lewat di shot lebar pembuka (sesudahnya akan menutupi tokoh)
+    mobil1.visible = mobil2.visible = false;   // jalan di depan kamera: kendaraan lewat akan menutupi tokoh
+    warga.atur(t); warga2.atur(t);
+
+    // akting
+    const bump = (x, a, d = .55) => Math.sin(Math.PI * seg(x, a, a + d));
+    const ke = (ax, bx) => clamp((bx - ax) * .7, -1, 1);
+    const sesudahBipong = t > VO[5] - .2;
+    // CIMENG: buka toko melambai → panik ganti usaha → "jualan mi aja!" → mendekat ke papan BaZi → mengangguk → jempol
+    const jc = jalur([[0, -1.35, 1.95], [4.5, -1.35, 1.95], [6.3, -2.3, 1.75], [Wt.kekuatan - 1.6, -2.3, 1.75], [Wt.kekuatan + .4, -1.0, 2.05]], t);
+    const lsC = TK.lipsync(t, KATA, VO[3] - .05, VO[4] - .1);
+    cimeng.atur(jc.x, jc.z, {
+      rupa: RUPA_CIMENG, t, benih: 5, jalan: jc.jalan, fase: TK.faseDariJarak(jc.jarak, .5), hadap: jc.jalan ? hadapDari(jc) : (t < 4 ? .35 : (sesudahBipong ? .45 : 0)),
+      lirik: t < 4 ? .9 : (sesudahBipong ? .8 : 0),
+      angguk: Math.max(bump(t, Wt.sadar + .2), bump(t, Wt.tren + .5), bump(t, Wt.dalam + .4)),
+      pose: TK.poseDari(t, [[0, 'diri'], [.75, 'lambai'], [2.2, 'sorak'], [3.4, 'diri'], [Wt.ganti, 'kaget'], [Wt.empat + .4, 'garuk'], [VO[3], 'sedih'], [Wt.baju + .3, 'garuk'], [Wt.jualan - .1, 'sorak'],
+        [VO[4] + .2, 'pinggang'], [VO[5] + .4, 'sedekap'], [Wt.kekuatan - 1.6, 'diri'], [Wt.kekuatan + .5, 'pikir'], [Wt.sadar, 'diri'], [Wt.fokus, 'pikir'], [Wt.dalam + .4, 'jempol'], [Wt.cta + .3, 'lambai'], [Wt.wa, 'jempol']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'senang'], [Wt.ganti, 'kaget'], [Wt.empat + .3, 'cemas'], [VO[3], 'sedih'], [Wt.jualan - .1, 'tawa'], [VO[4] + .2, 'bingung'], [VO[5] + .4, 'netral'],
+        [Wt.unsur, 'kaget'], [Wt.kekuatan + .5, 'bingung'], [Wt.sadar, 'yakin'], [Wt.dalam, 'senyum'], [Wt.cta, 'senang']]),
+      bicara: lsC.bicara, vokal: lsC.vokal, alisNaik: lsC.alisNaik,
+      naik: Math.max(bump(t, Wt.ganti, .5), bump(t, Wt.jualan, .5)) * 12, pegang: t > Wt.mi && t < VO[5] ? 'kertas' : null
+    });
+    // BIPONG: buka toko membalas lambaian → melayani → menyambut Ko Popo (hormat) → bicara fokus → jempol bersama
+    const jb = jalur([[0, 1.35, 1.95], [4.5, 1.35, 1.95], [6.3, 2.2, 1.75], [VO[5] + .2, 2.2, 1.75], [VO[5] + 1.6, 1.75, 2.0]], t);
+    const lsB = TK.lipsync(t, KATA, VO[8] - .05, VO[9] - .1);
+    bipong.atur(jb.x, jb.z, {
+      rupa: RUPA_BIPONG, t, benih: 7, jalan: jb.jalan, fase: TK.faseDariJarak(jb.jarak, .5), hadap: jb.jalan ? hadapDari(jb) : (t < 4 ? -.35 : (t > VO[8] - .2 && t < Wt.cta ? -.45 : -.2)),
+      lirik: t < 4 ? -.9 : (t > VO[6] && t < VO[8] ? -.6 : (t > VO[8] - .2 && t < Wt.cta ? -.85 : 0)),
+      angguk: Math.max(bump(t, Wt.unsur + .4), bump(t, Wt.selaras + .6)),
+      pose: TK.poseDari(t, [[0, 'diri'], [1.25, 'lambai'], [2.6, 'diri'], [VO[4] + .2, 'serah'], [Wt.ramai - .1, 'jempol'], [VO[5] + 1.65, 'hormat'], [Wt.bazi1 + .6, 'diri'],
+        [VO[8] + .1, 'jelaskan'], [Wt.fokus, 'tunjuk'], [Wt.dalam, 'presentasi'], [Wt.cta + .3, 'jempol']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'senang'], [2.6, 'senyum'], [Wt.ramai, 'senang'], [VO[6], 'netral'], [Wt.selaras, 'senyum'], [VO[8], 'yakin'], [Wt.cta, 'tawa']]),
+      bicara: lsB.bicara, vokal: lsB.vokal, alisNaik: lsB.alisNaik, pegang: t > VO[4] && t < Wt.ramai - .1 ? 'kantong' : null
+    });
+    // pelanggan antre di roti Bipong (muncul saat "lima tahun kemudian")
+    pelanggan.forEach((p, i) => {
+      const muncul = t > Wt.lima + i * .15;
+      p.tk.atur(p.x, p.z, { tampak: muncul && t < VO[5] + 1.4, rupa: p.rupa, t, benih: 40 + i, hadap: -.6, lirik: -.6,
+        pose: i === 0 && t > VO[4] + .2 && t < Wt.ramai ? 'serah' : 'diri', pegang: i === 0 && t > Wt.ramai ? 'kantong' : (i === 2 ? 'hp' : null),
+        ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [Wt.ramai, 'senang']]) });
+    });
+    // KO POPO: masuk dari kanan saat "salah satu bedanya", hormat, menjelaskan papan, CTA melambai
+    const jp = jalur([[VO[5] - .3, 7.0, 2.3], [VO[5] + 2.4, 0.95, 2.15]], t);
+    const kopoTampak = t > VO[5] - .3;
+    const lsK = kopoTampak && (t > VO[5] + 2.4) ? TK.lipsync(t, KATA, VO[5] + 2.0, VO[8] - .1) : (t > VO[9] - .05 ? TK.lipsync(t, KATA, VO[9] - .05, Wt.dur) : { bicara: 0, vokal: 'a', alisNaik: 0 });
+    kopo.atur(jp.x, jp.z, {
+      tampak: kopoTampak, rupa: KO_POPO, t, benih: 3, jalan: jp.jalan, fase: TK.faseDariJarak(jp.jarak, .5),
+      hadap: jp.jalan ? hadapDari(jp, -.3) : (t > VO[7] && t < Wt.cta ? -.4 : .1), lirik: t > VO[7] && t < Wt.cta ? -.85 : (t > VO[6] ? -.3 : 0),
+      pegang: t < Wt.bazi1 || t > VO[7] ? 'kipas' : null,
+      pose: TK.poseDari(t, [[0, 'diri'], [VO[5] + 2.45, 'hormat'], [Wt.bazi1 + .2, 'tunjuk'], [VO[6] + .5, 'jelaskan'], [Wt.unsur - .2, 'tunjuk'], [Wt.kekuatan, 'tunjukAtas'], [Wt.selaras, 'presentasi'],
+        [VO[7] + .2, 'jelaskan'], [VO[8] - .1, 'diri'], [Wt.cta + .3, 'lambai'], [Wt.wa, 'jempol']]),
+      ekspresi: TK.ekspresiDari(t, [[0, 'senyum'], [VO[6], 'yakin'], [Wt.selaras, 'senang'], [VO[8], 'senyum'], [Wt.cta, 'senang']]),
+      bicara: lsK.bicara, vokal: lsK.vokal, alisNaik: lsK.alisNaik
+    });
+
+    BAB.atur(t);
+
+    // CTA
+    const kc = E.out(seg(t, Wt.cta, Wt.cta + .7)), c = $('#cta');
+    c.style.opacity = kc; c.style.transform = `translateY(${lerp(80, 0, kc)}px) scale(${lerp(.94, 1, kc)})`;
+    $('#tombol').style.transform = `scale(${lerp(.9, 1, E.back(seg(t, Wt.cta + .5, Wt.cta + 1.1)))})`;
+    D.atur({ dof: t > Wt.cta ? lerp(.4, .9, seg(t, Wt.cta, Wt.cta + .8)) : (t > 29.5 && t < 34.3 ? .75 : .4) });
+
+    D.render(t);
+  }
+};
