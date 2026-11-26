@@ -1,0 +1,16 @@
+<!--@TITLE Uji tokoh toon-->
+<!--@RASIO 16:9-->
+<!--@HEAD-->
+<!--@MESIN toon-tokoh.js-->
+<!--@BODY-->
+<div id="dunia"></div>
+<!--@SCRIPT-->
+const cv=kanvas(W,H,$('#dunia')),x=cv.getContext('2d');
+const T=TOKOH_TOON,R=T.RUPA_CONTOH;
+const daftar=[
+ [R.koPopo,'tunjuk','senyum',{bicara:.6}],[R.cindy,'kaget','kaget',{}],[R.sherlyn,'lambai','senang',{}],[R.pakRT,'pegang','yakin',{pegang:'luopan'}],
+ [R.ibu,'jelaskan','tawa',{}],[R.anak,'sorak','senang',{}],[R.koki,'pinggang','sombong',{}],[R.cindy,'pikir','bingung',{hadap:1}],
+ [R.koPopo,'diri','cemas',{jalan:1,fase:.25}],[R.sherlyn,'sedih','sedih',{}],[R.pakRT,'pegang','marah',{pegang:'hp'}],[R.anak,'lari','kaget',{fase:.1,cermin:true}]];
+const SCENE={dur:2,frame(t){x.setTransform(1,0,0,1,0,0);const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#FBE9D6');g.addColorStop(1,'#EBC9A9');x.fillStyle=g;x.fillRect(0,0,W,H);
+ daftar.forEach((d,i)=>{const c=i%6,r=Math.floor(i/6),s=.5;x.setTransform(s,0,0,s,40+c*315-0,30+r*520);
+  T.gambar(x,{rupa:d[0],pose:d[1],ekspresi:d[2],t,benih:i+1,...d[3]});});}};
